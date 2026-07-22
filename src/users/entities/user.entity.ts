@@ -19,6 +19,7 @@ export class User {
     length: '255',
     select: false,
   })
+  @Exclude()
   password!: string;
 
   @Column({ type: 'varchar', length: 100 })
