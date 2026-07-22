@@ -22,4 +22,7 @@ export class UserResponseDto {
 
   @Expose()
   createdAt!: Date;
+
+  @Expose()
+  lastLoginAt?: Date;
 }

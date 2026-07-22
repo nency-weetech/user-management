@@ -30,6 +30,8 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credantial');
     }
 
+    await this.userService.updateLastLogin(user.id);
+
     const payload = {
       id: user.id,
       email: user.email,

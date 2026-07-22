@@ -45,6 +45,10 @@ export class UsersService {
     .getOne()
   }
 
+  async updateLastLogin(userId: string): Promise<void>{
+    await this.repo.update(userId, {lastLoginAt : new Date()});
+  }
+
   update(id: number, updateUserDto: UpdateUserDto) {
     return `This action updates a #${id} user`;
   }
