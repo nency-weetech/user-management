@@ -37,12 +37,12 @@ export class AuthService {
       email: user.email,
       role: user.role,
     };
-    const token = this.jwtService.sign(payload);
+    const accessToken = this.jwtService.sign(payload);
 
     return plainToInstance(
       LoginResponseDto,
       {
-        token,
+        accessToken,
         tokenType: 'Bearer',
         user,
       },
