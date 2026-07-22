@@ -1,6 +1,10 @@
 
+import path from 'path';
+import * as dotenv from 'dotenv';
 import { DataSourceOptions } from 'typeorm';
 import { DataSource } from 'typeorm/browser';
+
+dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 
 export const datasourceOptions : DataSourceOptions = {
     type: 'postgres',
