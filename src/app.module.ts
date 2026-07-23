@@ -17,7 +17,7 @@ import { JwtModule } from '@nestjs/jwt';
 
     JwtModule.register({
       global: true,
-      secret: process.env.JWT_SECRET,
+      secret: process.env.ACCESS_JWT_SECRET,
       signOptions: {
         expiresIn: '1h',
       },

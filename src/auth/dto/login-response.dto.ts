@@ -6,6 +6,9 @@ export class LoginResponseDto {
   accessToken!: string;
 
   @Expose()
+  refreshToken!: string;
+
+  @Expose()
   tokenType: string = 'Bearer';
 
   @Expose()

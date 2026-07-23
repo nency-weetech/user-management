@@ -47,6 +47,9 @@ export class User {
   })
   isEmailVerified!: boolean;
 
+  @Column({nullable: true})
+  refreshToken!: string
+
   @CreateDateColumn({type: 'timestamp with time zone', nullable: true})
   lastLoginAt!: Date | null;
 

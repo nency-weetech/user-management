@@ -37,16 +37,34 @@ export class AuthService {
       email: user.email,
       role: user.role,
     };
-    const accessToken = this.jwtService.sign(payload);
+    const tokens = await this.genrateToken(payload.id, payload.email, payload.role);
 
     return plainToInstance(
       LoginResponseDto,
       {
-        accessToken,
+        accessToken : tokens.accessToken,
+        refreshToken : tokens.refreshToken,
         tokenType: 'Bearer',
         user,
       },
       { excludeExtraneousValues: true },
     );
   }
-}
+
+  async genrateToken(userId: string, email: string, role: string) {
+    const payload = {id : userId, email, role}
+
+    const [accessToken, refreshToken] = await Promise.all([
+      this.jwtService.signAsync(payload,{
+        secret: process.env.ACCESS_JWT_SECRET,
+        expiresIn : '15m'
+      }),
+      this.jwtService.signAsync(payload, {
+        secret: process.env.REFRESH_JWT_SECRET,
+        expiresIn : '7d'
+      }),
+    ]);
+    return {accessToken, refreshToken};
+  }
+
+};
