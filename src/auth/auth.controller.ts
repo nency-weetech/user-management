@@ -15,6 +15,8 @@ import { type Response } from 'express';
 import { currentUser } from 'src/decorators/current-user.decorator';
 import { AuthGuard } from 'src/guards/auth/auth.guard';
 import { UsersService } from 'src/users/users.service';
+import { CreateUserDto } from 'src/users/dto/create-user.dto';
+import { User } from 'src/users/entities/user.entity';
 
 const COOKIE_OPTIONS = {
   httpOnly: true,
@@ -27,6 +29,11 @@ export class AuthController {
     private authService: AuthService,
     private userService: UsersService,
   ) {}
+
+  @Post('/signUp')
+  create(@Body() createUserDto: CreateUserDto): Promise<User> {
+    return this.authService.register(createUserDto);
+  }
 
   @Post('login')
   async login(

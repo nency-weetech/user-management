@@ -4,43 +4,19 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
-import bcrypt from 'bcrypt';
 import { UserRole } from './enums/user-role.enum';
-import crypto from 'crypto';
-import { MailService } from 'src/mail/mail.service';
+
 @Injectable()
 export class UsersService {
-  constructor(@InjectRepository(User) private repo: Repository<User>, private mailService: MailService ) {}
-  async create(createUserDto: CreateUserDto) : Promise<any>{
-    const existEmail = await this.repo.findOne({
-      where: { email: createUserDto.email },
-    });
-    if (existEmail) {
-      throw new ConflictException('User with this email already exist');
-    }
+  constructor(@InjectRepository(User) private repo: Repository<User> ) {}
 
-    const saltRound = 10;
-    const password = await bcrypt.hash(createUserDto.password, saltRound);
-
-    const otp = crypto.randomInt(100000, 999999).toString();
-    const hashedOtp = await bcrypt.hash(otp, 10);
-    const otpExpires = new Date(Date.now() + 15 * 60 * 1000);
-
-    const newUser = this.repo.create({
-      ...createUserDto,
-      password,
-      isEmailVerified : false,
-      emailVerificationOtp : hashedOtp,
-      emailVerificationExpires : otpExpires
-    });
-
-    await this.mailService.sendVerificationOtpEmail(newUser.email, otp);
-    return {message : 'Register successfull! Verify email to check you email'};
+  async create(userData : Partial<User>) : Promise<User>{
+    const user = await this.repo.create(userData);
+    return this.repo.save(user);
   }
 
   async findAll(): Promise<User[]> {
