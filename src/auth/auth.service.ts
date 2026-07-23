@@ -15,7 +15,6 @@ export class AuthService {
   ) {}
 
   async login(dto: LoginDto): Promise<LoginResponseDto> {
-
     if (!dto || !dto.email) {
       throw new UnauthorizedException('Email and password are required');
     }
@@ -37,14 +36,18 @@ export class AuthService {
       email: user.email,
       role: user.role,
     };
-    const tokens = await this.genrateToken(payload.id, payload.email, payload.role);
-    await this.userService.updateRefreshToken(payload.id, tokens.refreshToken);
+    const tokens = await this.genrateToken(
+      payload.id,
+      payload.email,
+      payload.role,
+    );
+    await this.updateRefreshTokenHash(payload.id, tokens.refreshToken);
 
     return plainToInstance(
       LoginResponseDto,
       {
-        accessToken : tokens.accessToken,
-        refreshToken : tokens.refreshToken,
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
         tokenType: 'Bearer',
         user,
       },
@@ -53,19 +56,42 @@ export class AuthService {
   }
 
   async genrateToken(userId: string, email: string, role: string) {
-    const payload = {id : userId, email, role}
+    const payload = { id: userId, email, role };
 
     const [accessToken, refreshToken] = await Promise.all([
-      this.jwtService.signAsync(payload,{
+      this.jwtService.signAsync(payload, {
         secret: process.env.ACCESS_JWT_SECRET,
-        expiresIn : '15m'
+        expiresIn: '15m',
       }),
       this.jwtService.signAsync(payload, {
         secret: process.env.REFRESH_JWT_SECRET,
-        expiresIn : '7d'
+        expiresIn: '7d',
       }),
     ]);
-    return {accessToken, refreshToken};
+    return { accessToken, refreshToken };
   }
 
-};
+  async updateRefreshTokenHash(userId: string, refreshToken: string) {
+    const hashRefreshToken = await bcrypt.hash(refreshToken, 10);
+    await this.userService.updateRefreshToken(userId, hashRefreshToken);
+  }
+  async refreshTokenMatches(userId: string, refreshToken: string) {
+    const user = await this.userService.findOne(userId);
+    if (!user || !user.refreshToken) {
+      throw new UnauthorizedException('Access Denied');
+    }
+
+    const refreshTokenMatches = await bcrypt.compare(
+      refreshToken,
+      user.refreshToken,
+    );
+    if (!refreshTokenMatches) {
+      throw new UnauthorizedException('Access Denied - Token Reuse Detected');
+    }
+
+    const tokens = await this.genrateToken(user.id, user.email, user.role);
+    await this.updateRefreshTokenHash(user.id, tokens.refreshToken);
+
+    return tokens;
+  }
+}
