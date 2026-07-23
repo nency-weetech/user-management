@@ -75,7 +75,7 @@ export class AuthService {
     const hashRefreshToken = await bcrypt.hash(refreshToken, 10);
     await this.userService.updateRefreshToken(userId, hashRefreshToken);
   }
-  async refreshTokenMatches(userId: string, refreshToken: string) {
+  async refreshTokens(userId: string, refreshToken: string) {
     const user = await this.userService.findOne(userId);
     if (!user || !user.refreshToken) {
       throw new UnauthorizedException('Access Denied');
