@@ -72,13 +72,15 @@ export class UsersService {
 
   }
 
-  async updateRefreshToken(userId: string, refreshToken: string) : Promise<void>{
+  async updateRefreshToken(userId: string, refreshTokenparams: string | null | undefined) : Promise<void>{
     const user = await this.repo.findOne({where : {id: userId}})
     if(!user) {
       throw new NotFoundException(`User with ID "${userId}" not found`);
     }
-    user.refreshToken = refreshToken ?? undefined;
+    console.log(refreshTokenparams)
+    user.refreshToken = refreshTokenparams ?? null;
     await this.repo.save(user);
+    console.log(user.refreshToken)
   }
 
   remove(id: number) {

@@ -74,18 +74,16 @@ export class AuthController {
   }
 
   @Get('logout')
-  async logout(@Req() req: any, @Res({ passthrough: true }) res: Response) {
-    const token = req.cookies?.['accessToken'];
-    if (!token) {
-      throw new UnauthorizedException('User already Logged out');
-    }
-    res.clearCookie('accessToken', {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'lax',
-      path: '/',
-    });
-    //req.message = 'User Sign out'
+  @UseGuards(AuthGuard)
+  async logout(
+    @Req() req: any,
+    @Res({ passthrough: true }) res: Response,
+    @currentUser() currentUser: { id: string },
+  ) {
+    await this.authService.logout(currentUser.id);
+    res.clearCookie('accessToken');
+    res.clearCookie('refreshToken');
+
     return { message: 'User Logged out' };
   }
 

@@ -47,8 +47,8 @@ export class User {
   })
   isEmailVerified!: boolean;
 
-  @Column({nullable: true})
-  refreshToken!: string
+  @Column({type: 'varchar', nullable: true})
+  refreshToken?: string | null
 
   @CreateDateColumn({type: 'timestamp with time zone', nullable: true})
   lastLoginAt!: Date | null;

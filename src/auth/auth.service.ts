@@ -94,4 +94,8 @@ export class AuthService {
 
     return tokens;
   }
+
+  async logout(userId: string) {
+    await this.userService.updateRefreshToken(userId, null);
+  }
 }
