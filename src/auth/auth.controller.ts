@@ -18,6 +18,8 @@ import { UsersService } from 'src/users/users.service';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { User } from 'src/users/entities/user.entity';
 import { VerifyEmailDto } from './dto/email-verify.dto';
+import { ForgotPasswordDto } from './dto/forgget-pass.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 const COOKIE_OPTIONS = {
   httpOnly: true,
@@ -108,5 +110,20 @@ export class AuthController {
       throw new UnauthorizedException('Please Login..');
     }
     return user;
+  }
+
+  @Post('forgot-password')
+  async forgotpass(dto: ForgotPasswordDto){
+    return this.authService.forgotPassword(dto)
+  }
+
+  @Post('verify-otp')
+  async verifyOtp(@Body() dto: VerifyEmailDto) {
+    return this.authService.verifyOtp(dto);
+  }
+
+  @Post('reset-password')
+  async resetPassword(@Body() dto: ResetPasswordDto) {
+    return this.authService.resetPassword(dto);
   }
 }

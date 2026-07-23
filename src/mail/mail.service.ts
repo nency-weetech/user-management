@@ -42,4 +42,24 @@ export class MailService {
     const info = await this.transporter.sendMail(mailOption);
     this.logger.log(`Verifiction Email URL: ${nodemailer.getTestMessageUrl(info)}`)
   }
+
+  async sendResetPassOtpEmail(toEmail: string, otp: string): Promise<void> {
+    const mailOption = {
+      from: '"App Security" <no-reply@myapp.com>',
+      to: toEmail,
+      subject: 'Your Password Reset OTP',
+      html: `
+        <div style="font-family: Arial, sans-serif; padding: 20px;">
+          <h2>Password Reset Request</h2>
+          <p>Your one-time verification code is:</p>
+          <h1 style="letter-spacing: 5px; color: #4A90E2;">${otp}</h1>
+          <p>This code is valid for <strong>10 minutes</strong>.</p>
+          <p>If you did not request this, please ignore this email.</p>
+        </div>
+        `,
+    };
+
+    const info = await this.transporter.sendMail(mailOption);
+    this.logger.log(`Password Reset URL: ${nodemailer.getTestMessageUrl(info)}`)
+  }
 }

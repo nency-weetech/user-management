@@ -16,6 +16,8 @@ import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import crypto from 'crypto';
 import { MailService } from 'src/mail/mail.service';
 import { VerifyEmailDto } from './dto/email-verify.dto';
+import { ForgotPasswordDto } from './dto/forgget-pass.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -55,28 +57,28 @@ export class AuthService {
   async verifyEmail(dto: VerifyEmailDto) {
     const user = await this.userService.findByEmail(dto.email);
 
-    if(!user) throw new NotFoundException('User Not found');
-    if(user.isEmailVerified) {
+    if (!user) throw new NotFoundException('User Not found');
+    if (user.isEmailVerified) {
       throw new BadRequestException('Email is already verified');
     }
 
-    if(!user.emailVerificationOtp || !user.emailVerificationExpires) {
+    if (!user.emailVerificationOtp || !user.emailVerificationExpires) {
       throw new BadRequestException('No OTP found');
     }
 
-    if(user.emailVerificationExpires < new Date()){
+    if (user.emailVerificationExpires < new Date()) {
       throw new BadRequestException('OTP expired');
     }
 
     const isValidOtp = await bcrypt.compare(dto.otp, user.emailVerificationOtp);
 
-    if(!isValidOtp) {
+    if (!isValidOtp) {
       throw new BadRequestException('Invalid OTP');
     }
 
     await this.userService.markEmailAsValid(user.id);
 
-    return {message : 'Email verify successfully! now you can login'}
+    return { message: 'Email verify successfully! now you can login' };
   }
 
   async login(dto: LoginDto): Promise<LoginResponseDto> {
@@ -90,7 +92,9 @@ export class AuthService {
     }
 
     if (!user.isEmailVerified) {
-      throw new UnauthorizedException('Please verify your email address before logging in.');
+      throw new UnauthorizedException(
+        'Please verify your email address before logging in.',
+      );
     }
 
     const isPassworValid = await bcrypt.compare(dto.password, user.password);
@@ -144,6 +148,7 @@ export class AuthService {
     const hashRefreshToken = await bcrypt.hash(refreshToken, 10);
     await this.userService.updateRefreshToken(userId, hashRefreshToken);
   }
+
   async refreshTokens(userId: string, refreshToken: string) {
     const user = await this.userService.findOne(userId);
     if (!user || !user.refreshToken) {
@@ -166,5 +171,87 @@ export class AuthService {
 
   async logout(userId: string) {
     await this.userService.updateRefreshToken(userId, null);
+  }
+
+  async forgotPassword(dto: ForgotPasswordDto) {
+    const user = await this.userService.findByEmail(dto.email);
+    if (!user) {
+      return {
+        message: 'If an account exists with that email, an OTP has been sent.',
+      };
+    }
+
+    const otp = crypto.randomInt(100000, 999999).toString();
+    const hashedOtp = await bcrypt.hash(otp, 10);
+    const otpExpires = new Date(Date.now() + 15 * 60 * 1000);
+
+    await this.userService.saveOtp(user.id, otp, otpExpires);
+    await this.mailService.sendResetPassOtpEmail(user.email, otp);
+
+    return {
+      message: 'If an account exists with that email, an OTP has been sent.',
+    };
+  }
+
+  async verifyOtp(dto: VerifyEmailDto) {
+    const user = await this.userService.findByEmail(dto.email);
+
+    if (!user || !user.passwordResetOtp || !user.resetOtpExpires) {
+      throw new BadRequestException('Invalid or expires OTP');
+    }
+
+    if (user.resetOtpExpires < new Date()) {
+      throw new BadRequestException('OTP expired');
+    }
+
+    if(user.otpAttempts >= 3){
+      await this.userService.clearOtp(user.id);
+      throw new BadRequestException('Too many failed attempts. OTP invalidated.');
+    }
+
+    const isValidOtp = await bcrypt.compare(dto.otp, user.passwordResetOtp);
+
+    if (!isValidOtp) {
+      await this.userService.incrementOtpAttemp(user.id)
+      const remignAttempt = 2- user.otpAttempts;
+      throw new BadRequestException(`Invalid OTP. ${remignAttempt > 0 ? remignAttempt + ' attempts remaining.' : 'OTP invalidated.'}`);
+    }
+
+    await this.userService.clearOtp(user.id)
+
+    const resetSessionToken = await this.jwtService.signAsync(
+      { sub: user.id, purpose: 'password_reset' },
+      { secret: process.env.JWT_RESET_SECRET || 'reset-secret', expiresIn: '10m' },
+    )
+
+    return {
+      message: 'OTP verified successfully.',
+      resetSessionToken,
+    };
+  }
+
+  async resetPassword(dto: ResetPasswordDto) {
+    let payload: any;
+    try {
+      payload = await this.jwtService.verifyAsync(dto.resetSessionToken, {
+        secret: process.env.JWT_RESET_SECRET || 'reset-secret',
+      });
+    } catch {
+      throw new UnauthorizedException('Invalid or expired reset session token');
+    }
+
+    if (payload.purpose !== 'password_reset') {
+      throw new UnauthorizedException('Invalid token purpose');
+    }
+
+    const user = await this.userService.findOne(payload.sub);
+    if (!user) {
+      throw new BadRequestException('User no longer exists');
+    }
+
+    const newPasswordHash = await bcrypt.hash(dto.newPassword, 10);
+    await this.userService.updatePasswordAndRevokeSession(user.id, newPasswordHash);
+
+    return { message: 'Password has been reset successfully. Please log in with your new password.' };
   }
 }

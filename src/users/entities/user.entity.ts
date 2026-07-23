@@ -62,6 +62,15 @@ export class User {
   emailVerificationExpires?: Date | null;
 
   @Column({ type: 'varchar', nullable: true })
+  passwordResetOtp?: string | null;
+
+  @Column({ type: 'timestamp', nullable: true })
+  resetOtpExpires?: Date | null;
+
+  @Column({ type: 'int', default: 0 })
+  otpAttempts!: number;
+
+  @Column({ type: 'varchar', nullable: true })
   refreshToken?: string | null;
 
   @CreateDateColumn({ type: 'timestamp with time zone', nullable: true })

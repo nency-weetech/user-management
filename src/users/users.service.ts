@@ -93,4 +93,34 @@ export class UsersService {
       emailVerificationExpires: null,
     });
   }
+
+  async saveOtp(userId: string, otpHash: string, expires: Date): Promise<void>{
+    await this.repo.update(userId, {
+      passwordResetOtp: otpHash,
+      resetOtpExpires: expires,
+      otpAttempts: 0
+    });
+  }
+
+  async incrementOtpAttemp(userId: string): Promise<void>{
+    await this.repo.increment({id: userId}, 'otpAttempts', 1)
+  }
+
+  async clearOtp(userId: string): Promise<void>{
+    await this.repo.update(userId, {
+      passwordResetOtp: null,
+      resetOtpExpires: null,
+      otpAttempts: 0
+    });
+  }
+
+  async updatePasswordAndRevokeSession(userId: string, newPass: string) :Promise<void>{
+    await this.repo.update(userId, {
+      password: newPass,
+      passwordResetOtp: null,
+      resetOtpExpires: null,
+      otpAttempts: 0,
+      refreshToken: null
+    })
+  }
 }
