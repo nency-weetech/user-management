@@ -1,10 +1,11 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import bcrypt from 'bcrypt'
+import { UserRole } from './enums/user-role.enum';
 @Injectable()
 export class UsersService {
   constructor(@InjectRepository(User) private repo : Repository<User>){}
@@ -49,8 +50,26 @@ export class UsersService {
     await this.repo.update(userId, {lastLoginAt : new Date()});
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(id: string, updateUserDto: UpdateUserDto, currentUser : User) {
+    const user = await this.repo.findOne({where : {id}})
+    if(!user){
+      throw new NotFoundException('User not found');
+    }
+
+    const isAdmin = currentUser.role === UserRole.ADMIN;
+    const isSelf = currentUser.id === id;
+
+    if(!isAdmin && !isSelf){
+      throw new ForbiddenException('You can update only your own profile')
+    }
+
+    if(updateUserDto.role && !isAdmin) {
+      throw new ForbiddenException('Only admins can change user roles');
+    }
+
+    Object.assign(user, updateUserDto);
+    return await this.repo.save(user);
+
   }
 
   remove(id: number) {
