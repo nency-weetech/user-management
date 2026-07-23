@@ -1,4 +1,10 @@
-import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from 'src/users/users.service';
 import { LoginDto } from './dto/login-user.dto';
@@ -9,40 +15,69 @@ import { plainToInstance } from 'class-transformer';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import crypto from 'crypto';
 import { MailService } from 'src/mail/mail.service';
+import { VerifyEmailDto } from './dto/email-verify.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
     private userService: UsersService,
-    private jwtService: JwtService, 
-    private mailService: MailService
+    private jwtService: JwtService,
+    private mailService: MailService,
   ) {}
 
-    async register(createUserDto: CreateUserDto) : Promise<any>{
-      const existEmail = await this.userService.findEmailWithPassword(createUserDto.email);
-      if (existEmail) {
-        throw new ConflictException('User with this email already exist');
-      }
-  
-      const saltRound = 10;
-      const password = await bcrypt.hash(createUserDto.password, saltRound);
-  
-      const otp = crypto.randomInt(100000, 999999).toString();
-      const hashedOtp = await bcrypt.hash(otp, 10);
-      const otpExpires = new Date(Date.now() + 15 * 60 * 1000);
-  
-      const newUser = await  this.userService.create({
-        ...createUserDto,
-        password,
-        isEmailVerified : false,
-        emailVerificationOtp : hashedOtp,
-        emailVerificationExpires : otpExpires
-      });
-  
-      await this.mailService.sendVerificationOtpEmail( newUser.email, otp);
-      return {message : 'Register successfull! Verify email to check you email'};
+  async register(createUserDto: CreateUserDto): Promise<any> {
+    const existEmail = await this.userService.findEmailWithPassword(
+      createUserDto.email,
+    );
+    if (existEmail) {
+      throw new ConflictException('User with this email already exist');
     }
-  
+
+    const saltRound = 10;
+    const password = await bcrypt.hash(createUserDto.password, saltRound);
+
+    const otp = crypto.randomInt(100000, 999999).toString();
+    const hashedOtp = await bcrypt.hash(otp, 10);
+    const otpExpires = new Date(Date.now() + 15 * 60 * 1000);
+
+    const newUser = await this.userService.create({
+      ...createUserDto,
+      password,
+      isEmailVerified: false,
+      emailVerificationOtp: hashedOtp,
+      emailVerificationExpires: otpExpires,
+    });
+
+    await this.mailService.sendVerificationOtpEmail(newUser.email, otp);
+    return { message: 'Register successfull! Verify email to check you email' };
+  }
+
+  async verifyEmail(dto: VerifyEmailDto) {
+    const user = await this.userService.findByEmail(dto.email);
+
+    if(!user) throw new NotFoundException('User Not found');
+    if(user.isEmailVerified) {
+      throw new BadRequestException('Email is already verified');
+    }
+
+    if(!user.emailVerificationOtp || !user.emailVerificationExpires) {
+      throw new BadRequestException('No OTP found');
+    }
+
+    if(user.emailVerificationExpires < new Date()){
+      throw new BadRequestException('OTP expired');
+    }
+
+    const isValidOtp = await bcrypt.compare(dto.otp, user.emailVerificationOtp);
+
+    if(!isValidOtp) {
+      throw new BadRequestException('Invalid OTP');
+    }
+
+    await this.userService.markEmailAsValid(user.id);
+
+    return {message : 'Email verify successfully! now you can login'}
+  }
 
   async login(dto: LoginDto): Promise<LoginResponseDto> {
     if (!dto || !dto.email) {
@@ -52,6 +87,10 @@ export class AuthService {
 
     if (!user) {
       throw new UnauthorizedException('Invalid credantial');
+    }
+
+    if (!user.isEmailVerified) {
+      throw new UnauthorizedException('Please verify your email address before logging in.');
     }
 
     const isPassworValid = await bcrypt.compare(dto.password, user.password);

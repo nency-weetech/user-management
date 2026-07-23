@@ -17,6 +17,7 @@ import { AuthGuard } from 'src/guards/auth/auth.guard';
 import { UsersService } from 'src/users/users.service';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { User } from 'src/users/entities/user.entity';
+import { VerifyEmailDto } from './dto/email-verify.dto';
 
 const COOKIE_OPTIONS = {
   httpOnly: true,
@@ -35,6 +36,11 @@ export class AuthController {
     return this.authService.register(createUserDto);
   }
 
+  @Post('verify-email')
+  verifyEmail(@Body() dto : VerifyEmailDto){
+    return this.authService.verifyEmail(dto)
+  }
+  
   @Post('login')
   async login(
     @Body() loginDto: LoginDto,
