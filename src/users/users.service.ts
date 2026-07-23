@@ -72,6 +72,15 @@ export class UsersService {
 
   }
 
+  async updateRefreshToken(userId: string, refreshToken: string) : Promise<void>{
+    const user = await this.repo.findOne({where : {id: userId}})
+    if(!user) {
+      throw new NotFoundException(`User with ID "${userId}" not found`);
+    }
+    user.refreshToken = refreshToken ?? undefined;
+    await this.repo.save(user);
+  }
+
   remove(id: number) {
     return `This action removes a #${id} user`;
   }

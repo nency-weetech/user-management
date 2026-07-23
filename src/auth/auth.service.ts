@@ -38,6 +38,7 @@ export class AuthService {
       role: user.role,
     };
     const tokens = await this.genrateToken(payload.id, payload.email, payload.role);
+    await this.userService.updateRefreshToken(payload.id, tokens.refreshToken);
 
     return plainToInstance(
       LoginResponseDto,
