@@ -1,4 +1,12 @@
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, Index, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  Entity,
+  Index,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { UserRole } from '../enums/user-role.enum';
 import { Exclude } from 'class-transformer';
 
@@ -30,37 +38,42 @@ export class User {
 
   @Column({
     type: 'enum',
-    enum : UserRole,
-    default : UserRole.USER
+    enum: UserRole,
+    default: UserRole.USER,
   })
   role!: UserRole;
 
   @Column({
     type: 'boolean',
-    default: true
+    default: true,
   })
   isActive!: boolean;
 
   @Column({
     type: 'boolean',
-    default : false
+    default: false,
   })
   isEmailVerified!: boolean;
 
-  @Column({type: 'varchar', nullable: true})
-  refreshToken?: string | null
+  @Column({ type: 'varchar', nullable: true })
+  emailVerificationOtp?: string | null;
 
-  @CreateDateColumn({type: 'timestamp with time zone', nullable: true})
+  @Column({ type: 'timestamp', nullable: true })
+  emailVerificationExpires?: Date | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  refreshToken?: string | null;
+
+  @CreateDateColumn({ type: 'timestamp with time zone', nullable: true })
   lastLoginAt!: Date | null;
 
-  @CreateDateColumn({type: 'timestamp with time zone'})
+  @CreateDateColumn({ type: 'timestamp with time zone' })
   createdAt!: Date;
 
-  @UpdateDateColumn({type: 'timestamp with time zone'})
+  @UpdateDateColumn({ type: 'timestamp with time zone' })
   updatedAt!: Date;
 
-  @DeleteDateColumn({type: 'timestamp with time zone', nullable: true})
+  @DeleteDateColumn({ type: 'timestamp with time zone', nullable: true })
   @Exclude()
-  deletedAt!: Date | null
-
+  deletedAt!: Date | null;
 }
