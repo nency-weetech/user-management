@@ -9,6 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { UserRole } from './enums/user-role.enum';
+import { UpdateUserStatusDto } from './dto/update-user-state.dto';
 
 @Injectable()
 export class UsersService {
@@ -122,5 +123,21 @@ export class UsersService {
       otpAttempts: 0,
       refreshToken: null
     })
+  }
+
+  async updateUserStatus(userId: string, dto: UpdateUserStatusDto){
+    const user = await this.repo.findOne({where : {id: userId}})
+
+    if(!user){
+      throw new NotFoundException('User not found');
+    }
+
+    user.isActive = dto.isActive;
+
+    if(!dto.isActive){
+      user.refreshToken = null
+    }
+
+    return this.repo.save(user)
   }
 }

@@ -97,6 +97,12 @@ export class AuthService {
       );
     }
 
+    if (!user.isActive) {
+      throw new UnauthorizedException(
+        'Your account has been deactivated/banned. Contact admin.',
+      );
+    }
+
     const isPassworValid = await bcrypt.compare(dto.password, user.password);
     if (!isPassworValid) {
       throw new UnauthorizedException('Invalid credantial');
@@ -204,26 +210,33 @@ export class AuthService {
       throw new BadRequestException('OTP expired');
     }
 
-    if(user.otpAttempts >= 3){
+    if (user.otpAttempts >= 3) {
       await this.userService.clearOtp(user.id);
-      throw new BadRequestException('Too many failed attempts. OTP invalidated.');
+      throw new BadRequestException(
+        'Too many failed attempts. OTP invalidated.',
+      );
     }
 
     const isValidOtp = await bcrypt.compare(dto.otp, user.passwordResetOtp);
 
     if (!isValidOtp) {
-      await this.userService.incrementOtpAttemp(user.id)
+      await this.userService.incrementOtpAttemp(user.id);
       const updatedAttempts = user.otpAttempts + 1;
       const remainingAttempts = 3 - updatedAttempts;
-      throw new BadRequestException(`Invalid OTP. ${remainingAttempts > 0 ? remainingAttempts + ' attempts remaining.' : 'OTP invalidated.'}`);
+      throw new BadRequestException(
+        `Invalid OTP. ${remainingAttempts > 0 ? remainingAttempts + ' attempts remaining.' : 'OTP invalidated.'}`,
+      );
     }
 
-    await this.userService.clearOtp(user.id)
+    await this.userService.clearOtp(user.id);
 
     const resetSessionToken = await this.jwtService.signAsync(
       { sub: user.id, purpose: 'password_reset' },
-      { secret: process.env.JWT_RESET_SECRET || 'reset-secret', expiresIn: '10m' },
-    )
+      {
+        secret: process.env.JWT_RESET_SECRET || 'reset-secret',
+        expiresIn: '10m',
+      },
+    );
     return {
       message: 'OTP verified successfully.',
       resetSessionToken,
@@ -250,8 +263,14 @@ export class AuthService {
     }
 
     const newPasswordHash = await bcrypt.hash(dto.newPassword, 10);
-    await this.userService.updatePasswordAndRevokeSession(user.id, newPasswordHash);
+    await this.userService.updatePasswordAndRevokeSession(
+      user.id,
+      newPasswordHash,
+    );
 
-    return { message: 'Password has been reset successfully. Please log in with your new password.' };
+    return {
+      message:
+        'Password has been reset successfully. Please log in with your new password.',
+    };
   }
 }
