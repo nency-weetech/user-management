@@ -185,7 +185,7 @@ export class AuthService {
     const hashedOtp = await bcrypt.hash(otp, 10);
     const otpExpires = new Date(Date.now() + 15 * 60 * 1000);
 
-    await this.userService.saveOtp(user.id, otp, otpExpires);
+    await this.userService.saveOtp(user.id, hashedOtp, otpExpires);
     await this.mailService.sendResetPassOtpEmail(user.email, otp);
 
     return {
@@ -213,8 +213,9 @@ export class AuthService {
 
     if (!isValidOtp) {
       await this.userService.incrementOtpAttemp(user.id)
-      const remignAttempt = 2- user.otpAttempts;
-      throw new BadRequestException(`Invalid OTP. ${remignAttempt > 0 ? remignAttempt + ' attempts remaining.' : 'OTP invalidated.'}`);
+      const updatedAttempts = user.otpAttempts + 1;
+      const remainingAttempts = 3 - updatedAttempts;
+      throw new BadRequestException(`Invalid OTP. ${remainingAttempts > 0 ? remainingAttempts + ' attempts remaining.' : 'OTP invalidated.'}`);
     }
 
     await this.userService.clearOtp(user.id)
@@ -223,7 +224,6 @@ export class AuthService {
       { sub: user.id, purpose: 'password_reset' },
       { secret: process.env.JWT_RESET_SECRET || 'reset-secret', expiresIn: '10m' },
     )
-
     return {
       message: 'OTP verified successfully.',
       resetSessionToken,
