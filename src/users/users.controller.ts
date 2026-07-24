@@ -26,6 +26,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
+  @UseGuards(AuthGuard)
   @Roles([UserRole.ADMIN])
   async findAll(@Query() dto: GetUserQueryDto) {
     return this.usersService.findAllPaginated(dto);
