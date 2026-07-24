@@ -10,6 +10,7 @@ import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { UserRole } from './enums/user-role.enum';
 import { UpdateUserStatusDto } from './dto/update-user-state.dto';
+import { GetUserQueryDto } from './dto/get-user-query.dto';
 
 @Injectable()
 export class UsersService {
@@ -20,8 +21,52 @@ export class UsersService {
     return this.repo.save(user);
   }
 
-  async findAll(): Promise<User[]> {
-    return await this.repo.find();
+  async findAllPaginated(queryDto: GetUserQueryDto){
+    const {page, limit, search, role, isActive} = queryDto;
+    const skip = (page -1) * limit;
+
+    const query = this.repo.createQueryBuilder('user');
+
+    if(search){
+      query.andWhere('LOWER(user.email) LIKE LOWER(:search)', {
+        search: `%${search}%`
+      })
+    }
+
+    if(role){
+      query.andWhere('user.role = :role', {role});
+    }
+
+    if(isActive !== undefined){
+      query.andWhere('user.isActive = :isActive', {isActive});
+    }
+
+    query.select([
+      'user.id',
+      'user.email',
+      'user.role',
+      'user.isActive',
+      'user.isEmailVerified',
+      'user.createdAt'
+    ])
+    .orderBy('user.createdAt', 'DESC')
+    .skip(skip)
+    .limit(limit)
+
+    const [items, totalItems] = await query.getManyAndCount();
+    const totalPage = Math.ceil(totalItems / limit)
+    return {
+      data : items,
+      meta : {
+        totalItems,
+        itemsCount : items.length,
+        itemsPerPage : limit,
+        totalPage,
+        currentPage : page,
+        hasNextPage : page < totalPage,
+        hasPreviousPage : page > 1
+      }
+    };
   }
 
   async findOne(id: string): Promise<User> {

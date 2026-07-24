@@ -8,6 +8,7 @@ import {
   Delete,
   UseGuards,
   ParseUUIDPipe,
+  Query,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -18,14 +19,16 @@ import { UserRole } from './enums/user-role.enum';
 import { currentUser } from 'src/decorators/current-user.decorator';
 import { AuthGuard } from 'src/guards/auth/auth.guard';
 import { UpdateUserStatusDto } from './dto/update-user-state.dto';
+import { GetUserQueryDto } from './dto/get-user-query.dto';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  findAll(): Promise<User[]> {
-    return this.usersService.findAll();
+  @Roles([UserRole.ADMIN])
+  async findAll(@Query() dto: GetUserQueryDto) {
+    return this.usersService.findAllPaginated(dto);
   }
 
   @Get(':id')
