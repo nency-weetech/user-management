@@ -104,7 +104,7 @@ export class AuthController {
 
   @Get()
   @UseGuards(AuthGuard)
-  async getProfile(@currentUser() currentUser: { id: string }) {
+  async getProfile(@currentUser() currentUser: { id: string }){
     const user = await this.userService.findOne(currentUser.id);
     if (!user) {
       throw new UnauthorizedException('Please Login..');
