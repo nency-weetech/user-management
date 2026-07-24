@@ -51,7 +51,7 @@ export class UsersService {
     ])
     .orderBy('user.createdAt', 'DESC')
     .skip(skip)
-    .limit(limit)
+    .take(limit)
 
     const [items, totalItems] = await query.getManyAndCount();
     const totalPage = Math.ceil(totalItems / limit)
