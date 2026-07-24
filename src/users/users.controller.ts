@@ -20,19 +20,21 @@ import { currentUser } from 'src/decorators/current-user.decorator';
 import { AuthGuard } from 'src/guards/auth/auth.guard';
 import { UpdateUserStatusDto } from './dto/update-user-state.dto';
 import { GetUserQueryDto } from './dto/get-user-query.dto';
+import { RoleGuard } from 'src/guards/role/role.guard';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, RoleGuard)
   @Roles([UserRole.ADMIN])
   async findAll(@Query() dto: GetUserQueryDto) {
     return this.usersService.findAllPaginated(dto);
   }
 
   @Get(':id')
+  @UseGuards(AuthGuard)
   findOne(@Param('id') id: string): Promise<User> {
     return this.usersService.findOne(id);
   }

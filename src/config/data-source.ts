@@ -1,23 +1,25 @@
-
 import path from 'path';
 import * as dotenv from 'dotenv';
-import { DataSourceOptions } from 'typeorm';
-import { DataSource } from 'typeorm/browser';
+import { DataSource, DataSourceOptions } from 'typeorm';
 
 dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 
-export const datasourceOptions : DataSourceOptions = {
-    type: 'postgres',
-    host : process.env.DB_HOST,
-    port : process.env.DB_PORT ? parseInt(process.env.DB_PORT, 10) : 5432,
-    username : process.env.DB_USER,
-    password : process.env.DB_PASSWORD,
-    database : process.env.DB_NAME,
-    entities : [__dirname + '/../**/*.entity{.ts,.js}'],
-    migrations : [__dirname + '/../database/migrations/*{.ts,.js}' ],
-    synchronize : process.env.NODE_ENV === 'devlopment',
-    logging : process.env.NODE_ENV === 'devlopment' ? ['query', 'error'] : ['error'], 
-}
+export const datasourceOptions: DataSourceOptions = {
+  type: 'postgres',
+  host: process.env.DB_HOST,
+  port: process.env.DB_PORT ? parseInt(process.env.DB_PORT, 10) : 5432,
+  username: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  entities: [__dirname + '/../**/*.entity{.ts,.js}'],
+  migrations: [__dirname + '/../database/migrations/*{.ts,.js}'],
+  synchronize:
+    process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test',
+  logging:
+    process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test'
+      ? ['error']
+      : ['error'],
+};
 
 const datasource = new DataSource(datasourceOptions);
 export default datasource;
