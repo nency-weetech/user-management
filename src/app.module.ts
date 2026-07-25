@@ -11,6 +11,8 @@ import { MailService } from './mail/mail.service';
 import { MailModule } from './mail/mail.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import { createKeyv } from '@keyv/redis';
+import { RateLimitService } from './rate-limit/rate-limit.service';
+import { RateLimitModule } from './rate-limit/rate-limit.module';
 
 
 @Module({
@@ -41,8 +43,9 @@ import { createKeyv } from '@keyv/redis';
     UsersModule,
     AuthModule,
     MailModule,
+    RateLimitModule,
   ],
   controllers: [AppController],
-  providers: [AppService, MailService],
+  providers: [AppService, MailService, RateLimitService],
 })
 export class AppModule {}

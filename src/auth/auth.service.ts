@@ -18,6 +18,7 @@ import { MailService } from 'src/mail/mail.service';
 import { VerifyEmailDto } from './dto/email-verify.dto';
 import { ForgotPasswordDto } from './dto/forgget-pass.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { RateLimitService } from 'src/rate-limit/rate-limit.service';
 
 @Injectable()
 export class AuthService {
@@ -25,6 +26,7 @@ export class AuthService {
     private userService: UsersService,
     private jwtService: JwtService,
     private mailService: MailService,
+    private rateLimitService : RateLimitService
   ) {}
 
   async register(createUserDto: CreateUserDto): Promise<any> {
@@ -85,6 +87,8 @@ export class AuthService {
     if (!dto || !dto.email) {
       throw new UnauthorizedException('Email and password are required');
     }
+
+    await this.rateLimitService.checkLoginAttempt(dto.email);
     const user = await this.userService.findEmailWithPassword(dto.email);
 
     if (!user) {
@@ -109,6 +113,7 @@ export class AuthService {
     }
 
     await this.userService.updateLastLogin(user.id);
+    await this.rateLimitService.resetAttempts(dto.email);
 
     const payload = {
       id: user.id,
