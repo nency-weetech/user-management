@@ -200,16 +200,16 @@ describe('Auth (e2e)', () => {
     });
 
     it('should return 401 if email is not verified', async () => {
-      await createVerifiedUser('login@user.com', {isEmailVerified : false});
+      await createVerifiedUser('login@user.com', { isEmailVerified: false });
 
       const res = await Request(app.getHttpServer())
         .post('/auth/login')
         .send({ email: 'login@user.com', password: 'password@123' })
         .expect(401);
     });
-    
+
     it('should return 401 if account is deactivated', async () => {
-       await createVerifiedUser('login@user.com', {isActive : false});
+      await createVerifiedUser('login@user.com', { isActive: false });
 
       const res = await Request(app.getHttpServer())
         .post('/auth/login')
@@ -217,4 +217,213 @@ describe('Auth (e2e)', () => {
         .expect(401);
     });
   });
+
+  describe('POST /auth/forgot-password', () => {
+    it('should send OTP and always return generic message (existing email)', async () => {
+      await userService.create({
+        email: 'newuser@test.com',
+        password: 'test@1234',
+        firstName: 'new',
+        lastName: 'user',
+      });
+
+      const res = await Request(app.getHttpServer())
+        .post('/auth/forgot-password')
+        .send({ email: 'newuser@test.com' })
+        .expect(201);
+
+      expect(res.body.message).toMatch(/If an account exists/);
+      expect(mailCapture.lastResetOtp).toBeTruthy();
+    });
+    it('should return same generic message for non-existent email (no enumeration)', async () => {
+      const res = await Request(app.getHttpServer())
+        .post('/auth/forgot-password')
+        .send({ email: 'newuser@test.com' })
+        .expect(201);
+
+      expect(res.body.message).toMatch(/If an account exists/);
+      expect(mailCapture.lastResetOtp).toBeNull();
+    });
+  });
+
+  describe('POST /auth/verify-otp', () => {
+    it('should verify OTP and return a reset session token', async () => {
+      await userService.create({
+        email: 'newuser@test.com',
+        password: 'test@1234',
+        firstName: 'new',
+        lastName: 'user',
+      });
+
+      await Request(app.getHttpServer())
+        .post('/auth/forgot-password')
+        .send({ email: 'newuser@test.com' });
+
+      const otp = mailCapture.lastResetOtp;
+
+      const res = await Request(app.getHttpServer())
+        .post('/auth/verify-otp')
+        .send({ email: 'newuser@test.com', otp })
+        .expect(201);
+
+      expect(res.body.resetSessionToken).toBeDefined();
+    });
+    it('should return 400 for wrong OTP and decrement remaining attempts', async () => {
+      await userService.create({
+        email: 'newuser@test.com',
+        password: 'test@1234',
+        firstName: 'new',
+        lastName: 'user',
+      });
+
+      await Request(app.getHttpServer())
+        .post('/auth/forgot-password')
+        .send({ email: 'newuser@test.com' });
+
+      const res = await Request(app.getHttpServer())
+        .post('/auth/verify-otp')
+        .send({ email: 'newuser@test.com', otp: '000000' })
+        .expect(400);
+
+      expect(res.body.message).toMatch(/attempts remaining./);
+    });
+    it('should invalidate OTP after 3 failed attempts', async () => {
+      await userService.create({
+        email: 'newuser@test.com',
+        password: 'test@1234',
+        firstName: 'new',
+        lastName: 'user',
+      });
+
+      await Request(app.getHttpServer())
+        .post('/auth/forgot-password')
+        .send({ email: 'newuser@test.com' });
+
+      for (let i = 0; i < 3; i++) {
+        await Request(app.getHttpServer())
+          .post('/auth/verify-otp')
+          .send({ email: 'newuser@test.com', otp: '000000' })
+          .expect(400);
+      }
+
+      const res = await Request(app.getHttpServer())
+        .post('/auth/verify-otp')
+        .send({ email: 'newuser@test.com', otp: '000000' })
+        .expect(400);
+
+      expect(res.body.message).toMatch(/Too many failed attempts/);
+    });
+  });
+
+  describe('POST /auth/reset-password', () => {
+    it('should reset password with a valid session token', async () => {
+      await userService.create({
+        email: 'newuser@test.com',
+        password: 'test@1234',
+        firstName: 'new',
+        lastName: 'user',
+        isEmailVerified: true,
+      });
+
+      await Request(app.getHttpServer())
+        .post('/auth/forgot-password')
+        .send({ email: 'newuser@test.com' });
+
+      const otp = mailCapture.lastResetOtp;
+
+      const resToken = await Request(app.getHttpServer())
+        .post('/auth/verify-otp')
+        .send({ email: 'newuser@test.com', otp })
+        .expect(201);
+
+      const resetSessionToken = resToken.body.resetSessionToken;
+
+      const res = await Request(app.getHttpServer())
+        .post('/auth/reset-password')
+        .send({ resetSessionToken, newPassword: 'newResetPass123' });
+
+      expect(res.body.message).toMatch(/reset successfully/);
+
+      const log = await Request(app.getHttpServer())
+        .post('/auth/login')
+        .send({ email: 'newuser@test.com', password: 'newResetPass123' })
+        .expect(201);
+    });
+    it('should return 401 for invalid/garbage session token', async () => {
+      await Request(app.getHttpServer())
+        .post('/auth/reset-password')
+        .send({
+          resetSessionToken: 'not-ral-token',
+          newPassword: 'newResetPass123',
+        })
+        .expect(401);
+    });
+  });
+  describe('POST /auth/refresh', () => {
+    it('should issue new tokens with a valid refresh token', async () => {
+      const hash = await bcrypt.hash('password123!', 10);
+      await userService.create({
+        email: 'newuser@test.com',
+        password: hash,
+        firstName: 'new',
+        lastName: 'user',
+        isEmailVerified: true,
+      });
+
+      const login = await Request(app.getHttpServer())
+        .post('/auth/login')
+        .send({ email: 'newuser@test.com', password: 'password123!' });
+
+      const { refreshToken, accessToken } = login.body;
+
+      const res = await Request(app.getHttpServer())
+        .get('/auth/refresh')
+        .set('Cookie', [
+          `accessToken=${accessToken}`,
+          `refreshToken=${refreshToken}`,
+        ])
+        .expect(200);
+
+      expect(res.body.message).toMatch(/Tokens refreshed successfully/);
+    });
+    it('should return 401 for reused/invalid refresh token', async () => {
+      const accessToken = 'Invalid-token';
+      const refreshToken = 'invalid-refresh-Token';
+
+      await Request(app.getHttpServer())
+        .get('/auth/refresh')
+        .set('Cookie', [
+          `accessToken=${accessToken}`,
+          `refreshToken=${refreshToken}`,
+        ])
+        .expect(401);
+    });
+  });
+
+   describe('POST /auth/logout', () => {
+     it('should clear refresh token on logout', async () => {
+      const hash = await bcrypt.hash('password123!', 10);
+      const user = await userService.create({
+        email: 'newuser@test.com',
+        password: hash,
+        firstName: 'new',
+        lastName: 'user',
+        isEmailVerified: true,
+      });
+
+      const login = await Request(app.getHttpServer())
+        .post('/auth/login')
+        .send({ email: 'newuser@test.com', password: 'password123!' });
+
+      const { refreshToken, accessToken } = login.body;
+
+      const res = await Request(app.getHttpServer())
+      .get('/auth/logout')
+      .set('Cookie', `accessToken=${accessToken}`)
+      .expect(200)
+
+      const updatedUser = await userService.findOne(user.id)
+      expect(updatedUser.refreshToken).toBeNull()
+     })
+   })
 });

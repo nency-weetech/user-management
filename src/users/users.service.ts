@@ -122,10 +122,10 @@ export class UsersService {
     if (!user) {
       throw new NotFoundException(`User with ID "${userId}" not found`);
     }
-    console.log(refreshTokenparams);
+
     user.refreshToken = refreshTokenparams ?? null;
     await this.repo.save(user);
-    console.log(user.refreshToken);
+
   }
 
   remove(id: number) {
