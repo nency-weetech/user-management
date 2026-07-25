@@ -186,6 +186,7 @@ export class AuthService {
 
   async forgotPassword(dto: ForgotPasswordDto) {
     const user = await this.userService.findByEmail(dto.email);
+    await this.rateLimitService.checkForgotPasswordAttempt(dto.email)
     if (!user) {
       return {
         message: 'If an account exists with that email, an OTP has been sent.',
@@ -199,6 +200,7 @@ export class AuthService {
     await this.userService.saveOtp(user.id, hashedOtp, otpExpires);
     await this.mailService.sendResetPassOtpEmail(user.email, otp);
 
+    await this.rateLimitService.resetAttempts(dto.email)
     return {
       message: 'If an account exists with that email, an OTP has been sent.',
     };

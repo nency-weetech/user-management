@@ -21,4 +21,16 @@ export class RateLimitService {
     async resetAttempts(email: string){
         await this.cacheManager.del(`login_attempts:${email}`)
     }
+
+    async checkForgotPasswordAttempt(email: string){
+        const key = `forgot_pass_attempts:${email}`
+        const attempts = (await this.cacheManager.get<number>(key)) || 0;
+
+        if(attempts >= 3){
+            throw new BadRequestException('Too many reset request. Try again later.');
+        }
+
+        await this.cacheManager.set(key, attempts + 1, 60000)
+
+    }
 }
