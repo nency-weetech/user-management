@@ -20,6 +20,7 @@ import { User } from 'src/users/entities/user.entity';
 import { VerifyEmailDto } from './dto/email-verify.dto';
 import { ForgotPasswordDto } from './dto/forgget-pass.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { Throttle } from '@nestjs/throttler';
 
 const COOKIE_OPTIONS = {
   httpOnly: true,
@@ -43,6 +44,7 @@ export class AuthController {
     return this.authService.verifyEmail(dto)
   }
   
+  @Throttle({ default: { limit: 5, ttl: 300000 } }) 
   @Post('login')
   async login(
     @Body() loginDto: LoginDto,

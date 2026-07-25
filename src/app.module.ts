@@ -13,7 +13,8 @@ import { CacheModule } from '@nestjs/cache-manager';
 import { createKeyv } from '@keyv/redis';
 import { RateLimitService } from './rate-limit/rate-limit.service';
 import { RateLimitModule } from './rate-limit/rate-limit.module';
-
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -24,13 +25,21 @@ import { RateLimitModule } from './rate-limit/rate-limit.module';
       isGlobal: true,
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: async (config : ConfigService) => ({
-        stores : [
-          createKeyv(`redis://${config.get('REDIS_HOST')}:${config.get('REDIS_PORT')}`)
+      useFactory: async (config: ConfigService) => ({
+        stores: [
+          createKeyv(
+            `redis://${config.get('REDIS_HOST')}:${config.get('REDIS_PORT')}`,
+          ),
         ],
         ttl: 60 * 1000,
-      })
+      }),
     }),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000,
+        limit: 10,
+      },
+    ]),
     TypeOrmModule.forRoot(datasourceOptions),
 
     JwtModule.register({
@@ -46,6 +55,14 @@ import { RateLimitModule } from './rate-limit/rate-limit.module';
     RateLimitModule,
   ],
   controllers: [AppController],
-  providers: [AppService, MailService, RateLimitService],
+  providers: [
+    AppService,
+    MailService,
+    RateLimitService,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard, // applies rate limiting to EVERY route automatically
+    },
+  ],
 })
 export class AppModule {}

@@ -13,7 +13,7 @@ export class RateLimitService {
         if(attempts >= 5){
             throw new BadRequestException('Too many login attempts. Try again in a few minutes.');
         }
-
+      
         await this.cacheManager.set(key, attempts + 1, 300000)
 
     }
