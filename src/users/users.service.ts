@@ -1,6 +1,7 @@
 import {
   ConflictException,
   ForbiddenException,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -11,10 +12,14 @@ import { Repository } from 'typeorm';
 import { UserRole } from './enums/user-role.enum';
 import { UpdateUserStatusDto } from './dto/update-user-state.dto';
 import { GetUserQueryDto } from './dto/get-user-query.dto';
-
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { type Cache } from 'cache-manager';
 @Injectable()
 export class UsersService {
-  constructor(@InjectRepository(User) private repo: Repository<User> ) {}
+  constructor(@InjectRepository(User) private repo: Repository<User> ,@Inject(CACHE_MANAGER) private cacheManager : Cache) {}
+  private userCacheKey(id: string){
+    return `user:${id}`
+  }
 
   async create(userData : Partial<User>) : Promise<User>{
     const user = await this.repo.create(userData);
@@ -70,10 +75,21 @@ export class UsersService {
   }
 
   async findOne(id: string): Promise<User> {
+    const cacheKey = await this.userCacheKey(id)
+
+    const cached = await this.cacheManager.get<User>(cacheKey)
+    console.log('its from cached : ', cached)
+    if(cached){
+      return cached
+    }
+
     const user = await this.repo.findOne({ where: { id } });
+    console.log('its from database : ', user)
     if (!user) {
       throw new NotFoundException(`User with id ${id} not found`);
     }
+
+    await this.cacheManager.set(cacheKey, user, 300000)
     return user;
   }
 
@@ -111,6 +127,7 @@ export class UsersService {
     }
 
     Object.assign(user, updateUserDto);
+    await this.cacheManager.del(this.userCacheKey(id))
     return await this.repo.save(user);
   }
 
