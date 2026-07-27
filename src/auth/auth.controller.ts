@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -23,6 +24,7 @@ import { ForgotPasswordDto } from './dto/forgget-pass.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { Throttle } from '@nestjs/throttler';
 import { ActivityLogService } from 'src/activity-log/activity-log.service';
+import { SoftDeleteService } from 'src/soft-delete/soft-delete.service';
 
 const COOKIE_OPTIONS = {
   httpOnly: true,
@@ -34,7 +36,8 @@ export class AuthController {
   constructor(
     private authService: AuthService,
     private userService: UsersService,
-    private activityLogservice : ActivityLogService
+    private activityLogservice : ActivityLogService,
+    private softDeleteService: SoftDeleteService
   ) {}
 
   @Post('/signUp')
@@ -136,5 +139,14 @@ export class AuthController {
   @Get(':id/activity')
   async getActivity(@Param('id') id: string ){
     return this.activityLogservice.getRecentActivity(id)
+  }
+
+  @Delete('account')
+  @UseGuards(AuthGuard)
+  async deleteAccount(@currentUser() user : User){
+    await this.softDeleteService.requestDeletion(user.id)
+    return {
+      message : 'Your account is scheduled for deletion in 30 days. Log in anytime before then to cancel.'
+    }
   }
 }

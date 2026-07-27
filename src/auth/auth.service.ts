@@ -21,6 +21,7 @@ import { ResetPasswordDto } from './dto/reset-password.dto';
 import { RateLimitService } from 'src/rate-limit/rate-limit.service';
 import { ActivityLogService } from 'src/activity-log/activity-log.service';
 import { SignUpCountService } from 'src/sign-up-count/sign-up-count.service';
+import { SoftDeleteService } from 'src/soft-delete/soft-delete.service';
 
 @Injectable()
 export class AuthService {
@@ -28,9 +29,10 @@ export class AuthService {
     private userService: UsersService,
     private jwtService: JwtService,
     private mailService: MailService,
-    private rateLimitService : RateLimitService,
-    private activityLogService : ActivityLogService,
-    private signUpCountService : SignUpCountService
+    private rateLimitService: RateLimitService,
+    private activityLogService: ActivityLogService,
+    private signUpCountService: SignUpCountService,
+    private softDeleteService: SoftDeleteService,
   ) {}
 
   async register(createUserDto: CreateUserDto): Promise<any> {
@@ -84,7 +86,7 @@ export class AuthService {
     }
 
     await this.userService.markEmailAsValid(user.id);
-    await this.mailService.welcomeMail(user.email)
+    await this.mailService.welcomeMail(user.email);
 
     return { message: 'Email verify successfully! now you can login' };
   }
@@ -106,8 +108,13 @@ export class AuthService {
         'Please verify your email address before logging in.',
       );
     }
-
-    if (!user.isActive) {
+    const isPendingDeletion = await this.softDeleteService.isPendingDeletion(
+      user.id,
+    );
+    console.log('User ID:', user.id);
+    console.log('isActive:', user.isActive);
+    console.log('isPendingDeletion:', isPendingDeletion);
+    if (!user.isActive && !isPendingDeletion) {
       throw new UnauthorizedException(
         'Your account has been deactivated/banned. Contact admin.',
       );
@@ -116,6 +123,10 @@ export class AuthService {
     const isPassworValid = await bcrypt.compare(dto.password, user.password);
     if (!isPassworValid) {
       throw new UnauthorizedException('Invalid credantial');
+    }
+
+    if (isPendingDeletion) {
+      await this.softDeleteService.cancelDeletion(user.id);
     }
 
     await this.userService.updateLastLogin(user.id);
@@ -189,12 +200,12 @@ export class AuthService {
 
   async logout(userId: string) {
     await this.userService.updateRefreshToken(userId, null);
-    await this.activityLogService.logActivity(userId, 'LOGOUT')
+    await this.activityLogService.logActivity(userId, 'LOGOUT');
   }
 
   async forgotPassword(dto: ForgotPasswordDto) {
     const user = await this.userService.findByEmail(dto.email);
-    await this.rateLimitService.checkForgotPasswordAttempt(dto.email)
+    await this.rateLimitService.checkForgotPasswordAttempt(dto.email);
     if (!user) {
       return {
         message: 'If an account exists with that email, an OTP has been sent.',
@@ -208,7 +219,7 @@ export class AuthService {
     await this.userService.saveOtp(user.id, hashedOtp, otpExpires);
     await this.mailService.sendResetPassOtpEmail(user.email, otp);
 
-    await this.rateLimitService.resetAttempts(dto.email)
+    await this.rateLimitService.resetAttempts(dto.email);
     return {
       message: 'If an account exists with that email, an OTP has been sent.',
     };
@@ -282,7 +293,7 @@ export class AuthService {
       user.id,
       newPasswordHash,
     );
-    await this.activityLogService.logActivity(user.id, 'RESET_PASSWORD')
+    await this.activityLogService.logActivity(user.id, 'RESET_PASSWORD');
 
     return {
       message:

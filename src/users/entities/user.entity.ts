@@ -82,6 +82,12 @@ export class User {
   @UpdateDateColumn({ type: 'timestamp with time zone' })
   updatedAt!: Date;
 
+  @Column({ default: false })
+  isPendingDeletion!: boolean;
+
+  @Column({ type: 'timestamp', nullable: true })
+  deletionRequestedAt!: Date | null;
+
   @DeleteDateColumn({ type: 'timestamp with time zone', nullable: true })
   @Exclude()
   deletedAt!: Date | null;

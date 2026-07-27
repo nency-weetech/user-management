@@ -20,6 +20,10 @@ import { RedisModule } from './redis/redis.module';
 import { SignUpCountService } from './sign-up-count/sign-up-count.service';
 import { ScheduleModule } from '@nestjs/schedule';
 import { WeeklyReportService } from './weekly-report/weekly-report.service';
+import { SoftDeleteService } from './soft-delete/soft-delete.service';
+import { DeletionListenerService } from './soft-delete/deletion-listener.service';
+import { DeletionCleanupService } from './soft-delete/deletion-cleanup.service';
+import { SoftDeleteModule } from './soft-delete/soft-delete.module';
 
 @Module({
   imports: [
@@ -61,6 +65,7 @@ import { WeeklyReportService } from './weekly-report/weekly-report.service';
     RedisModule,
     RateLimitModule,
     ActivityLogModule,
+    SoftDeleteModule,
   ],
   controllers: [AppController],
   providers: [
@@ -73,6 +78,9 @@ import { WeeklyReportService } from './weekly-report/weekly-report.service';
     },
     SignUpCountService,
     WeeklyReportService,
+    SoftDeleteService,
+    DeletionListenerService,
+    DeletionCleanupService,
   ],
 })
 export class AppModule {}

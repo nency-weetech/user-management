@@ -8,7 +8,7 @@ import {
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { MoreThan, Repository } from 'typeorm';
+import { LessThan, MoreThan, Repository } from 'typeorm';
 import { UserRole } from './enums/user-role.enum';
 import { UpdateUserStatusDto } from './dto/update-user-state.dto';
 import { GetUserQueryDto } from './dto/get-user-query.dto';
@@ -19,7 +19,7 @@ import { ActivityLogService } from 'src/activity-log/activity-log.service';
 export class UsersService {
   constructor(
     @InjectRepository(User) private repo: Repository<User>,
-    private activityLogService : ActivityLogService,
+    private activityLogService: ActivityLogService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
   private userCacheKey(id: string) {
@@ -96,7 +96,7 @@ export class UsersService {
     }
 
     await this.cacheManager.set(cacheKey, user, 300000);
-    await this.activityLogService.logActivity(user.id, 'PROFILE_VIEW')
+    await this.activityLogService.logActivity(user.id, 'PROFILE_VIEW');
     return user;
   }
 
@@ -135,7 +135,7 @@ export class UsersService {
 
     Object.assign(user, updateUserDto);
     await this.cacheManager.del(this.userCacheKey(id));
-    await this.activityLogService.logActivity(user.id, 'UPDATE_PROFILE')
+    await this.activityLogService.logActivity(user.id, 'UPDATE_PROFILE');
     return await this.repo.save(user);
   }
 
@@ -213,15 +213,48 @@ export class UsersService {
     return this.repo.save(user);
   }
 
-  async countSignupUser(date : Date) : Promise<number> {
+  async countSignupUser(date: Date): Promise<number> {
     return await this.repo.count({
-      where : {createdAt: MoreThan(date)}
-    })
+      where: { createdAt: MoreThan(date) },
+    });
   }
-  async getSignupUsersSince(date: Date): Promise<Pick<User, 'id' | 'email' | 'createdAt'>[]> {
-  return await this.repo.find({
-    where: { createdAt: MoreThan(date) },
-    select: {email: true, createdAt : true}, 
+  async getSignupUsersSince(
+    date: Date,
+  ): Promise<Pick<User, 'id' | 'email' | 'createdAt'>[]> {
+    return await this.repo.find({
+      where: { createdAt: MoreThan(date) },
+      select: { email: true, createdAt: true },
+    });
+  }
+
+  async markPendingDeletion(userId: string){
+    await this.repo.update(userId, {
+      isPendingDeletion : true,
+      isActive: false,
+      deletionRequestedAt: new Date()
+    }),
+    await this.cacheManager.del(this.userCacheKey(userId))
+  }
+
+  async cancelPandingDeletion(userId: string){
+    await this.repo.update(userId, {
+      isPendingDeletion: false,
+      isActive: true,
+      deletionRequestedAt: null,
+    }),
+    await this.cacheManager.del(this.userCacheKey(userId))
+  }
+
+  async permanentDelete(userId: string) : Promise<void>{
+    await this.repo.delete(userId)
+    await this.cacheManager.del(this.userCacheKey(userId))
+  }
+  async findStaleDeletionRequests(cutoffDate: Date){
+     return this.repo.find({
+    where: {
+      isPendingDeletion: true,
+      deletionRequestedAt: LessThan(cutoffDate),
+    },
   });
-}
+  }
 }
