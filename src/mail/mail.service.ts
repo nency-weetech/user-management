@@ -45,6 +45,19 @@ export class MailService {
     );
   }
 
+  async welcomeMail(toEmail:string){
+     const mailOption = {
+      from: '"App Security" <no-reply@myapp.com>',
+      to: toEmail,
+      subject: 'Verify Your Email Address',
+      html: `
+        <h3>Welcome ${toEmail} </h3>
+        `,
+    };
+    const info = await this.transporter.sendMail(mailOption)
+    this.logger.log(`Welcom mail: ${nodemailer.getTestMessageUrl(info)}`)
+  }
+
   async sendResetPassOtpEmail(toEmail: string, otp: string): Promise<void> {
     const mailOption = {
       from: '"App Security" <no-reply@myapp.com>',

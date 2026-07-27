@@ -84,6 +84,7 @@ export class AuthService {
     }
 
     await this.userService.markEmailAsValid(user.id);
+    await this.mailService.welcomeMail(user.email)
 
     return { message: 'Email verify successfully! now you can login' };
   }
