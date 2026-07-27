@@ -8,7 +8,7 @@ import {
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { Repository } from 'typeorm';
+import { MoreThan, Repository } from 'typeorm';
 import { UserRole } from './enums/user-role.enum';
 import { UpdateUserStatusDto } from './dto/update-user-state.dto';
 import { GetUserQueryDto } from './dto/get-user-query.dto';
@@ -211,5 +211,11 @@ export class UsersService {
     }
 
     return this.repo.save(user);
+  }
+
+  async countSignupUser(date : Date) : Promise<number> {
+    return await this.repo.count({
+      where : {createdAt: MoreThan(date)}
+    })
   }
 }

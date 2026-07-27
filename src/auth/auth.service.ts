@@ -20,6 +20,7 @@ import { ForgotPasswordDto } from './dto/forgget-pass.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { RateLimitService } from 'src/rate-limit/rate-limit.service';
 import { ActivityLogService } from 'src/activity-log/activity-log.service';
+import { SignUpCountService } from 'src/sign-up-count/sign-up-count.service';
 
 @Injectable()
 export class AuthService {
@@ -28,7 +29,8 @@ export class AuthService {
     private jwtService: JwtService,
     private mailService: MailService,
     private rateLimitService : RateLimitService,
-    private activityLogService : ActivityLogService
+    private activityLogService : ActivityLogService,
+    private signUpCountService : SignUpCountService
   ) {}
 
   async register(createUserDto: CreateUserDto): Promise<any> {
@@ -55,6 +57,7 @@ export class AuthService {
     });
 
     await this.mailService.sendVerificationOtpEmail(newUser.email, otp);
+    await this.signUpCountService.incrSignUpCount();
     return { message: 'Register successfull! Verify email to check you email' };
   }
 

@@ -62,4 +62,21 @@ export class MailService {
     const info = await this.transporter.sendMail(mailOption);
     this.logger.log(`Password Reset URL: ${nodemailer.getTestMessageUrl(info)}`)
   }
+
+  async sendWeeklyReportMail(toEmail: string, count: number){
+    const mailOption = {
+      from: '"App Security" <no-reply@myapp.com>',
+      to: toEmail,
+      subject: 'Weekly Signup Report',
+      html: `
+        <div style="font-family: Arial, sans-serif; padding: 20px;">
+          <h2>Weekly Signup Report</h2>
+          <p style="letter-spacing: 5px; color: #4A90E2;">${count}</p>
+          <p> new users joined this week.</p>
+        </div>
+        `,
+    };
+    const info = await this.transporter.sendMail(mailOption);
+    this.logger.log(`weekly signup report: ${nodemailer.getTestMessageUrl(info)}`)
+  }
 }

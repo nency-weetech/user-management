@@ -17,12 +17,16 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { ActivityLogModule } from './activity-log/activity-log.module';
 import { RedisModule } from './redis/redis.module';
+import { SignUpCountService } from './sign-up-count/sign-up-count.service';
+import { ScheduleModule } from '@nestjs/schedule';
+import { WeeklyReportService } from './weekly-report/weekly-report.service';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    ScheduleModule.forRoot(),
     CacheModule.registerAsync({
       isGlobal: true,
       imports: [ConfigModule],
@@ -67,6 +71,8 @@ import { RedisModule } from './redis/redis.module';
       provide: APP_GUARD,
       useClass: ThrottlerGuard, // applies rate limiting to EVERY route automatically
     },
+    SignUpCountService,
+    WeeklyReportService,
   ],
 })
 export class AppModule {}
