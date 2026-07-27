@@ -218,4 +218,10 @@ export class UsersService {
       where : {createdAt: MoreThan(date)}
     })
   }
+  async getSignupUsersSince(date: Date): Promise<Pick<User, 'id' | 'email' | 'createdAt'>[]> {
+  return await this.repo.find({
+    where: { createdAt: MoreThan(date) },
+    select: {email: true, createdAt : true}, 
+  });
+}
 }

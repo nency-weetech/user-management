@@ -40,7 +40,9 @@ export class MailService {
     };
 
     const info = await this.transporter.sendMail(mailOption);
-    this.logger.log(`Verifiction Email URL: ${nodemailer.getTestMessageUrl(info)}`)
+    this.logger.log(
+      `Verifiction Email URL: ${nodemailer.getTestMessageUrl(info)}`,
+    );
   }
 
   async sendResetPassOtpEmail(toEmail: string, otp: string): Promise<void> {
@@ -60,23 +62,71 @@ export class MailService {
     };
 
     const info = await this.transporter.sendMail(mailOption);
-    this.logger.log(`Password Reset URL: ${nodemailer.getTestMessageUrl(info)}`)
+    this.logger.log(
+      `Password Reset URL: ${nodemailer.getTestMessageUrl(info)}`,
+    );
   }
 
-  async sendWeeklyReportMail(toEmail: string, count: number){
+  async sendWeeklyReportMail(
+    toEmail: string,
+    count: number,
+    users: { email: string; createdAt: Date }[],
+  ) {
+    const rows = users
+      .map((user) => {
+        const day = new Date(user.createdAt).toLocaleDateString('en-US', {
+          weekday: 'long',
+          month: 'short',
+          day: 'numeric',
+        });
+
+        return `
+        <tr>
+          <td style="padding: 10px; border-bottom: 1px solid #eee;">
+            <a href="mailto:${user.email}" style="color: #4A90E2; text-decoration: none;">
+              ${user.email}
+            </a>
+          </td>
+          <td style="padding: 10px; border-bottom: 1px solid #eee; color: #555;">
+            ${day}
+          </td>
+        </tr>
+      `;
+      })
+      .join('');
+
     const mailOption = {
       from: '"App Security" <no-reply@myapp.com>',
       to: toEmail,
       subject: 'Weekly Signup Report',
       html: `
-        <div style="font-family: Arial, sans-serif; padding: 20px;">
-          <h2>Weekly Signup Report</h2>
-          <p style="letter-spacing: 5px; color: #4A90E2;">${count}</p>
-          <p> new users joined this week.</p>
-        </div>
-        `,
+      <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #333;">Weekly Signup Report</h2>
+        <p style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #4A90E2; margin: 10px 0;">
+          ${count}
+        </p>
+        <p style="color: #555; margin-bottom: 20px;">
+          new user${count !== 1 ? 's' : ''} joined this week
+        </p>
+
+        <table style="width: 100%; border-collapse: collapse;">
+          <thead>
+            <tr style="background-color: #f5f5f5; text-align: left;">
+              <th style="padding: 10px; border-bottom: 2px solid #ddd;">Email</th>
+              <th style="padding: 10px; border-bottom: 2px solid #ddd;">Signed Up</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows || '<tr><td colspan="2" style="padding: 10px;">No new signups this week.</td></tr>'}
+          </tbody>
+        </table>
+      </div>
+    `,
     };
+
     const info = await this.transporter.sendMail(mailOption);
-    this.logger.log(`weekly signup report: ${nodemailer.getTestMessageUrl(info)}`)
+    this.logger.log(
+      `weekly signup report: ${nodemailer.getTestMessageUrl(info)}`,
+    );
   }
 }

@@ -12,7 +12,7 @@ export class WeeklyReportService {
     private userService : UsersService
   ) {}
 
-  @Cron('46 12 * * 1')
+  @Cron('31 13 * * 1') // 0 9 * * 1 -- 9 am mon in every month
   async sendWeeklySignOutReport(){
     // const count = await this.signUpCountService.getSignUpCount();
 
@@ -27,9 +27,12 @@ export class WeeklyReportService {
     oneWeek.setDate(oneWeek.getDate() - 7)
 
     const count = await this.userService.countSignupUser(oneWeek)
+    const users = await this.userService. getSignupUsersSince(oneWeek)
+    
     await this.mailService.sendWeeklyReportMail(
         'admin@admin.com',
-        count
+        count,
+        users
     )
   }
 }
