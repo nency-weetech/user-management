@@ -19,6 +19,7 @@ import { VerifyEmailDto } from './dto/email-verify.dto';
 import { ForgotPasswordDto } from './dto/forgget-pass.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { RateLimitService } from 'src/rate-limit/rate-limit.service';
+import { ActivityLogService } from 'src/activity-log/activity-log.service';
 
 @Injectable()
 export class AuthService {
@@ -26,7 +27,8 @@ export class AuthService {
     private userService: UsersService,
     private jwtService: JwtService,
     private mailService: MailService,
-    private rateLimitService : RateLimitService
+    private rateLimitService : RateLimitService,
+    private activityLogService : ActivityLogService
   ) {}
 
   async register(createUserDto: CreateUserDto): Promise<any> {
@@ -88,7 +90,7 @@ export class AuthService {
       throw new UnauthorizedException('Email and password are required');
     }
 
-    await this.rateLimitService.checkLoginAttempt(dto.email);
+    //await this.rateLimitService.checkLoginAttempt(dto.email);
     const user = await this.userService.findEmailWithPassword(dto.email);
 
     if (!user) {
@@ -113,8 +115,9 @@ export class AuthService {
     }
 
     await this.userService.updateLastLogin(user.id);
-    await this.rateLimitService.resetAttempts(dto.email);
+    //await this.rateLimitService.resetAttempts(dto.email);
 
+    await this.activityLogService.logActivity(user.id, 'LOGIN');
     const payload = {
       id: user.id,
       email: user.email,
@@ -182,6 +185,7 @@ export class AuthService {
 
   async logout(userId: string) {
     await this.userService.updateRefreshToken(userId, null);
+    await this.activityLogService.logActivity(userId, 'LOGOUT')
   }
 
   async forgotPassword(dto: ForgotPasswordDto) {
@@ -274,6 +278,7 @@ export class AuthService {
       user.id,
       newPasswordHash,
     );
+    await this.activityLogService.logActivity(user.id, 'RESET_PASSWORD')
 
     return {
       message:

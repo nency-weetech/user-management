@@ -15,6 +15,8 @@ import { RateLimitService } from './rate-limit/rate-limit.service';
 import { RateLimitModule } from './rate-limit/rate-limit.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
+import { ActivityLogModule } from './activity-log/activity-log.module';
+import { RedisModule } from './redis/redis.module';
 
 @Module({
   imports: [
@@ -52,7 +54,9 @@ import { APP_GUARD } from '@nestjs/core';
     UsersModule,
     AuthModule,
     MailModule,
+    RedisModule,
     RateLimitModule,
+    ActivityLogModule,
   ],
   controllers: [AppController],
   providers: [

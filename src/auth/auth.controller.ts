@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Param,
   Post,
   Req,
   Res,
@@ -21,6 +22,7 @@ import { VerifyEmailDto } from './dto/email-verify.dto';
 import { ForgotPasswordDto } from './dto/forgget-pass.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { Throttle } from '@nestjs/throttler';
+import { ActivityLogService } from 'src/activity-log/activity-log.service';
 
 const COOKIE_OPTIONS = {
   httpOnly: true,
@@ -32,6 +34,7 @@ export class AuthController {
   constructor(
     private authService: AuthService,
     private userService: UsersService,
+    private activityLogservice : ActivityLogService
   ) {}
 
   @Post('/signUp')
@@ -127,5 +130,11 @@ export class AuthController {
   @Post('reset-password')
   async resetPassword(@Body() dto: ResetPasswordDto) {
     return this.authService.resetPassword(dto);
+  }
+
+  @UseGuards(AuthGuard)
+  @Get(':id/activity')
+  async getActivity(@Param('id') id: string ){
+    return this.activityLogservice.getRecentActivity(id)
   }
 }
