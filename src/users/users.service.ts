@@ -84,13 +84,13 @@ export class UsersService {
     const cacheKey = await this.userCacheKey(id);
 
     const cached = await this.cacheManager.get<User>(cacheKey);
-    console.log('its from cached : ', cached);
+
     if (cached) {
       return cached;
     }
 
     const user = await this.repo.findOne({ where: { id } });
-    console.log('its from database : ', user);
+
     if (!user) {
       throw new NotFoundException(`User with id ${id} not found`);
     }

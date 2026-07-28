@@ -38,7 +38,7 @@ import { SoftDeleteModule } from './soft-delete/soft-delete.module';
       useFactory: async (config: ConfigService) => ({
         stores: [
           createKeyv(
-            `redis://${config.get('REDIS_HOST')}:${config.get('REDIS_PORT')}`,
+            `redis://${config.get('REDIS_HOST')}:${config.get('REDIS_PORT')}/${config.get('REDIS_DB') || 0}`,
           ),
         ],
         ttl: 60 * 1000,
@@ -72,10 +72,9 @@ import { SoftDeleteModule } from './soft-delete/soft-delete.module';
     AppService,
     MailService,
     RateLimitService,
-    {
-      provide: APP_GUARD,
-      useClass: ThrottlerGuard, // applies rate limiting to EVERY route automatically
-    },
+    ...(process.env.NODE_ENV !== 'test'
+    ? [{ provide: APP_GUARD, useClass: ThrottlerGuard }]
+    : []),
     SignUpCountService,
     WeeklyReportService,
     SoftDeleteService,

@@ -6,10 +6,10 @@ import { type Cache } from 'cache-manager';
 export class AppController {
   constructor(private readonly appService: AppService, @Inject(CACHE_MANAGER) private cacheManager : Cache) {}
 
-  // @Get()
-  // getHello(): string {
-  //   return this.appService.getHello();
-  // }
+  @Get()
+  getHello(): string {
+    return this.appService.getHello();
+  }
 
    @Get('redis-test')
   async testRedis() {
