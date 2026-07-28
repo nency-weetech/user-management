@@ -11,7 +11,8 @@ import { MailService } from 'src/mail/mail.service';
 export const mailCapture = {
   lastVerificationOtp: null as string | null,
   lastResetOtp: null as string | null,
-  lastWelcomeEmail : null as string | null
+  lastWelcomeEmail : null as string | null,
+  lastWeeklyReport : null as {count: number, users: any[]} | null,
 };
 
 export async function setUpApp(): Promise<INestApplication> {
@@ -29,6 +30,9 @@ export async function setUpApp(): Promise<INestApplication> {
       welcomeMail: async (email: string) => {
         mailCapture.lastWelcomeEmail = email;
       },
+      sendWeeklyReportMail : async(email: string, count: number, users: any[] ) => {
+        mailCapture.lastWeeklyReport = {count, users}
+      }
     })
     .compile();
 

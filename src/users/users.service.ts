@@ -227,34 +227,38 @@ export class UsersService {
     });
   }
 
-  async markPendingDeletion(userId: string){
-    await this.repo.update(userId, {
-      isPendingDeletion : true,
+  async markPendingDeletion(userId: string) {
+    (await this.repo.update(userId, {
+      isPendingDeletion: true,
       isActive: false,
-      deletionRequestedAt: new Date()
+      deletionRequestedAt: new Date(),
     }),
-    await this.cacheManager.del(this.userCacheKey(userId))
+      await this.cacheManager.del(this.userCacheKey(userId)));
   }
 
-  async cancelPandingDeletion(userId: string){
-    await this.repo.update(userId, {
+  async cancelPandingDeletion(userId: string) {
+    (await this.repo.update(userId, {
       isPendingDeletion: false,
       isActive: true,
       deletionRequestedAt: null,
     }),
-    await this.cacheManager.del(this.userCacheKey(userId))
+      await this.cacheManager.del(this.userCacheKey(userId)));
   }
 
-  async permanentDelete(userId: string) : Promise<void>{
-    await this.repo.delete(userId)
-    await this.cacheManager.del(this.userCacheKey(userId))
+  async permanentDelete(userId: string): Promise<void> {
+    await this.repo.delete(userId);
+    await this.cacheManager.del(this.userCacheKey(userId));
   }
-  async findStaleDeletionRequests(cutoffDate: Date){
-     return this.repo.find({
-    where: {
-      isPendingDeletion: true,
-      deletionRequestedAt: LessThan(cutoffDate),
-    },
-  });
+  async findStaleDeletionRequests(cutoffDate: Date) {
+    return this.repo.find({
+      where: {
+        isPendingDeletion: true,
+        deletionRequestedAt: LessThan(cutoffDate),
+      },
+    });
+  }
+
+  async updateCreatedAtForTest(userId: string, date: Date){
+    await this.repo.update(userId, {createdAt : date} as any)
   }
 }

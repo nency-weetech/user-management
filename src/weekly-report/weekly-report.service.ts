@@ -34,5 +34,7 @@ export class WeeklyReportService {
         count,
         users
     )
+
+    await this.signUpCountService.resetSignUpCount();
   }
 }
