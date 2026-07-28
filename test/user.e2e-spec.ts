@@ -7,6 +7,8 @@ import Request from 'supertest';
 import { UsersService } from 'src/users/users.service';
 import { UserRole } from 'src/users/enums/user-role.enum';
 import * as jwt from 'jsonwebtoken';
+import Redis from 'ioredis';
+import { cleanRedis } from './utils/redis-cleanup';
 
 describe('User (e2e)', () => {
   let app: INestApplication;
@@ -15,11 +17,14 @@ describe('User (e2e)', () => {
   let normalUser: any;
   let adminToken: string;
   let userToken: string;
+  let redis : Redis;
 
   beforeAll(async () => {
     app = await setUpApp();
+    redis = new Redis({host: 'localhost', port: 6379, db: 1})
     usersService = app.get<UsersService>(UsersService);
   });
+
   beforeEach(async () => {
     adminUser = await usersService.create({
       email: 'admin@test.com',
@@ -52,9 +57,11 @@ describe('User (e2e)', () => {
 
   afterEach(async () => {
     await cleanDatabase(app);
+    await cleanRedis(redis);
   });
 
   afterAll(async () => {
+    await redis.quit()
     await closeTestApp(app);
   });
 
