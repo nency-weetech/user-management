@@ -9,7 +9,7 @@ export class SoftDeleteService {
     private userService: UsersService,
   ) {}
 
-  private readonly GRACE_PERIOD_SECOND = 30;
+  private readonly GRACE_PERIOD_SECOND = 30; //its 30 sec.. --> 30 * 24 * 60 * 60 --> 30 days
 
   private key(userId: string) {
     return `pending_deletion:${userId}`;

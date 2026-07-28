@@ -7,9 +7,9 @@ export class DeletionCleanupService {
     constructor(private userService: UsersService){}
 
     @Cron('0 0 * * *')
-    async cleanUpStaleDetetion() {
+    async cleanUpStaleDeletion() {
         const cutoff = new Date()
-        cutoff.setDate(cutoff.getDate() - 30);
+        cutoff.setDate(cutoff.getDate() - 30 );
 
         const stalUser = await this.userService.findStaleDeletionRequests(cutoff);
 

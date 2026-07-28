@@ -111,9 +111,7 @@ export class AuthService {
     const isPendingDeletion = await this.softDeleteService.isPendingDeletion(
       user.id,
     );
-    console.log('User ID:', user.id);
-    console.log('isActive:', user.isActive);
-    console.log('isPendingDeletion:', isPendingDeletion);
+
     if (!user.isActive && !isPendingDeletion) {
       throw new UnauthorizedException(
         'Your account has been deactivated/banned. Contact admin.',
