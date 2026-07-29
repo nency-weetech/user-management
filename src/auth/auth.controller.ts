@@ -25,6 +25,7 @@ import { ResetPasswordDto } from './dto/reset-password.dto';
 import { Throttle } from '@nestjs/throttler';
 import { ActivityLogService } from 'src/activity-log/activity-log.service';
 import { SoftDeleteService } from 'src/soft-delete/soft-delete.service';
+import { JwtService } from '@nestjs/jwt';
 
 const COOKIE_OPTIONS = {
   httpOnly: true,
@@ -35,9 +36,10 @@ const COOKIE_OPTIONS = {
 export class AuthController {
   constructor(
     private authService: AuthService,
+    private jwtService : JwtService,
     private userService: UsersService,
-    private activityLogservice : ActivityLogService,
-    private softDeleteService: SoftDeleteService
+    private activityLogservice: ActivityLogService,
+    private softDeleteService: SoftDeleteService,
   ) {}
 
   @Post('/signUp')
@@ -46,11 +48,11 @@ export class AuthController {
   }
 
   @Post('verify-email')
-  verifyEmail(@Body() dto : VerifyEmailDto){
-    return this.authService.verifyEmail(dto)
+  verifyEmail(@Body() dto: VerifyEmailDto) {
+    return this.authService.verifyEmail(dto);
   }
-  
-  @Throttle({ default: { limit: 5, ttl: 300000 } }) 
+
+  @Throttle({ default: { limit: 5, ttl: 300000 } })
   @Post('login')
   async login(
     @Body() loginDto: LoginDto,
@@ -69,7 +71,6 @@ export class AuthController {
   }
 
   @Get('refresh')
-  @UseGuards(AuthGuard)
   async refreshToken(
     @Req() req: any,
     @Res({ passthrough: true }) res: Response,
@@ -80,7 +81,16 @@ export class AuthController {
     if (!refreshToken) {
       throw new UnauthorizedException('Refresh token missing from cookies');
     }
-    const userId = currentUser.id;
+
+    const decoded = this.jwtService.decode(refreshToken) as {
+      id: string;
+    } | null;
+
+    if (!decoded?.id) {
+      throw new UnauthorizedException('Invalid access token');
+    }
+
+    const userId = decoded.id;
 
     const tokens = await this.authService.refreshTokens(userId, refreshToken);
 
@@ -112,7 +122,7 @@ export class AuthController {
 
   @Get()
   @UseGuards(AuthGuard)
-  async getProfile(@currentUser() currentUser: { id: string }){
+  async getProfile(@currentUser() currentUser: { id: string }) {
     const user = await this.userService.findOne(currentUser.id);
     if (!user) {
       throw new UnauthorizedException('Please Login..');
@@ -121,8 +131,8 @@ export class AuthController {
   }
 
   @Post('forgot-password')
-  async forgotpass(@Body() dto: ForgotPasswordDto){
-    return this.authService.forgotPassword(dto)
+  async forgotpass(@Body() dto: ForgotPasswordDto) {
+    return this.authService.forgotPassword(dto);
   }
 
   @Post('verify-otp')
@@ -137,16 +147,17 @@ export class AuthController {
 
   @UseGuards(AuthGuard)
   @Get(':id/activity')
-  async getActivity(@Param('id') id: string ){
-    return this.activityLogservice.getRecentActivity(id)
+  async getActivity(@Param('id') id: string) {
+    return this.activityLogservice.getRecentActivity(id);
   }
 
   @Delete('account')
   @UseGuards(AuthGuard)
-  async deleteAccount(@currentUser() user : User){
-    await this.softDeleteService.requestDeletion(user.id)
+  async deleteAccount(@currentUser() user: User) {
+    await this.softDeleteService.requestDeletion(user.id);
     return {
-      message : 'Your account is scheduled for deletion in 30 days. Log in anytime before then to cancel.'
-    }
+      message:
+        'Your account is scheduled for deletion in 30 days. Log in anytime before then to cancel.',
+    };
   }
 }

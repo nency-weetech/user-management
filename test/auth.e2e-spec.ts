@@ -390,27 +390,20 @@ describe('Auth (e2e)', () => {
 
       await userService.findOne(newUser.id);
 
-      const { accessToken, refreshToken } = login.body;
+      const { refreshToken } = login.body;
 
       const res = await Request(app.getHttpServer())
         .get('/auth/refresh')
-        .set('Cookie', [
-          `accessToken=${accessToken}`,
-          `refreshToken=${refreshToken}`,
-        ]);
+        .set('Cookie', `refreshToken=${refreshToken}`);
 
       expect(res.body.message).toMatch(/Tokens refreshed successfully/);
     });
     it('should return 401 for reused/invalid refresh token', async () => {
-      const accessToken = 'Invalid-token';
       const refreshToken = 'invalid-refresh-Token';
 
       await Request(app.getHttpServer())
         .get('/auth/refresh')
-        .set('Cookie', [
-          `accessToken=${accessToken}`,
-          `refreshToken=${refreshToken}`,
-        ])
+        .set('Cookie', `refreshToken=${refreshToken}`)
         .expect(401);
     });
   });
