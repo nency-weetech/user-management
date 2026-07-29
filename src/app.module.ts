@@ -25,6 +25,9 @@ import { DeletionListenerService } from './soft-delete/deletion-listener.service
 import { DeletionCleanupService } from './soft-delete/deletion-cleanup.service';
 import { SoftDeleteModule } from './soft-delete/soft-delete.module';
 
+const disableThrottler =
+  process.env.NODE_ENV === 'test' && process.env.DISABLE_THROTTLER !== 'false';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -72,9 +75,13 @@ import { SoftDeleteModule } from './soft-delete/soft-delete.module';
     AppService,
     MailService,
     RateLimitService,
-    ...(process.env.NODE_ENV !== 'test'
-    ? [{ provide: APP_GUARD, useClass: ThrottlerGuard }]
-    : []),
+    // ...(process.env.NODE_ENV !== 'test'
+    // ? [{ provide: APP_GUARD, useClass: ThrottlerGuard }]
+    // : []),
+    // { provide: APP_GUARD, useClass: ThrottlerGuard },
+    ...(!disableThrottler
+      ? [{ provide: APP_GUARD, useClass: ThrottlerGuard }]
+      : []),
     SignUpCountService,
     WeeklyReportService,
     SoftDeleteService,
