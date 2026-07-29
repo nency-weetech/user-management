@@ -96,7 +96,6 @@ export class UsersService {
     }
 
     await this.cacheManager.set(cacheKey, user, 300000);
-    await this.activityLogService.logActivity(user.id, 'PROFILE_VIEW');
     return user;
   }
 
