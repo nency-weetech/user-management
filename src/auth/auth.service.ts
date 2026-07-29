@@ -125,6 +125,7 @@ export class AuthService {
 
     if (isPendingDeletion) {
       await this.softDeleteService.cancelDeletion(user.id);
+      await this.activityLogService.logActivity(user.id, 'ACCOUNT_DELETE_REQUEST_CANCEL')
     }
 
     await this.userService.updateLastLogin(user.id);

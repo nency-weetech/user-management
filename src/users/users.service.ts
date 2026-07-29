@@ -15,10 +15,11 @@ import { GetUserQueryDto } from './dto/get-user-query.dto';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { type Cache } from 'cache-manager';
 import { ActivityLogService } from 'src/activity-log/activity-log.service';
+import { UserRepository } from './user.repository';
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectRepository(User) private repo: Repository<User>,
+    private repo: UserRepository,
     private activityLogService: ActivityLogService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
@@ -27,44 +28,20 @@ export class UsersService {
   }
 
   async create(userData: Partial<User>): Promise<User> {
-    const user = await this.repo.create(userData);
+    const user = this.repo.create(userData);
     return this.repo.save(user);
   }
 
   async findAllPaginated(queryDto: GetUserQueryDto) {
     const { page, limit, search, role, isActive } = queryDto;
-    const skip = (page - 1) * limit;
+    const [items, totalItems] = await this.repo.findAllPaginated(
+      page,
+      limit,
+      search,
+      role,
+      isActive,
+    );
 
-    const query = this.repo.createQueryBuilder('user');
-
-    if (search) {
-      query.andWhere('LOWER(user.email) LIKE LOWER(:search)', {
-        search: `%${search}%`,
-      });
-    }
-
-    if (role) {
-      query.andWhere('user.role = :role', { role });
-    }
-
-    if (isActive !== undefined) {
-      query.andWhere('user.isActive = :isActive', { isActive });
-    }
-
-    query
-      .select([
-        'user.id',
-        'user.email',
-        'user.role',
-        'user.isActive',
-        'user.isEmailVerified',
-        'user.createdAt',
-      ])
-      .orderBy('user.createdAt', 'DESC')
-      .skip(skip)
-      .take(limit);
-
-    const [items, totalItems] = await query.getManyAndCount();
     const totalPage = Math.ceil(totalItems / limit);
     return {
       data: items,
@@ -84,44 +61,34 @@ export class UsersService {
     const cacheKey = await this.userCacheKey(id);
 
     const cached = await this.cacheManager.get<User>(cacheKey);
-
     if (cached) {
       return cached;
     }
-
-    const user = await this.repo.findOne({ where: { id } });
-
+    const user = await this.repo.findOneById(id);
     if (!user) {
       throw new NotFoundException(`User with id ${id} not found`);
     }
-
     await this.cacheManager.set(cacheKey, user, 300000);
-    await this.activityLogService.logActivity(user.id, 'PROFILE_VIEW');
     return user;
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    return await this.repo.findOne({ where: { email } });
+    return await this.repo.findByEmail(email);
   }
 
   async findEmailWithPassword(email: string): Promise<User | null> {
-    return await this.repo
-      .createQueryBuilder('user')
-      .where('user.email = :email', { email })
-      .addSelect('user.password')
-      .getOne();
+    return this.repo.findEmailWithPassword(email);
   }
 
   async updateLastLogin(userId: string): Promise<void> {
-    await this.repo.update(userId, { lastLoginAt: new Date() });
+    await this.repo.updateLastLogin(userId);
   }
 
   async update(id: string, updateUserDto: UpdateUserDto, currentUser: User) {
-    const user = await this.repo.findOne({ where: { id } });
+    const user = await this.repo.findOneById(id);
     if (!user) {
       throw new NotFoundException('User not found');
     }
-
     const isAdmin = currentUser.role === UserRole.ADMIN;
     const isSelf = currentUser.id === id;
 
@@ -133,132 +100,89 @@ export class UsersService {
       throw new ForbiddenException('Only admins can change user roles');
     }
 
-    Object.assign(user, updateUserDto);
+    const updatedUser = await this.repo.updateName(id, updateUserDto.firstName, updateUserDto.lastName);
+    
     await this.cacheManager.del(this.userCacheKey(id));
     await this.activityLogService.logActivity(user.id, 'UPDATE_PROFILE');
-    return await this.repo.save(user);
+    return updatedUser;
   }
 
   async updateRefreshToken(
     userId: string,
     refreshTokenparams: string | null | undefined,
   ): Promise<void> {
-    const user = await this.repo.findOne({ where: { id: userId } });
+    const user = await this.repo.findOneById(userId);
     if (!user) {
       throw new NotFoundException(`User with ID "${userId}" not found`);
     }
-
-    user.refreshToken = refreshTokenparams ?? null;
-    await this.repo.save(user);
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+    return this.repo.updateRefreshToken(userId, refreshTokenparams ?? null);
   }
 
   async markEmailAsValid(userId: string) {
-    await this.repo.update(userId, {
-      isEmailVerified: true,
-      emailVerificationOtp: null,
-      emailVerificationExpires: null,
-    });
+    await this.repo.markEmailAsValid(userId);
   }
 
   async saveOtp(userId: string, otpHash: string, expires: Date): Promise<void> {
-    await this.repo.update(userId, {
-      passwordResetOtp: otpHash,
-      resetOtpExpires: expires,
-      otpAttempts: 0,
-    });
+    await this.repo.saveOtp(userId, otpHash, expires);
   }
 
   async incrementOtpAttemp(userId: string): Promise<void> {
-    await this.repo.increment({ id: userId }, 'otpAttempts', 1);
+    await this.repo.incrementOtpAttempt(userId);
   }
 
   async clearOtp(userId: string): Promise<void> {
-    await this.repo.update(userId, {
-      passwordResetOtp: null,
-      resetOtpExpires: null,
-      otpAttempts: 0,
-    });
+    await this.repo.clearOtp(userId);
   }
 
   async updatePasswordAndRevokeSession(
     userId: string,
     newPass: string,
   ): Promise<void> {
-    await this.repo.update(userId, {
-      password: newPass,
-      passwordResetOtp: null,
-      resetOtpExpires: null,
-      otpAttempts: 0,
-      refreshToken: null,
-    });
+    await this.repo.updatePasswordAndRevokeSession(userId, newPass);
   }
 
   async updateUserStatus(userId: string, dto: UpdateUserStatusDto) {
-    const user = await this.repo.findOne({ where: { id: userId } });
-
+    const user = await this.repo.findOneById(userId);
     if (!user) {
       throw new NotFoundException('User not found');
     }
-
-    user.isActive = dto.isActive;
-
-    if (!dto.isActive) {
-      user.refreshToken = null;
-    }
-
-    return this.repo.save(user);
+    return user;
   }
 
   async countSignupUser(date: Date): Promise<number> {
-    return await this.repo.count({
-      where: { createdAt: MoreThan(date) },
-    });
+    return await this.repo.countSignupsSince(date);
   }
+
   async getSignupUsersSince(
     date: Date,
   ): Promise<Pick<User, 'id' | 'email' | 'createdAt'>[]> {
-    return await this.repo.find({
-      where: { createdAt: MoreThan(date) },
-      select: { email: true, createdAt: true },
-    });
+    return await this.repo.getSignupUsersSince(date);
   }
 
   async markPendingDeletion(userId: string) {
-    (await this.repo.update(userId, {
-      isPendingDeletion: true,
-      isActive: false,
-      deletionRequestedAt: new Date(),
-    }),
-      await this.cacheManager.del(this.userCacheKey(userId)));
+    await this.repo.markPendingDeletion(userId);
+    await this.cacheManager.del(this.userCacheKey(userId));
+    await this.activityLogService.logActivity(userId, 'DELETE_REQUEST')
   }
 
   async cancelPandingDeletion(userId: string) {
-    (await this.repo.update(userId, {
-      isPendingDeletion: false,
-      isActive: true,
-      deletionRequestedAt: null,
-    }),
+    (await this.repo.cancelPendingDeletion(userId),
       await this.cacheManager.del(this.userCacheKey(userId)));
   }
 
   async permanentDelete(userId: string): Promise<void> {
-    await this.repo.delete(userId);
+    const user = await this.repo.findOneById(userId);
+    if (user) {
+      await this.repo.remove(user);
+    }
     await this.cacheManager.del(this.userCacheKey(userId));
   }
+
   async findStaleDeletionRequests(cutoffDate: Date) {
-    return this.repo.find({
-      where: {
-        isPendingDeletion: true,
-        deletionRequestedAt: LessThan(cutoffDate),
-      },
-    });
+    return this.repo.findStaleDeletionRequests(cutoffDate);
   }
 
-  async updateCreatedAtForTest(userId: string, date: Date){
-    await this.repo.update(userId, {createdAt : date} as any)
+  async updateCreatedAtForTest(userId: string, date: Date) {
+    await this.repo.updateCreatedAtForTest(userId, date);
   }
 }

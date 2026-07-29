@@ -49,11 +49,6 @@ export class UsersController {
     return this.usersService.update(id, updateUserDto, user);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(+id);
-  }
-
   @Roles([UserRole.ADMIN])
   @Patch(':id/status')
   async updateUserState(

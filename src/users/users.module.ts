@@ -6,11 +6,12 @@ import { User } from './entities/user.entity';
 import { MailModule } from 'src/mail/mail.module';
 import { RedisModule } from 'src/redis/redis.module';
 import { ActivityLogModule } from 'src/activity-log/activity-log.module';
+import { UserRepository } from './user.repository';
 
 @Module({
   imports: [TypeOrmModule.forFeature([User]), ActivityLogModule],
   controllers: [UsersController],
-  providers: [UsersService],
+  providers: [UsersService, UserRepository],
   exports: [UsersService]
 })
 export class UsersModule {}
