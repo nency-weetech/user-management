@@ -24,6 +24,8 @@ import { SoftDeleteService } from './soft-delete/soft-delete.service';
 import { DeletionListenerService } from './soft-delete/deletion-listener.service';
 import { DeletionCleanupService } from './soft-delete/deletion-cleanup.service';
 import { SoftDeleteModule } from './soft-delete/soft-delete.module';
+import { NewsModule } from './news/news.module';
+import { NewsService } from './news/news.service';
 
 const disableThrottler =
   process.env.NODE_ENV === 'test' && process.env.DISABLE_THROTTLER !== 'false';
@@ -69,6 +71,7 @@ const disableThrottler =
     RateLimitModule,
     ActivityLogModule,
     SoftDeleteModule,
+    NewsModule
   ],
   controllers: [AppController],
   providers: [
@@ -87,6 +90,7 @@ const disableThrottler =
     SoftDeleteService,
     DeletionListenerService,
     DeletionCleanupService,
+    
   ],
 })
 export class AppModule {}
