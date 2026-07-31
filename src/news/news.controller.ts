@@ -42,6 +42,14 @@ export class NewsController {
     return this.newsFetchLogRepository.findRecent(Number(limit));
   }
 
+  @Get('fetch-stats')
+  @UseGuards(AuthGuard, RoleGuard)
+  @Roles([UserRole.ADMIN])
+  async fetchStats() {
+    const sinceDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+    return this.newsFetchLogRepository.getStats(sinceDate);
+  }
+
   @Get()
   async findAll(
     @Query('page') page = 1,
