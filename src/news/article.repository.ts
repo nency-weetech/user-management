@@ -30,7 +30,7 @@ export class ArticleRepository
      const query = this.articleRepository.createQueryBuilder('articles')
 
      if(category){
-      query.andWhere('articles.category = :category', {category});
+      query.andWhere('articles.catagory = :category', {category});
      }
 
      query.orderBy('articles.publishDated', 'DESC').skip(skip).take(limit);

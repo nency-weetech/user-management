@@ -51,6 +51,7 @@ export class NewsController {
   }
 
   @Get()
+  @UseGuards(AuthGuard)
   async findAll(
     @Query('page') page = 1,
     @Query('limit') limit = 10,

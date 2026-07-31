@@ -2,7 +2,6 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getDataSourceToken, TypeOrmModule } from '@nestjs/typeorm';
 import cookieParser from 'cookie-parser';
-
 import { DataSource } from 'typeorm';
 import { testDbConfig } from '../config/test-db.config';
 import { AppModule } from '../../src/app.module';
