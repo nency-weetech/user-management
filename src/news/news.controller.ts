@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { NewsService } from './news.service';
 import { NewsFetcherService } from './news-fetcher.service';
 import { AuthGuard } from 'src/guards/auth/auth.guard';
@@ -14,7 +14,7 @@ export class NewsController {
   constructor(
     private readonly newsService: NewsService,
     private newsFetcherService: NewsFetcherService,
-    private newsFetchLogRepository : NewsFetchLogRepository
+    private newsFetchLogRepository: NewsFetchLogRepository,
   ) {}
 
   // @Get('test-fetch')
@@ -38,7 +38,7 @@ export class NewsController {
   @Get('fetch-history')
   @UseGuards(AuthGuard, RoleGuard)
   @Roles([UserRole.ADMIN])
-  async fetchHistory(@Query('limit') limit: number){
+  async fetchHistory(@Query('limit') limit: number) {
     return this.newsFetchLogRepository.findRecent(Number(limit));
   }
 
@@ -46,7 +46,7 @@ export class NewsController {
   @UseGuards(AuthGuard, RoleGuard)
   @Roles([UserRole.ADMIN])
   async fetchStats() {
-    const sinceDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+    const sinceDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
     return this.newsFetchLogRepository.getStats(sinceDate);
   }
 
@@ -57,5 +57,13 @@ export class NewsController {
     @Query('category') category?: string,
   ) {
     return this.newsService.findAll(Number(page), Number(limit), category);
+  }
+
+  @Delete(':id')
+  @UseGuards(AuthGuard, RoleGuard)
+  @Roles([UserRole.ADMIN])
+  async remove(@Param('id') id: string) {
+    const deleteArticle = await this.newsService.remove(id);
+    return {message : 'Article deleted', deleteArticle}
   }
 }
