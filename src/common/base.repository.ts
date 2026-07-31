@@ -21,7 +21,7 @@ export abstract class BaseAbstractRepostitory<T extends HasId> implements BaseIn
     }
 
     public create(data: DeepPartial<T>): T {
-        return this.entity.create(data)
+        return this.entity.create(data);
     }
 
     public createMany(data: DeepPartial<T>[]): T[] {

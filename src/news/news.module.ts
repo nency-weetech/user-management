@@ -7,10 +7,18 @@ import { ArticleRepository } from './article.repository';
 import { NewsFetcherService } from './news-fetcher.service';
 import { HttpModule } from '@nestjs/axios';
 import { NewsRefreshCorn } from './news-refresh.cron';
+import { NewsFetchLog } from './entities/news-fetch-log.entity';
+import { NewsFetchLogRepository } from './news-fetch-log.repository';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Article]), HttpModule],
+  imports: [TypeOrmModule.forFeature([Article, NewsFetchLog]), HttpModule],
   controllers: [NewsController],
-  providers: [ArticleRepository, NewsFetcherService, NewsService, NewsRefreshCorn],
+  providers: [
+    ArticleRepository,
+    NewsFetchLogRepository,
+    NewsFetcherService,
+    NewsService,
+    NewsRefreshCorn,
+  ],
 })
 export class NewsModule {}
