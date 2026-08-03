@@ -1,5 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { ArticleRepository } from './article.repository';
+import { UpdateArticleDto } from './dtos/update-article.dto';
+import { Article } from './entities/article.entity';
 
 @Injectable()
 export class NewsService {
@@ -28,5 +30,15 @@ export class NewsService {
       throw new NotFoundException(`Article with id ${id} not found`);
     }
     await this.articleRepository.remove(article); 
+  }
+
+  async update(id: string, dto: UpdateArticleDto): Promise<Article>{
+    const article = await this.articleRepository.findOneById(id)
+    if(!article){
+      throw new NotFoundException(`Article with ${id} not found`)
+    }
+
+    const updated = await this.articleRepository.preload({id, ...dto})
+    return this.articleRepository.save(updated!);
   }
 }

@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { NewsService } from './news.service';
 import { NewsFetcherService } from './news-fetcher.service';
 import { AuthGuard } from 'src/guards/auth/auth.guard';
@@ -8,6 +8,7 @@ import { UserRole } from 'src/users/enums/user-role.enum';
 import { currentUser } from 'src/decorators/current-user.decorator';
 import { User } from 'src/users/entities/user.entity';
 import { NewsFetchLogRepository } from './news-fetch-log.repository';
+import { UpdateArticleDto } from './dtos/update-article.dto';
 
 @Controller('news')
 export class NewsController {
@@ -65,5 +66,12 @@ export class NewsController {
   async remove(@Param('id') id: string) {
     const deleteArticle = await this.newsService.remove(id);
     return {message : 'Article deleted', deleteArticle}
+  }
+
+  @Patch(':id')
+  @UseGuards(AuthGuard, RoleGuard)
+  @Roles([UserRole.ADMIN])
+  async updateArticle(@Param('id') id: string, @Body() dto : UpdateArticleDto){
+    return this.newsService.update(id, dto)
   }
 }
