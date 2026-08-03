@@ -9,7 +9,9 @@ import { currentUser } from 'src/decorators/current-user.decorator';
 import { User } from 'src/users/entities/user.entity';
 import { NewsFetchLogRepository } from './news-fetch-log.repository';
 import { UpdateArticleDto } from './dtos/update-article.dto';
+import { ApiBody, ApiCookieAuth, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('News')
 @Controller('news')
 export class NewsController {
   constructor(
@@ -22,6 +24,11 @@ export class NewsController {
   // async testFetch(){
   //   return this.newsFetcherService.fetchAndStoreNews('technology', 2);
   // }
+  @ApiOperation({summary: 'Triggered an on-demand news refresh from external API (Admin only)'})
+  @ApiCookieAuth('accessToken')
+  @ApiBody({schema: {example: {query: 'technology', number : 5}}})
+  @ApiResponse({ status: 200, description: 'Refresh completed, return fetched cound'})
+  @ApiResponse({ status: 403, description: 'Admin role reuire'})
   @Post('refresh')
   @UseGuards(AuthGuard, RoleGuard)
   @Roles([UserRole.ADMIN])
@@ -36,6 +43,11 @@ export class NewsController {
     );
   }
 
+  @ApiOperation({summary: 'Get recent news fetch history (admin only)'})
+  @ApiCookieAuth('accessToken')
+  @ApiQuery({name: 'limit', required: false, type: Number, example: 20})
+  @ApiResponse({ status: 200, description: 'Fetch history return'})
+  @ApiResponse({ status: 403, description: 'Admin role require'})
   @Get('fetch-history')
   @UseGuards(AuthGuard, RoleGuard)
   @Roles([UserRole.ADMIN])
@@ -43,6 +55,10 @@ export class NewsController {
     return this.newsFetchLogRepository.findRecent(Number(limit));
   }
 
+  @ApiOperation({summary: 'Get news fetch statistic for the last 7 days (admin only)'})
+  @ApiCookieAuth('accessToken')
+  @ApiResponse({ status: 200, description: 'Stats returned (total, failed, success rate, avg duration)'})
+  @ApiResponse({ status: 403, description: 'Admin role require'})
   @Get('fetch-stats')
   @UseGuards(AuthGuard, RoleGuard)
   @Roles([UserRole.ADMIN])
@@ -51,6 +67,12 @@ export class NewsController {
     return this.newsFetchLogRepository.getStats(sinceDate);
   }
 
+  @ApiOperation({ summary: 'Get pagineted list of news article'})
+  @ApiCookieAuth('accessToken')
+  @ApiQuery({name : 'page', required: false, type: Number})
+  @ApiQuery({name : 'limit', required: false, type: Number})
+  @ApiQuery({name : 'category', required: false, type: String})
+  @ApiResponse({status : 200, description: 'Article return'})
   @Get()
   @UseGuards(AuthGuard)
   async findAll(
@@ -61,6 +83,12 @@ export class NewsController {
     return this.newsService.findAll(Number(page), Number(limit), category);
   }
 
+  @ApiOperation({summary: 'Delete an article by id (admin only)'})
+  @ApiCookieAuth('accessToken')
+  @ApiQuery({name : 'id', description: 'Article id'})
+  @ApiResponse({ status: 200, description: 'Article deleted'})
+  @ApiResponse({ status: 403, description: 'Admin role require'})
+  @ApiResponse({ status: 404, description: 'Article not found'})
   @Delete(':id')
   @UseGuards(AuthGuard, RoleGuard)
   @Roles([UserRole.ADMIN])
@@ -69,6 +97,12 @@ export class NewsController {
     return {message : 'Article deleted', deleteArticle}
   }
 
+  @ApiOperation({summary: 'Update article by id (admin only)'})
+  @ApiCookieAuth('accessToken')
+  @ApiQuery({name : 'id', description: 'Article id'})
+  @ApiResponse({ status: 200, description: 'Article updated'})
+  @ApiResponse({ status: 403, description: 'Admin role require'})
+  @ApiResponse({ status: 404, description: 'Article not found'})
   @Patch(':id')
   @UseGuards(AuthGuard, RoleGuard)
   @Roles([UserRole.ADMIN])

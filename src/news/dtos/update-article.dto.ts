@@ -1,15 +1,19 @@
-import { IsOptional, IsString } from "class-validator";
+import { ApiPropertyOptional } from '@nestjs/swagger';
+import { IsOptional, IsString } from 'class-validator';
 
 export class UpdateArticleDto {
-    @IsOptional()
-    @IsString()
-    title?: string;
+  @ApiPropertyOptional({ example: 'Updated article title' })
+  @IsOptional()
+  @IsString()
+  title?: string;
 
-    @IsOptional()
-    @IsString()
-    catagory ?: string;
+  @ApiPropertyOptional({ example: 'Politics' })
+  @IsOptional()
+  @IsString()
+  catagory?: string;
 
-    @IsOptional()
-    @IsString()
-    summary?: string
+  @ApiPropertyOptional({ example: 'Updated summary text' })
+  @IsOptional()
+  @IsString()
+  summary?: string;
 }
