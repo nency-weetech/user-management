@@ -11,6 +11,7 @@ import { ArticleRepository } from 'src/news/article.repository';
 import { NewsFetchLogRepository } from 'src/news/news-fetch-log.repository';
 import { of, throwError } from 'rxjs';
 import { fetchTrigger } from 'src/news/entities/news-fetch-log.entity';
+import { title } from 'process';
 
 describe('News (e2e)', () => {
   let app: INestApplication;
@@ -222,7 +223,6 @@ describe('News (e2e)', () => {
         .send({ query: 'technology', number: 3 })
         .expect(401);
     });
-
     it('should allow admin to trigger a refresh', async () => {
       newslog.mockHttpGet.mockReturnValue(
         of({
@@ -230,6 +230,7 @@ describe('News (e2e)', () => {
             news: [
               {
                 id: 9999,
+                title: 'Test Article',
                 summary: 'Mocked Article',
                 url: 'https://test.com',
                 publish_date: '2026-01-01 00:00:00',
@@ -257,14 +258,13 @@ describe('News (e2e)', () => {
         .expect(201);
 
       const articles = await articleRepository.findAll();
-      expect(articles.length).toBeGreaterThan(0);
+      expect(articles.length).toBe(1);
       expect(articles[0].summary).toBe('Mocked Article');
 
       const log = await newsFetchLogRepository.findRecent(1);
       expect(log[0].success).toBe(true);
       expect(log[0].triggeredByUserId).toBe(admin.id);
     });
-
     it('should log a failure if the external API call fails', async () => {
       newslog.mockHttpGet.mockReturnValue(
         throwError(() => new Error('Request Failed with status code 401')),
@@ -337,7 +337,6 @@ describe('News (e2e)', () => {
 
       expect(res.body.length).toBe(2);
     });
-
     it('should return 403 for regular user', async () => {
       await createVerifiedUser('user@test.com');
 
@@ -357,7 +356,6 @@ describe('News (e2e)', () => {
 
       expect(res.status).toBe(403);
     });
-
     it('should respect the limit query param', async () => {
       const admin = await createVerifiedAdmin('admin@test.com');
       const query = [
@@ -433,7 +431,6 @@ describe('News (e2e)', () => {
       const deletedArticle = await articleRepository.findByExternalId(12345);
       expect(deletedArticle).toBeNull();
     });
-
     it('should return 403 for regular user', async () => {
       const id = '0000000-000-0000-0000';
       await createVerifiedUser('user@test.com');
@@ -469,4 +466,174 @@ describe('News (e2e)', () => {
         .expect(404);
     });
   });
+
+  describe('PATCH /news/:id', () => {
+    it('should allow admin to update an article', async () => {
+      const article = await articleRepository.upsertArticle({
+        externalId: 12345,
+        summary: `A test summary `,
+        url: `https://example.com/test`,
+        catagory: 'technology',
+        sourceCountry: 'us',
+        sentiment: 0.5,
+        publishDated: new Date(),
+        lastRefreshedAt: new Date(),
+      });
+
+      const id = article.id;
+      const admin = await createVerifiedAdmin('admin@test.com');
+      const logRes = await Request(app.getHttpServer())
+        .post('/auth/login')
+        .send({ email: 'admin@test.com', password: 'password@123' });
+
+      const { accessToken, refreshToken } = logRes.body;
+
+      const res = await Request(app.getHttpServer())
+        .patch(`/news/${id}`)
+        .set('Cookie', [
+          `accessToken=${accessToken}`,
+          `refreshToken=${refreshToken}`,
+        ])
+        .send({ title: 'Updated Title', catagory: 'politics' })
+        .expect(200);
+
+      const updateArticle = await articleRepository.findOneById(id);
+      expect(updateArticle?.title).toBe('Updated Title');
+      expect(updateArticle?.catagory).toBe('politics');
+    });
+    it('should return 403 for regular user', async () => {
+      const article = await articleRepository.upsertArticle({
+        externalId: 12345,
+        summary: `A test summary `,
+        url: `https://example.com/test`,
+        catagory: 'technology',
+        sourceCountry: 'us',
+        sentiment: 0.5,
+        publishDated: new Date(),
+        lastRefreshedAt: new Date(),
+      });
+
+      const id = article.id;
+      const user = await createVerifiedUser('user@test.com');
+      const logRes = await Request(app.getHttpServer())
+        .post('/auth/login')
+        .send({ email: 'user@test.com', password: 'password@123' });
+
+      const { accessToken, refreshToken } = logRes.body;
+
+      const res = await Request(app.getHttpServer())
+        .patch(`/news/${id}`)
+        .set('Cookie', [
+          `accessToken=${accessToken}`,
+          `refreshToken=${refreshToken}`,
+        ])
+        .send({ title: 'Updated Title', catagory: 'politics' })
+        .expect(403);
+
+      const updateArticle = await articleRepository.findOneById(id);
+      expect(updateArticle?.title).not.toBe('Updated Title');
+      expect(updateArticle?.catagory).not.toBe('politics');
+    });
+    it('should return 401 for unauthenticated request', async () => {
+      const article = await articleRepository.upsertArticle({
+        externalId: 12345,
+        summary: `A test summary `,
+        url: `https://example.com/test`,
+        catagory: 'technology',
+        sourceCountry: 'us',
+        sentiment: 0.5,
+        publishDated: new Date(),
+        lastRefreshedAt: new Date(),
+      });
+      const id = article.id;
+      const res = await Request(app.getHttpServer())
+        .patch(`/news/${id}`)
+        .send({ title: 'updated title' })
+        .expect(401);
+    });
+    it('should return 404 for nonexistent article', async () => {
+      const id = '00000000-0000-0000-0000-000000000000';
+      await createVerifiedAdmin('admin@test.com');
+      const logRes = await Request(app.getHttpServer())
+        .post('/auth/login')
+        .send({ email: 'admin@test.com', password: 'password@123' });
+
+      const { accessToken, refreshToken } = logRes.body;
+
+      await Request(app.getHttpServer())
+        .delete(`/news/${id}`)
+        .set('Cookie', [
+          `accessToken=${accessToken}`,
+          `refreshToken=${refreshToken}`,
+        ])
+        .send({ title: 'Not found article' })
+        .expect(404);
+    });
+    it('should only update the fields provided, leaving others unchanged', async () => {
+      const article = await articleRepository.upsertArticle({
+        externalId: 12345,
+        title: 'original',
+        summary: `the original article`,
+        url: `https://example.com/test`,
+        catagory: 'technology',
+        sourceCountry: 'us',
+        sentiment: 0.5,
+        publishDated: new Date(),
+        lastRefreshedAt: new Date(),
+      });
+
+      const id = article.id;
+      const admin = await createVerifiedAdmin('admin@test.com');
+      const logRes = await Request(app.getHttpServer())
+        .post('/auth/login')
+        .send({ email: 'admin@test.com', password: 'password@123' });
+
+      const { accessToken, refreshToken } = logRes.body;
+
+      const res = await Request(app.getHttpServer())
+        .patch(`/news/${id}`)
+        .set('Cookie', [
+          `accessToken=${accessToken}`,
+          `refreshToken=${refreshToken}`,
+        ])
+        .send({ catagory: 'politics' })
+        .expect(200);
+
+      const updateArticle = await articleRepository.findOneById(id);
+      expect(updateArticle?.title).toBe('original');
+      expect(updateArticle?.catagory).toBe('politics');
+    });
+    it('should reject invalid data (e.g., wrong type for a field)', async () => {
+      const article = await articleRepository.upsertArticle({
+        externalId: 12345,
+        title: 'original',
+        summary: `the original article`,
+        url: `https://example.com/test`,
+        catagory: 'technology',
+        sourceCountry: 'us',
+        sentiment: 0.5,
+        publishDated: new Date(),
+        lastRefreshedAt: new Date(),
+      });
+
+      const id = article.id;
+      const admin = await createVerifiedAdmin('admin@test.com');
+      const logRes = await Request(app.getHttpServer())
+        .post('/auth/login')
+        .send({ email: 'admin@test.com', password: 'password@123' });
+
+      const { accessToken, refreshToken } = logRes.body;
+
+      const res = await Request(app.getHttpServer())
+        .patch(`/news/${id}`)
+        .set('Cookie', [
+          `accessToken=${accessToken}`,
+          `refreshToken=${refreshToken}`,
+        ])
+        .send({ catagory: 123 })
+        .expect(400);
+
+    });
+  });
 });
+
