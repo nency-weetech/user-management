@@ -5,6 +5,7 @@ import { ArticleRepository } from './article.repository';
 import { firstValueFrom } from 'rxjs';
 import { NewsFetchLogRepository } from './news-fetch-log.repository';
 import { fetchTrigger } from './entities/news-fetch-log.entity';
+import { title } from 'process';
 
 @Injectable()
 export class NewsFetcherService {
@@ -40,9 +41,10 @@ export class NewsFetcherService {
       let storedCount = 0;
 
       for (const article of articles) {
-        if (!article.id || !article.summary || !article.url) continue;
+        if (!article.id || !article.title || !article.url) continue;
         await this.articalRepository.upsertArticle({
           externalId: article.id,
+          title : article.title,
           summary: article.summary,
           url: article.url,
           image: article.image,

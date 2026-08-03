@@ -15,6 +15,9 @@ export class Article {
   externalId!: number;
 
   @Column({ type: 'varchar', nullable: true })
+  title!: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
   summary!: string | null;
 
   @Column({ type: 'varchar' })
