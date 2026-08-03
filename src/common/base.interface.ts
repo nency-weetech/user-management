@@ -4,6 +4,7 @@ export interface BaseInterfaceRepository<T> {
     create(data: DeepPartial<T>): T;
     createMany(data: DeepPartial<T>[]): T[]
     save(data: DeepPartial<T>): Promise<T>
+    createAndSave(data : DeepPartial<T>): Promise<T>
     saveMany(data: DeepPartial<T>[]): Promise<T[]>
     findOneById(id: string): Promise<T | null>
     findByCondition(filterCondition: FindOneOptions<T>): Promise<T | null>;

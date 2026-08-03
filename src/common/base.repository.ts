@@ -24,6 +24,10 @@ export abstract class BaseAbstractRepostitory<T extends HasId> implements BaseIn
         return this.entity.create(data);
     }
 
+    public createAndSave(data : DeepPartial<T>): Promise<T>{
+        const createdData = this.entity.create(data)
+        return this.entity.save(createdData)
+    }
     public createMany(data: DeepPartial<T>[]): T[] {
         return this.entity.create(data);
     }

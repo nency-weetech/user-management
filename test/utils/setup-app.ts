@@ -6,13 +6,16 @@ import { DataSource } from 'typeorm';
 import { testDbConfig } from '../config/test-db.config';
 import { AppModule } from '../../src/app.module';
 import { MailService } from 'src/mail/mail.service';
-
+import { HttpService } from '@nestjs/axios';
 export const mailCapture = {
   lastVerificationOtp: null as string | null,
   lastResetOtp: null as string | null,
   lastWelcomeEmail : null as string | null,
   lastWeeklyReport : null as {count: number, users: any[]} | null,
 };
+export const newslog = {
+  mockHttpGet : jest.fn()
+}
 
 export async function setUpApp(): Promise<INestApplication> {
   const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -33,6 +36,8 @@ export async function setUpApp(): Promise<INestApplication> {
         mailCapture.lastWeeklyReport = {count, users}
       }
     })
+    .overrideProvider(HttpService)
+    .useValue({get : newslog.mockHttpGet})
     .compile();
 
   const app = moduleFixture.createNestApplication();
