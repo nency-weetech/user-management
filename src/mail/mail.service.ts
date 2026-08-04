@@ -1,11 +1,13 @@
+import { InjectQueue } from '@nestjs/bullmq';
 import { Injectable, Logger } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
+import { Queue } from 'bullmq';
 @Injectable()
 export class MailService {
   private transporter!: nodemailer.Transporter;
   private readonly logger = new Logger(MailService.name);
 
-  constructor() {
+  constructor(@InjectQueue('mailQueue') private readonly mailQueue: Queue) {
     this.initTransporter();
   }
 
@@ -27,35 +29,29 @@ export class MailService {
   }
 
   async sendVerificationOtpEmail(toEmail: string, otp: string): Promise<void> {
-    const mailOption = {
-      from: '"App Security" <no-reply@myapp.com>',
-      to: toEmail,
-      subject: 'Verify Your Email Address',
-      html: `
-        <h3>Welcome to our App!</h3>
-        <p>Your email verification code is:</p>
-        <h2 style="color: blue; letter-spacing: 2px;">${otp}</h2>
-        <p>This code expires in 15 minutes.</p>
-        `,
-    };
-
-    const info = await this.transporter.sendMail(mailOption);
-    this.logger.log(
-      `Verifiction Email URL: ${nodemailer.getTestMessageUrl(info)}`,
+    await this.mailQueue.add(
+      'send-verification-OTP',
+      { toEmail, otp },
+      {
+        attempts: 3,
+        backoff: { type: 'exponential', delay: 3000 },
+        removeOnComplete: false,
+        removeOnFail: false,
+      },
     );
   }
 
-  async welcomeMail(toEmail:string){
-     const mailOption = {
-      from: '"App Security" <no-reply@myapp.com>',
-      to: toEmail,
-      subject: 'Verify Your Email Address',
-      html: `
-        <h3>Welcome ${toEmail} </h3>
-        `,
-    };
-    const info = await this.transporter.sendMail(mailOption)
-    this.logger.log(`Welcom mail: ${nodemailer.getTestMessageUrl(info)}`)
+  async welcomeMail(toEmail: string) {
+    await this.mailQueue.add(
+      'send-welcome',
+      { toEmail},
+      {
+        attempts: 3,
+        backoff: {type: 'exponential', delay: 3000},
+        removeOnComplete: false,
+        removeOnFail: false
+      }
+    )
   }
 
   async sendResetPassOtpEmail(toEmail: string, otp: string): Promise<void> {

@@ -26,6 +26,9 @@ import { DeletionCleanupService } from './soft-delete/deletion-cleanup.service';
 import { SoftDeleteModule } from './soft-delete/soft-delete.module';
 import { NewsModule } from './news/news.module';
 import { NewsService } from './news/news.service';
+import { BullModule } from '@nestjs/bullmq';
+import { BullBoardModule } from '@bull-board/nestjs';
+import { ExpressAdapter } from '@bull-board/express';
 
 const disableThrottler =
   process.env.NODE_ENV === 'test' && process.env.DISABLE_THROTTLER !== 'false';
@@ -34,6 +37,10 @@ const disableThrottler =
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+    }),
+    BullBoardModule.forRoot({
+      route: '/queues',
+      adapter: ExpressAdapter
     }),
     ScheduleModule.forRoot(),
     CacheModule.registerAsync({
@@ -52,7 +59,7 @@ const disableThrottler =
     ThrottlerModule.forRoot([
       {
         ttl: 60000,
-        limit: 10,
+        limit: 15,
       },
     ]),
     TypeOrmModule.forRoot(datasourceOptions),
@@ -66,17 +73,16 @@ const disableThrottler =
     }),
     UsersModule,
     AuthModule,
-    MailModule,
     RedisModule,
+    MailModule,
     RateLimitModule,
     ActivityLogModule,
     SoftDeleteModule,
-    NewsModule
+    NewsModule,
   ],
   controllers: [AppController],
   providers: [
     AppService,
-    MailService,
     RateLimitService,
     // ...(process.env.NODE_ENV !== 'test'
     // ? [{ provide: APP_GUARD, useClass: ThrottlerGuard }]
@@ -90,7 +96,6 @@ const disableThrottler =
     SoftDeleteService,
     DeletionListenerService,
     DeletionCleanupService,
-    
   ],
 })
 export class AppModule {}
