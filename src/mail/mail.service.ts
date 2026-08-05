@@ -33,12 +33,23 @@ export class MailService {
       'send-verification-OTP',
       { toEmail, otp },
       {
+        priority: 1,
         attempts: 3,
         backoff: { type: 'exponential', delay: 3000 },
         removeOnComplete: false,
         removeOnFail: false,
       },
+      
     );
+    await this.mailQueue.add(
+      'send-otp-reminder',
+      {toEmail},
+      {
+        priority: 5,
+        delay: 30 * 1000,
+        attempts: 2
+      }
+    )
   }
 
   async welcomeMail(toEmail: string) {
@@ -46,6 +57,7 @@ export class MailService {
       'send-welcome',
       { toEmail},
       {
+        priority: 3,
         attempts: 3,
         backoff: {type: 'exponential', delay: 3000},
         removeOnComplete: false,
@@ -55,25 +67,17 @@ export class MailService {
   }
 
   async sendResetPassOtpEmail(toEmail: string, otp: string): Promise<void> {
-    const mailOption = {
-      from: '"App Security" <no-reply@myapp.com>',
-      to: toEmail,
-      subject: 'Your Password Reset OTP',
-      html: `
-        <div style="font-family: Arial, sans-serif; padding: 20px;">
-          <h2>Password Reset Request</h2>
-          <p>Your one-time verification code is:</p>
-          <h1 style="letter-spacing: 5px; color: #4A90E2;">${otp}</h1>
-          <p>This code is valid for <strong>10 minutes</strong>.</p>
-          <p>If you did not request this, please ignore this email.</p>
-        </div>
-        `,
-    };
-
-    const info = await this.transporter.sendMail(mailOption);
-    this.logger.log(
-      `Password Reset URL: ${nodemailer.getTestMessageUrl(info)}`,
-    );
+    await this.mailQueue.add(
+      'send-reset-pass-otp',
+      {toEmail, otp},
+      {
+        priority: 1,
+        attempts: 3,
+        backoff: {type: 'exponential', delay: 3000},
+        removeOnComplete: false,
+        removeOnFail: false
+      }
+    )
   }
 
   async sendWeeklyReportMail(

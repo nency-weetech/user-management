@@ -2,13 +2,20 @@ import { OnWorkerEvent, Processor, WorkerHost } from '@nestjs/bullmq';
 import { Logger } from '@nestjs/common';
 import { Job } from 'bullmq';
 import * as nodemailer from 'nodemailer';
+import { UsersService } from 'src/users/users.service';
 
-@Processor('mailQueue')
+@Processor('mailQueue', {
+  concurrency: 1,
+  limiter: {
+    max: 5,
+    duration: 60000,
+  },
+})
 export class MailProcessor extends WorkerHost {
   private readonly logger = new Logger(MailProcessor.name);
   private transporter!: nodemailer.Transporter;
 
-  constructor() {
+  constructor(private userService: UsersService) {
     super();
     this.initTranspoter();
   }
@@ -30,12 +37,23 @@ export class MailProcessor extends WorkerHost {
   }
 
   async process(job: Job<any, any, string>): Promise<any> {
+    let result;
     switch (job.name) {
       case 'send-verification-OTP':
-        return this.handleVerifactionOtp(job);
+        result = this.handleVerifactionOtp(job);
+        break;
+      case 'send-otp-reminder':
+        return this.handleOtpReminder(job);
+      case 'send-welcome':
+        result = this.welcomeMail(job);
+      case 'send-reset-pass-otp':
+        result = this.resetPassOtp(job);
       default:
         this.logger.warn(`Unkonown Job type: ${job.name}`);
+        break;
     }
+
+    return result;
   }
 
   async handleVerifactionOtp(job: Job<{ toEmail: string; otp: string }>) {
@@ -62,6 +80,26 @@ export class MailProcessor extends WorkerHost {
     return { status: 'sent', messageId: info.messageId };
   }
 
+  async handleOtpReminder(job: Job<{ toEmail: string }>) {
+    const { toEmail } = job.data;
+
+    const user = await this.userService.findByEmail(toEmail);
+    if (user?.isEmailVerified) {
+      return;
+    }
+    this.logger.log(`⏰ Sending OTP reminder to: ${toEmail}`);
+    const mailOption = {
+      from: '"App Security" <no-reply@myapp.com>',
+      to: toEmail,
+      subject: 'Verify Email Reminder',
+      html: `
+            <h3>Please Verify email ${toEmail} with valid OTP</h3>
+            `,
+    };
+    const info = await this.transporter.sendMail(mailOption);
+    this.logger.log(`reminder mail: ${nodemailer.getTestMessageUrl(info)}`);
+  }
+
   async welcomeMail(job: Job<{ toEmail: string }>) {
     const { toEmail } = job.data;
     const mailOption = {
@@ -76,5 +114,28 @@ export class MailProcessor extends WorkerHost {
     this.logger.log(`Welcom mail: ${nodemailer.getTestMessageUrl(info)}`);
 
     return { status: 'sent', messageId: info.messageId };
+  }
+
+  async resetPassOtp(job: Job<{ toEmail: string; otp: string }>) {
+    const { toEmail, otp } = job.data;
+    const mailOption = {
+      from: '"App Security" <no-reply@myapp.com>',
+      to: toEmail,
+      subject: 'Your Password Reset OTP',
+      html: `
+        <div style="font-family: Arial, sans-serif; padding: 20px;">
+          <h2>Password Reset Request</h2>
+          <p>Your one-time verification code is:</p>
+          <h1 style="letter-spacing: 5px; color: #4A90E2;">${otp}</h1>
+          <p>This code is valid for <strong>10 minutes</strong>.</p>
+          <p>If you did not request this, please ignore this email.</p>
+        </div>
+        `,
+    };
+
+    const info = await this.transporter.sendMail(mailOption);
+    this.logger.log(
+      `Password Reset URL: ${nodemailer.getTestMessageUrl(info)}`,
+    );
   }
 }
