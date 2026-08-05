@@ -10,14 +10,19 @@ import { User } from 'src/users/entities/user.entity';
 import { NewsFetchLogRepository } from './news-fetch-log.repository';
 import { UpdateArticleDto } from './dtos/update-article.dto';
 import { ApiBody, ApiCookieAuth, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { NewsQueueService } from './news.queue.service';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
 
 @ApiTags('News')
 @Controller('news')
 export class NewsController {
   constructor(
     private readonly newsService: NewsService,
+    private newsQueueService : NewsQueueService,
     private newsFetcherService: NewsFetcherService,
     private newsFetchLogRepository: NewsFetchLogRepository,
+    @InjectQueue('newsQueue') private readonly newsQueue: Queue,
   ) {}
 
   // @Get('test-fetch')
@@ -36,11 +41,29 @@ export class NewsController {
     @Body() dto: { query: string; number?: number },
     @currentUser() admin: User,
   ) {
-    return this.newsFetcherService.fetchAndStoreNews(
+    const {jobId} = await this.newsQueueService.queueNewsFetch(
       dto.query,
       dto.number ?? 5,
       admin.id,
     );
+    
+    return { status : 202, jobId, message: 'your request is pending please wait while' }
+  }
+
+  @Get('job-status/:jobId')
+  async getJobStatus(@Param('jobId') jobId : string){
+    const job = await this.newsQueue.getJob(jobId)
+    if(!job){
+      return {message : 'not found'}
+    }
+
+    const state = await job.getState()
+    return {
+    jobId: job.id,
+    status: state,
+    result: state === 'completed' ? job.returnvalue : null,
+    error: state === 'failed' ? job.failedReason : null,
+  };
   }
 
   @ApiOperation({summary: 'Get recent news fetch history (admin only)'})
