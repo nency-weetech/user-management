@@ -76,6 +76,12 @@ export class NewsController {
     };
   }
 
+  @Get('/retry-job/:jobId')
+  async retryJob(@Param('jobId') jobId: string){
+    return this.newsQueueService.retryFaildJob(jobId)
+  }
+
+
   @ApiOperation({
     summary: 'Check the status of a queued news-fetch job',
     description:

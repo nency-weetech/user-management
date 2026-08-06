@@ -1,5 +1,5 @@
 import { InjectQueue } from '@nestjs/bullmq';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Queue } from 'bullmq';
 
 @Injectable()
@@ -52,8 +52,11 @@ export class NewsQueueService {
           status: 'Failed',
           message: 'News fetch failed after all retry attempts',
           jobId: job.id,
+          jobName : job.name,
+          failedReason : job.failedReason,
           error: job.failedReason,
           attemptsMade: job.attemptsMade,
+          failedAt: job.finishedOn
         };
       case 'active' :
         return {
@@ -77,6 +80,26 @@ export class NewsQueueService {
             message :  `Job is in ${state} stage`,
             jobId : job.id
         }
+    };
+  }
+
+  async retryFaildJob(jobId : string){
+    const job = await this.newsQueue.getJob(jobId)
+    if(!job){
+      throw new NotFoundException(`Job with ID ${jobId} Not found`)
+    }
+
+    const state = await job.getState()
+    if(state !== 'failed'){
+      `Job ${jobId} is not in "failed" state (current: ${state}). Only failed jobs can be retried.`
+    }
+
+    await job.retry()
+    this.logger.log(`Job ${jobId} manually retried`);
+
+    return {
+      message: `Job ${jobId} has been re-queued for processing`,
+      jobId: job.id,
     };
   }
 }
