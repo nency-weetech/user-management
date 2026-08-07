@@ -14,18 +14,20 @@ export class NewsQueueService {
   private logger = new Logger(NewsQueueService.name);
 
   constructor(@InjectQueue('newsQueue') private readonly newsQueue: Queue) {}
-
+  
+  
   async queueNewsFetch(
     query: string,
     number: number,
     triggeredByUserId: string | null = null,
   ) {
+    const isTest = process.env.NODE_ENV === 'test';
     const job = await this.newsQueue.add(
       'fetch-news',
       { query, number, triggeredByUserId },
       {
-        attempts: 3,
-        backoff: { type: 'exponential', delay: 3000 },
+        attempts: isTest ? 1 : 3,
+        backoff: isTest ? undefined : { type: 'exponential', delay: 3000 },
         removeOnComplete: false,
         removeOnFail: false,
       },
@@ -43,7 +45,7 @@ export class NewsQueueService {
   async getJobState(jobId: string) {
     const job = await this.newsQueue.getJob(jobId);
     if (!job) {
-      return { message: 'not found' };
+      throw new NotFoundException(`job with id ${jobId} not found`);
     }
 
     const state = await job.getState();

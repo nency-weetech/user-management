@@ -12,6 +12,9 @@ import { NewsFetchLogRepository } from 'src/news/news-fetch-log.repository';
 import { of, throwError } from 'rxjs';
 import { fetchTrigger } from 'src/news/entities/news-fetch-log.entity';
 import { title } from 'process';
+import { NewsQueueService } from 'src/news/news.queue.service';
+import { Queue } from 'bullmq';
+import { getQueueToken } from '@nestjs/bullmq';
 
 describe('News (e2e)', () => {
   let app: INestApplication;
@@ -20,6 +23,7 @@ describe('News (e2e)', () => {
   let userToken: string;
   let articleRepository: ArticleRepository;
   let newsFetchLogRepository: NewsFetchLogRepository;
+  let newsQueue: Queue;
 
   beforeAll(async () => {
     app = await setUpApp();
@@ -29,12 +33,16 @@ describe('News (e2e)', () => {
     newsFetchLogRepository = app.get<NewsFetchLogRepository>(
       NewsFetchLogRepository,
     );
+    newsQueue = app.get<Queue>(getQueueToken('newsQueue'));
   });
 
   afterEach(async () => {
+    await waitForJobProcessing(500);
     await cleanDatabase(app);
+    await newsQueue.obliterate({ force: true });
   });
   afterAll(async () => {
+    await newsQueue.close();
     await closeTestApp(app);
   });
 
@@ -72,6 +80,10 @@ describe('News (e2e)', () => {
       role: UserRole.ADMIN,
       ...overrides,
     });
+  }
+
+  async function waitForJobProcessing(ms = 1000) {
+    await new Promise((res) => setTimeout(res, ms));
   }
 
   describe('GET/news', () => {
@@ -174,31 +186,47 @@ describe('News (e2e)', () => {
   });
 
   describe('POSt /news/refresh', () => {
-    // it('should allow admin to trigger a refresh', async () => {
-    //   await createVerifiedAdmin('admin@test.com');
+    it('should allow admin to trigger a refresh and process it successfully', async () => {
+      newslog.mockHttpGet.mockReturnValue(
+        of({
+          data: {
+            news: [
+              {
+                id: 9999,
+                title: 'Test Article',
+                summary: 'Mocked Article',
+                url: 'https://test.com',
+                publish_date: '2026-01-01 00:00:00',
+              },
+            ],
+          },
+        }),
+      );
+      await createVerifiedAdmin('admin@test.com');
 
-    //   const loginUser = await Request(app.getHttpServer())
-    //     .post('/auth/login')
-    //     .send({ email: 'admin@test.com', password: 'password@123' });
+      const loginUser = await Request(app.getHttpServer())
+        .post('/auth/login')
+        .send({ email: 'admin@test.com', password: 'password@123' });
 
-    //   const { accessToken, refreshToken } = loginUser.body;
+      const { accessToken, refreshToken } = loginUser.body;
 
-    //   const res = await Request(app.getHttpServer())
-    //     .post('/news/refresh')
-    //     .send({ query: 'business', number: 1 })
-    //     .set('Cookie', [
-    //       `accessToken=${accessToken}`,
-    //       `refreshToken=${refreshToken}`,
-    //     ]);
+      const res = await Request(app.getHttpServer())
+        .post('/news/refresh')
+        .send({ query: 'business', number: 1 })
+        .set('Cookie', [
+          `accessToken=${accessToken}`,
+          `refreshToken=${refreshToken}`,
+        ]);
 
-    //     const articles = await articleRepository.findAll()
-    //     expect(articles.length).toBeGreaterThan(0)
+      await waitForJobProcessing();
+      const articles = await articleRepository.findAll();
+      expect(articles.length).toBeGreaterThan(0);
 
-    //     const log = await newsFetchLogRepository.findRecent(1)
-    //     expect(log.length).toBe(1)
-    //     expect(log[0].success).toBe(true)
-    //     expect(log[0].triggeredBy).toBe('admin')
-    // });
+      const log = await newsFetchLogRepository.findRecent(1);
+      expect(log.length).toBe(1);
+      expect(log[0].success).toBe(true);
+      expect(log[0].triggeredBy).toBe('admin');
+    });
     it('should return 403 for regular user', async () => {
       await createVerifiedUser('user@test.com');
 
@@ -223,7 +251,7 @@ describe('News (e2e)', () => {
         .send({ query: 'technology', number: 3 })
         .expect(401);
     });
-    it('should allow admin to trigger a refresh', async () => {
+    it('should queue a refresh job when admin triggered it', async () => {
       newslog.mockHttpGet.mockReturnValue(
         of({
           data: {
@@ -257,13 +285,24 @@ describe('News (e2e)', () => {
         .send({ query: 'business' })
         .expect(201);
 
-      const articles = await articleRepository.findAll();
-      expect(articles.length).toBe(1);
-      expect(articles[0].summary).toBe('Mocked Article');
+      expect(res.body.jobId).toBeDefined();
 
-      const log = await newsFetchLogRepository.findRecent(1);
-      expect(log[0].success).toBe(true);
-      expect(log[0].triggeredByUserId).toBe(admin.id);
+      const jobs = await newsQueue.getJobs([
+        'waiting',
+        'active',
+        'completed',
+        'delayed',
+      ]);
+      const job = jobs.find((j) => j.data.query === 'business');
+      expect(job).toBeDefined();
+
+      // const articles = await articleRepository.findAll();
+      // expect(articles.length).toBe(1);
+      // expect(articles[0].summary).toBe('Mocked Article');
+
+      // const log = await newsFetchLogRepository.findRecent(1);
+      // expect(log[0].success).toBe(true);
+      // expect(log[0].triggeredByUserId).toBe(admin.id);
     });
     it('should log a failure if the external API call fails', async () => {
       newslog.mockHttpGet.mockReturnValue(
@@ -284,9 +323,10 @@ describe('News (e2e)', () => {
           `accessToken=${accessToken}`,
           `refreshToken=${refreshToken}`,
         ])
-        .send({ query: 'business' });
+        .send({ query: 'business' })
+        .expect(201);
 
-      expect(res.status).toBe(500);
+      await waitForJobProcessing();
 
       const log = await newsFetchLogRepository.findRecent(1);
 
@@ -294,6 +334,259 @@ describe('News (e2e)', () => {
       expect(log[0].errorMessage).toContain('401');
       expect(log[0].triggeredBy).toBe('admin');
       expect(log[0].articlesFetched).toBe(0);
+
+      await waitForJobProcessing();
+      const failedJobs = await newsQueue.getJobs(['failed']);
+      const failedJob = failedJobs.find((j) => j.data.query === 'business');
+      expect(failedJob).toBeDefined();
+      expect(failedJob?.failedReason).toContain(
+        'News API authentication failed',
+      );
+    });
+  });
+
+  describe('GET /news/job-status/:jobId', () => {
+    it('should return completed status with result for a successful job', async () => {
+      newslog.mockHttpGet.mockReturnValue(
+        of({
+          data: {
+            news: [
+              {
+                id: 9999,
+                title: 'Test Article',
+                summary: 'Mocked Article',
+                url: 'https://test.com',
+                publish_date: '2026-01-01 00:00:00',
+              },
+            ],
+          },
+        }),
+      );
+
+      await createVerifiedAdmin('admin@test.com');
+
+      const loginUser = await Request(app.getHttpServer())
+        .post('/auth/login')
+        .send({ email: 'admin@test.com', password: 'password@123' });
+
+      const { accessToken, refreshToken } = loginUser.body;
+
+      const res = await Request(app.getHttpServer())
+        .post('/news/refresh')
+        .send({ query: 'business', number: 1 })
+        .set('Cookie', [
+          `accessToken=${accessToken}`,
+          `refreshToken=${refreshToken}`,
+        ])
+        .expect(201);
+      await waitForJobProcessing();
+
+      const jobId = res.body.jobId;
+      expect(jobId).toBeDefined();
+
+      const state = await Request(app.getHttpServer())
+        .get(`/news/job-status/${jobId}`)
+        .set('Cookie', [
+          `accessToken=${accessToken}`,
+          `refreshToken=${refreshToken}`,
+        ]);
+
+      expect(state.body.success).toBe(true);
+      expect(state.body.status).toBe('Completed');
+      expect(state.body.jobId).toBe(jobId);
+    });
+
+    it('should return failed status with error for a failed job', async () => {
+      newslog.mockHttpGet.mockReturnValue(
+        throwError(() => new Error('Request Failed with status code 401')),
+      );
+
+      await createVerifiedAdmin('admin@test.com');
+
+      const loginUser = await Request(app.getHttpServer())
+        .post('/auth/login')
+        .send({ email: 'admin@test.com', password: 'password@123' });
+
+      const { accessToken, refreshToken } = loginUser.body;
+
+      const res = await Request(app.getHttpServer())
+        .post('/news/refresh')
+        .send({ query: 'business', number: 1 })
+        .set('Cookie', [
+          `accessToken=${accessToken}`,
+          `refreshToken=${refreshToken}`,
+        ])
+        .expect(201);
+      await waitForJobProcessing();
+
+      const jobId = res.body.jobId;
+      expect(jobId).toBeDefined();
+
+      const state = await Request(app.getHttpServer())
+        .get(`/news/job-status/${jobId}`)
+        .set('Cookie', [
+          `accessToken=${accessToken}`,
+          `refreshToken=${refreshToken}`,
+        ]);
+
+      expect(state.body.success).toBe(false);
+      expect(state.body.status).toBe('Failed');
+      expect(state.body.jobId).toBe(jobId);
+    });
+
+    it('should return 404 for a nonexistent jobId', async () => {
+      await createVerifiedAdmin('admin@test.com');
+
+      const loginUser = await Request(app.getHttpServer())
+        .post('/auth/login')
+        .send({ email: 'admin@test.com', password: 'password@123' });
+
+      const { accessToken, refreshToken } = loginUser.body;
+
+      const state = await Request(app.getHttpServer())
+        .get(`/news/job-status/non-existe-jobId`)
+        .set('Cookie', [
+          `accessToken=${accessToken}`,
+          `refreshToken=${refreshToken}`,
+        ])
+        .expect(404);
+    });
+  });
+
+  describe('GET /news/failed-jobs', () => {
+    it('should list failed jobs with their failure reason', async () => {
+      newslog.mockHttpGet.mockReturnValue(
+        throwError(() => new Error('Request Failed with status code 401')),
+      );
+
+      await createVerifiedAdmin('admin@test.com');
+
+      const loginUser = await Request(app.getHttpServer())
+        .post('/auth/login')
+        .send({ email: 'admin@test.com', password: 'password@123' });
+
+      const { accessToken, refreshToken } = loginUser.body;
+
+      const res = await Request(app.getHttpServer())
+        .post('/news/refresh')
+        .send({ query: 'business', number: 1 })
+        .set('Cookie', [
+          `accessToken=${accessToken}`,
+          `refreshToken=${refreshToken}`,
+        ])
+        .expect(201);
+      await waitForJobProcessing();
+
+      const jobId = res.body.jobId;
+      expect(jobId).toBeDefined();
+
+      const faildRes = await Request(app.getHttpServer())
+        .get('/news/failed-jobs')
+        .set('Cookie', [
+          `accessToken=${accessToken}`,
+          `refreshToken=${refreshToken}`,
+        ]);
+
+      expect(faildRes.body.length).toBeGreaterThan(0);
+      const failedJob = faildRes.body.find((j: any) => j.query === 'business');
+      expect(failedJob).toBeDefined();
+    });
+    it('should return an empty array when there are no failed jobs', async () => {
+      await createVerifiedAdmin('admin@test.com');
+
+      const loginUser = await Request(app.getHttpServer())
+        .post('/auth/login')
+        .send({ email: 'admin@test.com', password: 'password@123' });
+
+      const { accessToken, refreshToken } = loginUser.body;
+
+      const faildRes = await Request(app.getHttpServer())
+        .get('/news/failed-jobs')
+        .set('Cookie', [
+          `accessToken=${accessToken}`,
+          `refreshToken=${refreshToken}`,
+        ]);
+      expect(faildRes.body).toEqual([]);
+    });
+  });
+
+  describe('POST /news/retry-job/:jobId', () => {
+    it('should retry a failed job and it should succeed if the underlying issue is fixed', async () => {
+      newslog.mockHttpGet.mockReturnValue(
+        throwError(() => new Error('Request Failed with status code 401')),
+      );
+
+      await createVerifiedAdmin('admin@test.com');
+
+      const loginUser = await Request(app.getHttpServer())
+        .post('/auth/login')
+        .send({ email: 'admin@test.com', password: 'password@123' });
+
+      const { accessToken, refreshToken } = loginUser.body;
+
+      const res = await Request(app.getHttpServer())
+        .post('/news/refresh')
+        .send({ query: 'business', number: 1 })
+        .set('Cookie', [
+          `accessToken=${accessToken}`,
+          `refreshToken=${refreshToken}`,
+        ])
+        .expect(201);
+
+      const jobId = res.body.jobId;
+      await waitForJobProcessing(2000);
+
+      const failedJobBefore = await newsQueue.getJobs(['failed']);
+      const failedJob = failedJobBefore.find((j) => j.id === jobId);
+      expect(failedJob).toBeDefined();
+
+      newslog.mockHttpGet.mockReturnValue(
+        of({
+          data: {
+            news: [
+              {
+                id: 9999,
+                title: 'Retried Article',
+                summary: 'Successfully retried',
+                url: 'https://test.com',
+                publish_date: '2026-01-01 00:00:00',
+              },
+            ],
+          },
+        }),
+      );
+
+      const retryRes = await Request(app.getHttpServer())
+        .get(`/news/retry-job/${jobId}`)
+        .set('Cookie', [
+          `accessToken=${accessToken}`,
+          `refreshToken=${refreshToken}`,
+        ])
+        .expect(200);
+
+      expect(retryRes.body.jobId).toBe(jobId);
+
+      await waitForJobProcessing();
+
+      const article = await articleRepository.findAll();
+      expect(article.some((a) => a.title === 'Retried Article')).toBe(true);
+    });
+
+    it('should return 404 when retrying a nonexistent job', async () => {
+      await createVerifiedAdmin('admin@test.com');
+
+      const loginUser = await Request(app.getHttpServer())
+        .post('/auth/login')
+        .send({ email: 'admin@test.com', password: 'password@123' });
+
+      const { accessToken, refreshToken } = loginUser.body;
+      await Request(app.getHttpServer())
+        .get(`/news/retry-job/non-exist-jobId`)
+        .set('Cookie', [
+          `accessToken=${accessToken}`,
+          `refreshToken=${refreshToken}`,
+        ])
+        .expect(404);
     });
   });
 
@@ -632,8 +925,6 @@ describe('News (e2e)', () => {
         ])
         .send({ catagory: 123 })
         .expect(400);
-
     });
   });
 });
-
