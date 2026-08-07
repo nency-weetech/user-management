@@ -87,11 +87,24 @@ export class NewsFetcherService {
       await this.newFetchLogRepository.save(log);
       if (errorMessage.includes('401') || errorMessage.includes('403')) {
         throw new InternalServerErrorException(
-          'News API authentication failed — check API key configuration',
+          'News API authentication failed - check API Key configuration',
+        );
+      }
+      if (errorMessage.includes('429')) {
+        throw new InternalServerErrorException(
+          'News API rate limit exceeded - Wait and retry later',
+        );
+      }
+      if (
+        errorMessage.includes('ECONNREFUSED') ||
+        errorMessage.includes('ETIMEOUT')
+      ) {
+        throw new InternalServerErrorException(
+          'Could not connect to News API - network or server issue',
         );
       }
 
-      throw new InternalServerErrorException('Failed to fetch news data');
+      throw new InternalServerErrorException(`Failed to fetch news data : ${errorMessage}`);
     }
   }
 }

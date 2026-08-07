@@ -1,5 +1,5 @@
 import { Processor, WorkerHost } from '@nestjs/bullmq';
-import { Logger } from '@nestjs/common';
+import { BadRequestException, Logger } from '@nestjs/common';
 import { Job } from 'bullmq';
 import { NewsFetcherService } from './news-fetcher.service';
 
@@ -43,7 +43,7 @@ export class NewsProcessor extends WorkerHost {
     );
 
     this.logger.log(
-      `✅ News fetched: ${result.fetched} articles for "${query}"`,
+      `News fetched: ${result.fetched} articles for "${query}"`,
     );
     return result;
   }
