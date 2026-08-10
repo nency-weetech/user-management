@@ -72,6 +72,11 @@ export class UsersService {
     return user;
   }
 
+  async findByKeycloakId(keycloakId: string) {
+    const user = await this.repo.findOne({where : {keycloakId}})
+    return user;
+  }
+
   async findByEmail(email: string): Promise<User | null> {
     return await this.repo.findByEmail(email);
   }

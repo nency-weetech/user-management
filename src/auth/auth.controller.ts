@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   Post,
+  Query,
   Req,
   Res,
   UnauthorizedException,
@@ -26,6 +27,7 @@ import { Throttle } from '@nestjs/throttler';
 import { ActivityLogService } from 'src/activity-log/activity-log.service';
 import { SoftDeleteService } from 'src/soft-delete/soft-delete.service';
 import { JwtService } from '@nestjs/jwt';
+import {AuthGuard as AuthGuardKeyclock} from '@nestjs/passport';
 import {
   ApiCookieAuth,
   ApiOperation,
@@ -33,6 +35,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { AuthKeyclockService } from './auth.keyclock.service';
 
 const COOKIE_OPTIONS = {
   httpOnly: true,
@@ -48,6 +51,7 @@ export class AuthController {
     private userService: UsersService,
     private activityLogservice: ActivityLogService,
     private softDeleteService: SoftDeleteService,
+    private authKeyclockService: AuthKeyclockService,
   ) {}
 
   @ApiOperation({ summary: 'Register a new user' })
@@ -107,7 +111,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Refresh access and refresh token using cookie' })
   @ApiCookieAuth('refreshToken')
   @ApiResponse({ status: 200, description: 'Token Refresh successfully' })
-  @ApiResponse({ status : 401, description: 'Invalid or missing refresh token'})
+  @ApiResponse({ status: 401, description: 'Invalid or missing refresh token' })
   @Get('refresh')
   async refreshToken(
     @Req() req: any,
@@ -144,10 +148,10 @@ export class AuthController {
     return { message: 'Tokens refreshed successfully' };
   }
 
-  @ApiOperation({ summary: 'Logged out current user'})
+  @ApiOperation({ summary: 'Logged out current user' })
   @ApiCookieAuth('accessToken')
-  @ApiResponse({ status : 200, description: 'User logged out successfull'})
-  @ApiResponse({ status: 401, description: 'Unathorised'})
+  @ApiResponse({ status: 200, description: 'User logged out successfull' })
+  @ApiResponse({ status: 401, description: 'Unathorised' })
   @Get('logout')
   @UseGuards(AuthGuard)
   async logout(
@@ -162,10 +166,10 @@ export class AuthController {
     return { message: 'User Logged out' };
   }
 
-  @ApiOperation({ summary: 'Get the current logged in user\'s profile'})
+  @ApiOperation({ summary: "Get the current logged in user's profile" })
   @ApiCookieAuth('accessToken')
-  @ApiResponse({ status: 200, description: 'User fetched Successfully'})
-  @ApiResponse({ status: 401, description: 'Unauthorised'})
+  @ApiResponse({ status: 200, description: 'User fetched Successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorised' })
   @Get()
   @UseGuards(AuthGuard)
   async getProfile(@currentUser() currentUser: { id: string }) {
@@ -176,40 +180,49 @@ export class AuthController {
     return user;
   }
 
-  @ApiOperation({summary: 'Request password rest OTP'})
-  @ApiResponse({ status: 200, description: 'Generic message return (OTP is sent if account exist'})
+  @ApiOperation({ summary: 'Request password rest OTP' })
+  @ApiResponse({
+    status: 200,
+    description: 'Generic message return (OTP is sent if account exist',
+  })
   @Post('forgot-password')
   async forgotpass(@Body() dto: ForgotPasswordDto) {
     return this.authService.forgotPassword(dto);
   }
 
-  @ApiOperation({ summary: 'Verify password rest OTP'})
-  @ApiResponse({ status: 200, description: 'OTP verified, reset session token returned'})
-  @ApiResponse({ status: 400, description: 'Invalid OTP or Too many failed attempts'})
+  @ApiOperation({ summary: 'Verify password rest OTP' })
+  @ApiResponse({
+    status: 200,
+    description: 'OTP verified, reset session token returned',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid OTP or Too many failed attempts',
+  })
   @Post('verify-otp')
   async verifyOtp(@Body() dto: VerifyEmailDto) {
     return this.authService.verifyOtp(dto);
   }
 
-  @ApiOperation({ summary: 'Reset pasword using a valid session token'})
-  @ApiResponse({ status: 200, description: 'Password rest successfully'})
-  @ApiResponse({ status: 401, description: 'Invalid or expired session token'})
+  @ApiOperation({ summary: 'Reset pasword using a valid session token' })
+  @ApiResponse({ status: 200, description: 'Password rest successfully' })
+  @ApiResponse({ status: 401, description: 'Invalid or expired session token' })
   @Post('reset-password')
   async resetPassword(@Body() dto: ResetPasswordDto) {
     return this.authService.resetPassword(dto);
   }
 
-  @ApiOperation({ summary: 'Get recent activity log for user'})
-  @ApiParam({name: 'id', description: 'User Id'})
-  @ApiResponse({ status: 200, description: 'Activity list returned'})
+  @ApiOperation({ summary: 'Get recent activity log for user' })
+  @ApiParam({ name: 'id', description: 'User Id' })
+  @ApiResponse({ status: 200, description: 'Activity list returned' })
   @UseGuards(AuthGuard)
   @Get(':id/activity')
   async getActivity(@Param('id') id: string) {
     return this.activityLogservice.getRecentActivity(id);
   }
 
-  @ApiOperation({summary: 'Request account deletion (30-day grace period)'})
-  @ApiResponse({ status: 200, description: 'Account schedule for deletion'})
+  @ApiOperation({ summary: 'Request account deletion (30-day grace period)' })
+  @ApiResponse({ status: 200, description: 'Account schedule for deletion' })
   @ApiCookieAuth('accessToken')
   @Delete('account')
   @UseGuards(AuthGuard)
@@ -220,4 +233,59 @@ export class AuthController {
         'Your account is scheduled for deletion in 30 days. Log in anytime before then to cancel.',
     };
   }
+
+  // @Post('/loginKeyclock')
+  // async loginFromKeyClock(@Body() dto: LoginDto, @Res({ passthrough: true }) res: Response) {
+  //   const tokens = await this.authKeyclockService.login(dto);
+
+  //   res.cookie('access_token', tokens.access_token, {
+  //     httpOnly: true,
+  //     secure: false, // set to true in production (requires HTTPS)
+  //     sameSite: 'lax',
+  //     maxAge: tokens.expires_in * 1000,
+  //   });
+
+  //   res.cookie('refresh_token', tokens.refresh_token, {
+  //     httpOnly: true,
+  //     secure: false,
+  //     sameSite: 'lax',
+  //     maxAge: tokens.refresh_expires_in * 1000,
+  //   });
+
+  //   return {message : 'login successfull', tokens};
+  // }
+
+  // @Post('/signUpKeyclock')
+  // async signUp(@Body() createUserDto: CreateUserDto) {
+  //   return this.authKeyclockService.signup(createUserDto);
+  // }
+
+  @UseGuards(AuthGuardKeyclock('jwt'))
+  @Get('profile-keyclock')
+  async getKeyclockUser(@Req() req) {
+    return req.user;
+  }
+
+  @Get('callback')
+async callback(
+  @Query('code') code: string,
+  @Res() res: Response,
+) {
+  const tokens = await this.authKeyclockService.exchangeCodeForTokens(code);
+  await this.authKeyclockService.syncLocalUser(tokens.access_token);
+  res.cookie('access_token', tokens.access_token, {
+    httpOnly: true,
+    secure: false,
+    sameSite: 'lax',
+    maxAge: tokens.expires_in * 1000,
+  });
+  res.cookie('refresh_token', tokens.refresh_token, {
+    httpOnly: true,
+    secure: false,
+    sameSite: 'lax',
+    maxAge: tokens.refresh_expires_in * 1000,
+  });
+
+  return res.redirect('/auth/profile-keyclock');
+}
 }
