@@ -3,9 +3,15 @@ import { AppModule } from './app.module';
 import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
 import cookieParser from 'cookie-parser';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { WinstonModule } from 'nest-winston';
+import { winstonConfig } from './config/winston.config';
+import { LoggingInterceptor } from './interceptors/logging.interceptor';
+import { AllExceptionFilter } from './filters/all-exceptions.filter';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    logger : WinstonModule.createLogger(winstonConfig)
+  });
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -27,7 +33,12 @@ async function bootstrap() {
     SwaggerModule.setup('api-doc', app, document);
   }
   app.use(cookieParser())
+
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)))
+  app.useGlobalInterceptors(new LoggingInterceptor())
+
+  app.useGlobalFilters(new AllExceptionFilter())
+  
   await app.listen(process.env.PORT ?? 3100);
 }
 bootstrap();
