@@ -5,11 +5,21 @@
   "author": "",
   "private": true,
   "license": "UNLICENSED",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
-    "start:dev": "nest start --watch",
+    "start:api": "npm run start --workspace=apps/api",
+    "start:api:dev": "npm run start:dev --workspace=apps/api",
+    "start:workers": "npm run start --workspace=apps/workers",
+    "start:workers:dev": "npm run start:dev --workspace=apps/workers",
+    "build:database": "npm run build --workspace=packages/database",
+    "build:shared": "npm run build --workspace=packages/shared",
+    "build:packages": "npm run build:database && npm run build:shared",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
@@ -26,6 +36,7 @@
     "migration:revert": "npm run typeorm -- migration:revert"
   },
   "dependencies": {
+    "@myapp/shared": "*",
     "@bull-board/api": "^8.5.0",
     "@bull-board/express": "^8.5.0",
     "@bull-board/nestjs": "^8.5.0",

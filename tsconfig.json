@@ -13,7 +13,7 @@
     "target": "ES2023",
     "sourceMap": true,
     "outDir": "./dist",
-    "baseUrl": "./",
+    "baseUrl": "src_backup",
     "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": true,
@@ -21,6 +21,10 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
-    "types": ["mocha", "jest", "node"]
+    "types": ["mocha", "jest", "node"],
+    "paths": {
+      "@myapp/api/*": ["apps/api/src/*"],
+      "@myapp/workers/*": ["apps/workers/src/*"]
+    }
   }
 }

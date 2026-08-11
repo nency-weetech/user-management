@@ -4,7 +4,7 @@ import { getDataSourceToken, TypeOrmModule } from '@nestjs/typeorm';
 import cookieParser from 'cookie-parser';
 import { DataSource } from 'typeorm';
 import { testDbConfig } from '../config/test-db.config';
-import { AppModule } from '../../src/app.module';
+import { AppModule } from '../../src_backup/app.module';
 import { MailService } from 'src/mail/mail.service';
 import { HttpService } from '@nestjs/axios';
 export const mailCapture = {
