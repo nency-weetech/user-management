@@ -2,7 +2,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
-import { AppModule } from '../src/app.module';
+import { AppModule } from '../src_backup/app.module';
 import Redis from 'ioredis';
 import { cleanDatabase } from './utils/db-cleanup';
 import { cleanRedis } from './utils/redis-cleanup';

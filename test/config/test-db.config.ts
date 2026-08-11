@@ -1,6 +1,6 @@
 import * as dotenv from 'dotenv';
 import { DataSourceOptions } from 'typeorm';
-import { User } from '../../src/users/entities/user.entity';
+import { User } from '../../src_backup/users/entities/user.entity';
 
 dotenv.config({ path: '.env.test' });
 
