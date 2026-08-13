@@ -42,3 +42,4 @@ exports.redisConnection = {
     port: Number(process.env.REDIS_PORT) || 6379,
     db: Number(process.env.REDIS_DB) || 0,
 };
+//# sourceMappingURL=redis.connection.js.map

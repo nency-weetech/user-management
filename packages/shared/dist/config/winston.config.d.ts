@@ -1,5 +1,7 @@
 import * as winston from 'winston';
+import 'winston-daily-rotate-file';
 export declare const winstonConfig: {
     level: string;
-    transports: (winston.transports.ConsoleTransportInstance | winston.transports.FileTransportInstance)[];
+    transports: winston.transport[];
 };
+//# sourceMappingURL=winston.config.d.ts.map

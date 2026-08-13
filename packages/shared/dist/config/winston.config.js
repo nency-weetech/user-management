@@ -35,25 +35,37 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.winstonConfig = void 0;
 const winston = __importStar(require("winston"));
-const nest_winston_1 = require("nest-winston");
-const isProduction = process.env.NODE_ENV === 'production';
-exports.winstonConfig = {
-    level: isProduction ? 'info' : 'debug',
-    transports: [
-        new winston.transports.Console({
-            format: winston.format.combine(winston.format.timestamp(), winston.format.ms(), nest_winston_1.utilities.format.nestLike('User-Management-App', {
-                colors: !isProduction,
-                prettyPrint: !isProduction,
-            })),
-        }),
-        new winston.transports.File({
-            filename: 'log/error.log',
+const logger_formatter_1 = require("../logger/logger.formatter");
+const logger_dev_formatter_1 = require("../logger/logger.dev-formatter");
+require("winston-daily-rotate-file");
+//const isProduction = process.env.NODE_ENV === 'production';
+const isProduction = true;
+const consoleTransport = new winston.transports.Console({
+    format: winston.format.combine(winston.format.timestamp(), winston.format.ms(), winston.format.errors({ stack: true }), isProduction ? logger_formatter_1.structuredformatter : logger_dev_formatter_1.devFormatter),
+});
+exports.winstonConfig = (() => {
+    const transports = [consoleTransport];
+    if (isProduction) {
+        transports.push(new winston.transports.DailyRotateFile({
+            dirname: 'logs/error',
+            filename: 'error-%DATE%.log',
             level: 'error',
-            format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
-        }),
-        new winston.transports.File({
-            filename: 'log/combine.log',
-            format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
-        }),
-    ],
-};
+            datePattern: 'YYYY-MM-DD',
+            zippedArchive: false,
+            maxSize: '50m',
+            format: winston.format.combine(winston.format.timestamp(), logger_formatter_1.structuredformatter),
+        }), new winston.transports.DailyRotateFile({
+            dirname: 'logs/combined',
+            filename: 'combine-%DATE%.log',
+            datePattern: 'YYYY-MM-DD-HH-mm',
+            zippedArchive: false,
+            maxSize: '50m',
+            format: winston.format.combine(winston.format.timestamp(), logger_formatter_1.structuredformatter),
+        }));
+    }
+    return {
+        level: isProduction ? 'info' : 'debug',
+        transports,
+    };
+})();
+//# sourceMappingURL=winston.config.js.map

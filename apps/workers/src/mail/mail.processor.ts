@@ -1,10 +1,9 @@
-import { OnWorkerEvent, Processor, WorkerHost } from '@nestjs/bullmq';
-import { Logger } from '@nestjs/common';
+import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
 import * as nodemailer from 'nodemailer';
-import { UsersService } from '@myapp/api';
-
-console.log(UsersService)
+import {  runWithJobContext } from '@myapp/shared';
+import { Inject, Logger } from '@nestjs/common';
+import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 
 @Processor('mailQueue', {
   concurrency: 1,
@@ -14,10 +13,9 @@ console.log(UsersService)
   },
 })
 export class MailProcessor extends WorkerHost {
-  private readonly logger = new Logger(MailProcessor.name);
   private transporter!: nodemailer.Transporter;
 
-  constructor() {
+  constructor(@Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger) {
     super();
     this.initTranspoter();
   }
@@ -33,31 +31,41 @@ export class MailProcessor extends WorkerHost {
         pass: testAccount.pass,
       },
     });
-    this.logger.log(
-      `Ethereal Mailer initialized with user: ${testAccount.user}`,
-    );
   }
 
   async process(job: Job<any, any, string>): Promise<any> {
-    let result;
-    switch (job.name) {
-      case 'send-verification-OTP':
-        result = this.handleVerifactionOtp(job);
-        break;
-      case 'send-otp-reminder':
-        return this.handleOtpReminder(job);
-      case 'send-welcome':
-        result = this.welcomeMail(job);
-      case 'send-reset-pass-otp':
-        result = this.resetPassOtp(job);
-      case 'send-weekly-report':
-        result = this.sendWeeklyReportMail(job);
-      default:
-        this.logger.warn(`Unkonown Job type: ${job.name}`);
-        break;
-    }
-
-    return result;
+    return runWithJobContext(
+      {
+        jobName: job.name,
+        queueName: 'mailQueue',
+        jobId: String(job.id),
+        attempt: job.attemptsMade,
+      },
+      async () => {
+        let result;
+        switch (job.name) {
+          case 'send-verification-OTP':
+            result = this.handleVerifactionOtp(job);
+            break;
+          case 'send-otp-reminder':
+            result = this.handleOtpReminder(job);
+            break;
+          case 'send-welcome':
+            result = this.welcomeMail(job);
+            break;
+          case 'send-reset-pass-otp':
+            result = this.resetPassOtp(job);
+            break;
+          case 'send-weekly-report':
+            result = this.sendWeeklyReportMail(job);
+            break;
+          default:
+            this.logger.warn(`Unkonown Job type: ${job.name}`);
+            break;
+        }
+        return result;
+      },
+    );
   }
 
   async handleVerifactionOtp(job: Job<{ toEmail: string; otp: string }>) {
@@ -77,9 +85,7 @@ export class MailProcessor extends WorkerHost {
 
     const info = await this.transporter.sendMail(mailOption);
     this.logger.log(`Verifiction email sent to ${toEmail}`);
-    this.logger.log(
-      `Verifiction Email URL: ${nodemailer.getTestMessageUrl(info)}`,
-    );
+    this.logger.log(`Verifiction Email URL: ${nodemailer.getTestMessageUrl(info)}`);
 
     return { status: 'sent', messageId: info.messageId };
   }
@@ -134,9 +140,7 @@ export class MailProcessor extends WorkerHost {
     };
 
     const info = await this.transporter.sendMail(mailOption);
-    this.logger.log(
-      `Password Reset URL: ${nodemailer.getTestMessageUrl(info)}`,
-    );
+    this.logger.log(`Password Reset URL: ${nodemailer.getTestMessageUrl(info)}`);
   }
 
   async sendWeeklyReportMail(
@@ -200,8 +204,6 @@ export class MailProcessor extends WorkerHost {
     };
 
     const info = await this.transporter.sendMail(mailOption);
-    this.logger.log(
-      `weekly signup report: ${nodemailer.getTestMessageUrl(info)}`,
-    );
+    this.logger.log(`weekly signup report: ${nodemailer.getTestMessageUrl(info)}`);
   }
 }

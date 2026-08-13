@@ -13,7 +13,7 @@ import { createKeyv } from '@keyv/redis';
 import { RateLimitService } from './rate-limit/rate-limit.service';
 import { RateLimitModule } from './rate-limit/rate-limit.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ActivityLogModule } from './activity-log/activity-log.module';
 import { RedisModule } from './redis/redis.module';
 import { SignUpCountService } from './sign-up-count/sign-up-count.service';
@@ -25,7 +25,10 @@ import { SoftDeleteModule } from './soft-delete/soft-delete.module';
 import { NewsModule } from './news/news.module';
 import { BullBoardModule } from '@bull-board/nestjs';
 import { ExpressAdapter } from '@bull-board/express';
-
+import { LoggerModule } from '@myapp/shared';
+import { LoggingInterceptor } from './interceptors/logging.interceptor';
+import { AllExceptionFilter } from './filters/all-exceptions.filter';
+import path from 'path';
 const disableThrottler =
   process.env.NODE_ENV === 'test' && process.env.DISABLE_THROTTLER !== 'false';
 
@@ -33,11 +36,14 @@ const disableThrottler =
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath : '../../.env'
+      envFilePath: [
+        path.resolve(__dirname, '../.env'),
+        path.resolve(process.cwd(), '../../.env'),
+      ],
     }),
     BullBoardModule.forRoot({
       route: '/queues',
-      adapter: ExpressAdapter
+      adapter: ExpressAdapter,
     }),
     ScheduleModule.forRoot(),
     CacheModule.registerAsync({
@@ -68,6 +74,7 @@ const disableThrottler =
         expiresIn: '1h',
       },
     }),
+    LoggerModule,
     UsersModule,
     AuthModule,
     RedisModule as any,
@@ -81,6 +88,8 @@ const disableThrottler =
   providers: [
     AppService,
     RateLimitService,
+    { provide: APP_INTERCEPTOR, useClass: LoggingInterceptor },
+    { provide: APP_FILTER, useClass: AllExceptionFilter },
     // ...(process.env.NODE_ENV !== 'test'
     // ? [{ provide: APP_GUARD, useClass: ThrottlerGuard }]
     // : []),
