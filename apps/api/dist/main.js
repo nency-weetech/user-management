@@ -10,8 +10,6 @@ const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const swagger_1 = require("@nestjs/swagger");
 const nest_winston_1 = require("nest-winston");
 const shared_1 = require("@myapp/shared");
-const logging_interceptor_1 = require("./interceptors/logging.interceptor");
-const all_exceptions_filter_1 = require("./filters/all-exceptions.filter");
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule, {
         logger: nest_winston_1.WinstonModule.createLogger(shared_1.winstonConfig)
@@ -33,8 +31,12 @@ async function bootstrap() {
     }
     app.use((0, cookie_parser_1.default)());
     app.useGlobalInterceptors(new common_1.ClassSerializerInterceptor(app.get(core_1.Reflector)));
-    app.useGlobalInterceptors(new logging_interceptor_1.LoggingInterceptor());
-    app.useGlobalFilters(new all_exceptions_filter_1.AllExceptionFilter());
+    // app.useGlobalInterceptors(new LoggingInterceptor())
+    // const logger = await app.resolve(AppLoggerService)
+    // console.log(logger.getCount())
+    // app.useLogger(logger)
+    // app.useGlobalInterceptors(new LoggingInterceptor())
+    app.useGlobalInterceptors(new shared_1.LoggerUserInterceptor());
     await app.listen(process.env.PORT ?? 3100);
 }
 bootstrap();

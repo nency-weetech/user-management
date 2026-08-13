@@ -28,7 +28,6 @@ export class RoleGuard implements CanActivate {
       throw new ForbiddenException('Access denied : Insufficiant permission')
     }
 
-    return true;
-    
+    return hasRole;
   }
 }

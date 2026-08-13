@@ -5,6 +5,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppModule = void 0;
 const common_1 = require("@nestjs/common");
@@ -34,6 +37,10 @@ const soft_delete_module_1 = require("./soft-delete/soft-delete.module");
 const news_module_1 = require("./news/news.module");
 const nestjs_1 = require("@bull-board/nestjs");
 const express_1 = require("@bull-board/express");
+const shared_1 = require("@myapp/shared");
+const logging_interceptor_1 = require("./interceptors/logging.interceptor");
+const all_exceptions_filter_1 = require("./filters/all-exceptions.filter");
+const path_1 = __importDefault(require("path"));
 const disableThrottler = process.env.NODE_ENV === 'test' && process.env.DISABLE_THROTTLER !== 'false';
 let AppModule = class AppModule {
 };
@@ -43,11 +50,14 @@ exports.AppModule = AppModule = __decorate([
         imports: [
             config_1.ConfigModule.forRoot({
                 isGlobal: true,
-                envFilePath: '../../.env'
+                envFilePath: [
+                    path_1.default.resolve(__dirname, '../.env'),
+                    path_1.default.resolve(process.cwd(), '../../.env'),
+                ],
             }),
             nestjs_1.BullBoardModule.forRoot({
                 route: '/queues',
-                adapter: express_1.ExpressAdapter
+                adapter: express_1.ExpressAdapter,
             }),
             schedule_1.ScheduleModule.forRoot(),
             cache_manager_1.CacheModule.registerAsync({
@@ -75,6 +85,7 @@ exports.AppModule = AppModule = __decorate([
                     expiresIn: '1h',
                 },
             }),
+            shared_1.LoggerModule,
             users_module_1.UsersModule,
             auth_module_1.AuthModule,
             redis_module_1.RedisModule,
@@ -88,6 +99,8 @@ exports.AppModule = AppModule = __decorate([
         providers: [
             app_service_1.AppService,
             rate_limit_service_1.RateLimitService,
+            { provide: core_1.APP_INTERCEPTOR, useClass: logging_interceptor_1.LoggingInterceptor },
+            { provide: core_1.APP_FILTER, useClass: all_exceptions_filter_1.AllExceptionFilter },
             // ...(process.env.NODE_ENV !== 'test'
             // ? [{ provide: APP_GUARD, useClass: ThrottlerGuard }]
             // : []),

@@ -16,12 +16,19 @@ import { NewsService } from '@myapp/api/src/news/news.service';
 import { NewsRefreshCorn } from './news/news-refresh.cron';
 import { NewsFetchLog } from '@myapp/database';
 import { Article } from '@myapp/database';
+import { LoggerModule } from '@myapp/shared';
+import path from 'path';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
+   ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: [
+        path.resolve(__dirname, '../.env'),
+        path.resolve(process.cwd(), '../../.env'),
+      ],
     }),
+    LoggerModule,
     TypeOrmModule.forRoot(datasourceOptions),
     TypeOrmModule.forFeature([Article, NewsFetchLog, User]),
     RedisModule,

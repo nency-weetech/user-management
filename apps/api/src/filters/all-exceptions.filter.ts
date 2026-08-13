@@ -1,9 +1,10 @@
-import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus, Logger } from "@nestjs/common";
+import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus, Inject, Logger } from "@nestjs/common";
+import { WINSTON_MODULE_NEST_PROVIDER, WINSTON_MODULE_PROVIDER } from "nest-winston";
 import { timestamp } from "rxjs";
 
 @Catch()
 export class AllExceptionFilter implements ExceptionFilter {
-    private readonly logger = new Logger('ExceptionFilter')
+    constructor(@Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger){}
 
     catch(exception: any, host: ArgumentsHost) {
         const ctx = host.switchToHttp();

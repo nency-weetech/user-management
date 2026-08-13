@@ -25,6 +25,7 @@ const news_service_1 = require("@myapp/api/src/news/news.service");
 const news_refresh_cron_1 = require("./news/news-refresh.cron");
 const database_4 = require("@myapp/database");
 const database_5 = require("@myapp/database");
+const shared_1 = require("@myapp/shared");
 let WorkerModule = class WorkerModule {
 };
 exports.WorkerModule = WorkerModule;
@@ -34,8 +35,9 @@ exports.WorkerModule = WorkerModule = __decorate([
             config_1.ConfigModule.forRoot({
                 isGlobal: true,
             }),
+            shared_1.LoggerModule,
             typeorm_1.TypeOrmModule.forRoot(database_3.datasourceOptions),
-            typeorm_1.TypeOrmModule.forFeature([database_5.Article, database_4.NewsFetchLog]),
+            typeorm_1.TypeOrmModule.forFeature([database_5.Article, database_4.NewsFetchLog, database_1.User]),
             redis_module_1.RedisModule,
             axios_1.HttpModule,
             bullmq_1.BullModule.registerQueue({ name: 'newsQueue' }, { name: 'mailQueue' }),

@@ -1,11 +1,9 @@
 import { WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
-import { UsersService } from '@myapp/api';
 export declare class MailProcessor extends WorkerHost {
-    private userService;
     private readonly logger;
     private transporter;
-    constructor(userService: UsersService);
+    constructor();
     private initTranspoter;
     process(job: Job<any, any, string>): Promise<any>;
     handleVerifactionOtp(job: Job<{

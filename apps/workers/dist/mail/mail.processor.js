@@ -48,13 +48,12 @@ const bullmq_1 = require("@nestjs/bullmq");
 const common_1 = require("@nestjs/common");
 const nodemailer = __importStar(require("nodemailer"));
 const api_1 = require("@myapp/api");
+console.log(api_1.UsersService);
 let MailProcessor = MailProcessor_1 = class MailProcessor extends bullmq_1.WorkerHost {
-    userService;
     logger = new common_1.Logger(MailProcessor_1.name);
     transporter;
-    constructor(userService) {
+    constructor() {
         super();
-        this.userService = userService;
         this.initTranspoter();
     }
     async initTranspoter() {
@@ -110,10 +109,6 @@ let MailProcessor = MailProcessor_1 = class MailProcessor extends bullmq_1.Worke
     }
     async handleOtpReminder(job) {
         const { toEmail } = job.data;
-        const user = await this.userService.findByEmail(toEmail);
-        if (user?.isEmailVerified) {
-            return;
-        }
         this.logger.log(`⏰ Sending OTP reminder to: ${toEmail}`);
         const mailOption = {
             from: '"App Security" <no-reply@myapp.com>',
@@ -223,5 +218,5 @@ exports.MailProcessor = MailProcessor = MailProcessor_1 = __decorate([
             duration: 60000,
         },
     }),
-    __metadata("design:paramtypes", [api_1.UsersService])
+    __metadata("design:paramtypes", [])
 ], MailProcessor);

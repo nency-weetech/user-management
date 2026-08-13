@@ -31,7 +31,7 @@ let RoleGuard = class RoleGuard {
         if (!hasRole) {
             throw new common_1.ForbiddenException('Access denied : Insufficiant permission');
         }
-        return true;
+        return hasRole;
     }
 };
 exports.RoleGuard = RoleGuard;
