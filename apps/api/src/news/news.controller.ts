@@ -44,7 +44,7 @@ export class NewsController {
   // async testFetch(){
   //   return this.newsFetcherService.fetchAndStoreNews('technology', 2);
   // }
-  
+
   @ApiOperation({
     summary:
       'Triggered an on-demand news refresh from external API (Admin only)',
@@ -77,11 +77,15 @@ export class NewsController {
   }
 
   @Get('failed-jobs')
+  @UseGuards(AuthGuard, RoleGuard)
+  @Roles([UserRole.ADMIN])
   async getFailedJobs() {
     return this.newsQueueService.getFailedJobs();
   }
 
   @Get('/retry-job/:jobId')
+  @UseGuards(AuthGuard, RoleGuard)
+  @Roles([UserRole.ADMIN])
   async retryJob(@Param('jobId') jobId: string) {
     return this.newsQueueService.retryFaildJob(jobId);
   }

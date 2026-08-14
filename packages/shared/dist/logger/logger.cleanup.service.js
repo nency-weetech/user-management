@@ -64,8 +64,8 @@ const LOG_DIR = [
 ];
 const ZIP_AFTER_MS = 48 * 60 * 60 * 1000;
 //const ZIP_AFTER_MS = 1 * 60 * 1000;
-// const DELETE_AFTER_MS = 30 * 24 * 60 * 60 * 1000;
-const DELETE_AFTER_MS = 1 * 60 * 1000;
+const DELETE_AFTER_MS = 30 * 24 * 60 * 60 * 1000;
+//const DELETE_AFTER_MS = 1 * 60 * 1000;
 let LoggerCleanupservice = class LoggerCleanupservice {
     logger;
     constructor(logger) {
@@ -157,7 +157,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], LoggerCleanupservice.prototype, "handleOldZipLog", null);
 __decorate([
-    (0, schedule_1.Cron)(schedule_1.CronExpression.EVERY_10_SECONDS),
+    (0, schedule_1.Cron)(schedule_1.CronExpression.EVERY_DAY_AT_MIDNIGHT),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)

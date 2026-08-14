@@ -38,8 +38,8 @@ const winston = __importStar(require("winston"));
 const logger_formatter_1 = require("../logger/logger.formatter");
 const logger_dev_formatter_1 = require("../logger/logger.dev-formatter");
 require("winston-daily-rotate-file");
-//const isProduction = process.env.NODE_ENV === 'production';
-const isProduction = true;
+const isProduction = process.env.NODE_ENV === 'production';
+// const isProduction = true;
 const consoleTransport = new winston.transports.Console({
     format: winston.format.combine(winston.format.timestamp(), winston.format.ms(), winston.format.errors({ stack: true }), isProduction ? logger_formatter_1.structuredformatter : logger_dev_formatter_1.devFormatter),
 });
@@ -57,7 +57,7 @@ exports.winstonConfig = (() => {
         }), new winston.transports.DailyRotateFile({
             dirname: 'logs/combined',
             filename: 'combine-%DATE%.log',
-            datePattern: 'YYYY-MM-DD-HH-mm',
+            datePattern: 'YYYY-MM-DD',
             zippedArchive: false,
             maxSize: '50m',
             format: winston.format.combine(winston.format.timestamp(), logger_formatter_1.structuredformatter),

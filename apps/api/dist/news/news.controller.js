@@ -96,12 +96,16 @@ __decorate([
 ], NewsController.prototype, "refreshNes", null);
 __decorate([
     (0, common_1.Get)('failed-jobs'),
+    (0, common_1.UseGuards)(auth_guard_1.AuthGuard, role_guard_1.RoleGuard),
+    (0, role_decorator_1.Roles)([database_1.UserRole.ADMIN]),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], NewsController.prototype, "getFailedJobs", null);
 __decorate([
     (0, common_1.Get)('/retry-job/:jobId'),
+    (0, common_1.UseGuards)(auth_guard_1.AuthGuard, role_guard_1.RoleGuard),
+    (0, role_decorator_1.Roles)([database_1.UserRole.ADMIN]),
     __param(0, (0, common_1.Param)('jobId')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),

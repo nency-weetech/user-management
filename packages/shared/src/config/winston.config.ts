@@ -4,8 +4,8 @@ import { structuredformatter } from '../logger/logger.formatter';
 import { devFormatter } from '../logger/logger.dev-formatter';
 import 'winston-daily-rotate-file';
 
-//const isProduction = process.env.NODE_ENV === 'production';
- const isProduction = true;
+const isProduction = process.env.NODE_ENV === 'production';
+// const isProduction = true;
 
 const consoleTransport = new winston.transports.Console({
   format: winston.format.combine(
@@ -32,7 +32,7 @@ export const winstonConfig = (() => {
       new winston.transports.DailyRotateFile({
         dirname: 'logs/combined',
         filename: 'combine-%DATE%.log',
-        datePattern: 'YYYY-MM-DD-HH-mm',
+        datePattern: 'YYYY-MM-DD',
         zippedArchive: false,
         maxSize: '50m',
         format: winston.format.combine(winston.format.timestamp(), structuredformatter),
