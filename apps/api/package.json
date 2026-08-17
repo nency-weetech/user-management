@@ -6,7 +6,9 @@
   "scripts": {
     "build": "nest build",
     "start": "node dist/main.js",
-    "start:dev": "nest start --watch"
+    "start:dev": "nest start --watch",
+    "test:e2e": "dotenv -e ../../.env.test -- cross-env NODE_ENV=test jest --config ./test/jest-e2e.json --runInBand",
+    "test:e2e:file": "dotenv -e ../../.env.test -- cross-env NODE_ENV=test jest --config ./test/jest-e2e.json --runInBand --testPathPatterns"
   },
   "dependencies": {
     "@myapp/database": "*",

@@ -38,9 +38,11 @@ const winston = __importStar(require("winston"));
 const logger_formatter_1 = require("../logger/logger.formatter");
 const logger_dev_formatter_1 = require("../logger/logger.dev-formatter");
 require("winston-daily-rotate-file");
-//const isProduction = process.env.NODE_ENV === 'production';
-const isProduction = true;
+const isProduction = process.env.NODE_ENV === 'production';
+//const isProduction = true;
+const isTest = process.env.NODE_ENV === 'test';
 const consoleTransport = new winston.transports.Console({
+    silent: isTest,
     format: winston.format.combine(winston.format.timestamp(), winston.format.ms(), winston.format.errors({ stack: true }), isProduction ? logger_formatter_1.structuredformatter : logger_dev_formatter_1.devFormatter),
 });
 exports.winstonConfig = (() => {
@@ -64,7 +66,8 @@ exports.winstonConfig = (() => {
         }));
     }
     return {
-        level: isProduction ? 'info' : 'debug',
+        level: isTest ? 'silent' : isProduction ? 'info' : 'debug',
+        silent: isTest,
         transports,
     };
 })();
