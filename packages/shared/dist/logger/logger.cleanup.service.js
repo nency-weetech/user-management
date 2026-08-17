@@ -80,24 +80,29 @@ let LoggerCleanupservice = class LoggerCleanupservice {
                     if (!file.endsWith('.log'))
                         continue;
                     const fullpath = path_1.default.join(dir, file);
-                    const stats = await fs.stat(fullpath);
-                    const age = now - stats.mtimeMs;
-                    if (age >= ZIP_AFTER_MS) {
-                        try {
-                            await this.gzipFile(fullpath);
-                            await fs.unlink(fullpath);
-                            this.logger.log('Zipped old log file', {
-                                function: 'LoggerCleanupService',
-                                meta: { file, dir },
-                            });
-                        }
-                        catch (error) {
-                            this.logger.error('Failed Zipped old log file', {
-                                function: 'LoggerCleanupService',
-                                meta: { file, dir },
-                                stack: error.stack,
-                            });
-                        }
+                    try {
+                        const stats = await fs.stat(fullpath);
+                        const age = now - stats.mtimeMs;
+                        if (age < ZIP_AFTER_MS)
+                            continue;
+                        await this.gzipFile(fullpath);
+                        await fs.unlink(fullpath);
+                        this.logger.log('Zipped old log file', {
+                            function: 'LoggerCleanupService',
+                            meta: { file, dir },
+                        });
+                    }
+                    catch (error) {
+                        const err = error instanceof Error ? error : new Error(String(error));
+                        this.logger.error('Failed to zip old log file', {
+                            function: 'LoggerCleanupService',
+                            meta: { file, dir },
+                            error: {
+                                name: err.name,
+                                message: err.message,
+                                stack: err.stack,
+                            },
+                        });
                     }
                 }
             }

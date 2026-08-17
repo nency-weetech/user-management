@@ -29,9 +29,9 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e:api": "npm run test:e2e --workspace=apps/api",
     "typeorm": "npm run build && npx typeorm -d dist/config/data-source.js",
-    "migration:generate": "npm run typeorm -- migration:generate",
-    "migration:run": "npm run typeorm -- migration:run",
-    "migration:revert": "npm run typeorm -- migration:revert"
+    "migration:generate": "npm run migration:generate --workspace=packages/database --",
+    "migration:run": "npm run migration:run --workspace=packages/database",
+    "migration:revert": "npm run migration:revert --workspace=packages/database"
   },
   "dependencies": {
     "@bull-board/api": "^8.5.0",

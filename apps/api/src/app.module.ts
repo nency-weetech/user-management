@@ -17,7 +17,7 @@ import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ActivityLogModule } from './activity-log/activity-log.module';
 import { RedisModule } from './redis/redis.module';
 import { SignUpCountService } from './sign-up-count/sign-up-count.service';
-import { ScheduleModule } from '@nestjs/schedule';
+//import { ScheduleModule } from '@nestjs/schedule';
 import { SoftDeleteService } from './soft-delete/soft-delete.service';
 import { DeletionListenerService } from './soft-delete/deletion-listener.service';
 import { DeletionCleanupService } from './soft-delete/deletion-cleanup.service';
@@ -45,7 +45,7 @@ const disableThrottler =
       route: '/queues',
       adapter: ExpressAdapter,
     }),
-    ScheduleModule.forRoot(),
+    //ScheduleModule.forRoot(),
     CacheModule.registerAsync({
       isGlobal: true,
       imports: [ConfigModule],
