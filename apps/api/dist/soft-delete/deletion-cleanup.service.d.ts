@@ -4,3 +4,4 @@ export declare class DeletionCleanupService {
     constructor(userService: UsersService);
     cleanUpStaleDeletion(): Promise<void>;
 }
+//# sourceMappingURL=deletion-cleanup.service.d.ts.map

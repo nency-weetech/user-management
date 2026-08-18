@@ -64,8 +64,8 @@ const LOG_DIR = [
 ];
 const ZIP_AFTER_MS = 48 * 60 * 60 * 1000;
 //const ZIP_AFTER_MS = 1 * 60 * 1000;
-// const DELETE_AFTER_MS = 30 * 24 * 60 * 60 * 1000;
-const DELETE_AFTER_MS = 1 * 60 * 1000;
+const DELETE_AFTER_MS = 30 * 24 * 60 * 60 * 1000;
+//const DELETE_AFTER_MS = 1 * 60 * 1000;
 let LoggerCleanupservice = class LoggerCleanupservice {
     logger;
     constructor(logger) {
@@ -80,24 +80,29 @@ let LoggerCleanupservice = class LoggerCleanupservice {
                     if (!file.endsWith('.log'))
                         continue;
                     const fullpath = path_1.default.join(dir, file);
-                    const stats = await fs.stat(fullpath);
-                    const age = now - stats.mtimeMs;
-                    if (age >= ZIP_AFTER_MS) {
-                        try {
-                            await this.gzipFile(fullpath);
-                            await fs.unlink(fullpath);
-                            this.logger.log('Zipped old log file', {
-                                function: 'LoggerCleanupService',
-                                meta: { file, dir },
-                            });
-                        }
-                        catch (error) {
-                            this.logger.error('Failed Zipped old log file', {
-                                function: 'LoggerCleanupService',
-                                meta: { file, dir },
-                                stack: error.stack,
-                            });
-                        }
+                    try {
+                        const stats = await fs.stat(fullpath);
+                        const age = now - stats.mtimeMs;
+                        if (age < ZIP_AFTER_MS)
+                            continue;
+                        await this.gzipFile(fullpath);
+                        await fs.unlink(fullpath);
+                        this.logger.log('Zipped old log file', {
+                            function: 'LoggerCleanupService',
+                            meta: { file, dir },
+                        });
+                    }
+                    catch (error) {
+                        const err = error instanceof Error ? error : new Error(String(error));
+                        this.logger.error('Failed to zip old log file', {
+                            function: 'LoggerCleanupService',
+                            meta: { file, dir },
+                            error: {
+                                name: err.name,
+                                message: err.message,
+                                stack: err.stack,
+                            },
+                        });
                     }
                 }
             }
@@ -157,7 +162,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], LoggerCleanupservice.prototype, "handleOldZipLog", null);
 __decorate([
-    (0, schedule_1.Cron)(schedule_1.CronExpression.EVERY_10_SECONDS),
+    (0, schedule_1.Cron)(schedule_1.CronExpression.EVERY_DAY_AT_MIDNIGHT),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)

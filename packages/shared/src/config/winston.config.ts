@@ -4,10 +4,13 @@ import { structuredformatter } from '../logger/logger.formatter';
 import { devFormatter } from '../logger/logger.dev-formatter';
 import 'winston-daily-rotate-file';
 
-//const isProduction = process.env.NODE_ENV === 'production';
- const isProduction = true;
+const isProduction = process.env.NODE_ENV === 'production';
+//const isProduction = true;
+
+const isTest = process.env.NODE_ENV === 'test';
 
 const consoleTransport = new winston.transports.Console({
+  silent: isTest,
   format: winston.format.combine(
     winston.format.timestamp(),
     winston.format.ms(),
@@ -40,7 +43,8 @@ export const winstonConfig = (() => {
     );
   }
   return {
-    level: isProduction ? 'info' : 'debug',
+    level: isTest ? 'silent' : isProduction ? 'info' : 'debug',
+    silent: isTest,
     transports, 
   };
 })();

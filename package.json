@@ -27,13 +27,11 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "dotenv -e .env.test -- cross-env NODE_ENV=test jest --config ./test/jest-e2e.json --runInBand --testPathIgnorePatterns=throttler.e2e-spec.ts",
-    "test:e2e:throttler": "dotenv -e .env.test -- cross-env NODE_ENV=test DISABLE_THROTTLER=false jest --config ./test/jest-e2e.json --runInBand throttler.e2e-spec.ts",
-    "test:e2e:file": "dotenv -e .env.test -- cross-env NODE_ENV=test jest --config ./test/jest-e2e.json --runInBand --testPathIgnorePatterns=throttler.e2e-spec.ts --testPathPatterns",
+    "test:e2e:api": "npm run test:e2e --workspace=apps/api",
     "typeorm": "npm run build && npx typeorm -d dist/config/data-source.js",
-    "migration:generate": "npm run typeorm -- migration:generate",
-    "migration:run": "npm run typeorm -- migration:run",
-    "migration:revert": "npm run typeorm -- migration:revert"
+    "migration:generate": "npm run migration:generate --workspace=packages/database --",
+    "migration:run": "npm run migration:run --workspace=packages/database",
+    "migration:revert": "npm run migration:revert --workspace=packages/database"
   },
   "dependencies": {
     "@bull-board/api": "^8.5.0",
@@ -63,6 +61,7 @@
     "cookie-parser": "^1.4.7",
     "crypto": "^1.0.1",
     "express": "^5.2.1",
+    "gu": "^0.6.2",
     "ioredis": "^5.11.1",
     "nest-winston": "^1.10.2",
     "nodemailer": "^9.0.3",

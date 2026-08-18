@@ -5,3 +5,4 @@ export declare class LoginResponseDto {
     tokenType: string;
     user: UserResponseDto;
 }
+//# sourceMappingURL=login-response.dto.d.ts.map

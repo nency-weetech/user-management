@@ -142,3 +142,4 @@ exports.NewsQueueService = NewsQueueService = NewsQueueService_1 = __decorate([
     __param(0, (0, bullmq_1.InjectQueue)('newsQueue')),
     __metadata("design:paramtypes", [bullmq_2.Queue])
 ], NewsQueueService);
+//# sourceMappingURL=news.queue.service.js.map

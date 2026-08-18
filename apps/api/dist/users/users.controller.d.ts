@@ -26,3 +26,4 @@ export declare class UsersController {
         isActice: boolean;
     }>;
 }
+//# sourceMappingURL=users.controller.d.ts.map

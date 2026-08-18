@@ -29,3 +29,4 @@ __decorate([
     (0, class_validator_1.Length)(6, 6, { message: 'OTP must be exactly 6 digits' }),
     __metadata("design:type", String)
 ], VerifyEmailDto.prototype, "otp", void 0);
+//# sourceMappingURL=email-verify.dto.js.map

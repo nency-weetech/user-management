@@ -6,3 +6,4 @@ export declare class RateLimitService {
     resetAttempts(email: string): Promise<void>;
     checkForgotPasswordAttempt(email: string): Promise<void>;
 }
+//# sourceMappingURL=rate-limit.service.d.ts.map

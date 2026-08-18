@@ -1,1 +1,1 @@
-{"version":3,"file":"winston.config.d.ts","sourceRoot":"","sources":["../../src/config/winston.config.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,OAAO,MAAM,SAAS,CAAC;AAInC,OAAO,2BAA2B,CAAC;AAcnC,eAAO,MAAM,aAAa;;;CA2BtB,CAAC"}
+{"version":3,"file":"winston.config.d.ts","sourceRoot":"","sources":["../../src/config/winston.config.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,OAAO,MAAM,SAAS,CAAC;AAInC,OAAO,2BAA2B,CAAC;AAiBnC,eAAO,MAAM,aAAa;;;;CA4BtB,CAAC"}

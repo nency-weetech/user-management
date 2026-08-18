@@ -23,3 +23,4 @@ __decorate([
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", Boolean)
 ], UpdateUserStatusDto.prototype, "isActive", void 0);
+//# sourceMappingURL=update-user-state.dto.js.map

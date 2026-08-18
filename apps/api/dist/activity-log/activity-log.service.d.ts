@@ -5,3 +5,4 @@ export declare class ActivityLogService {
     logActivity(userId: string, action: string): Promise<void>;
     getRecentActivity(userId: string): Promise<any[]>;
 }
+//# sourceMappingURL=activity-log.service.d.ts.map

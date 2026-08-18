@@ -44,3 +44,4 @@ exports.ActivityLogService = ActivityLogService = __decorate([
     __param(0, (0, common_1.Inject)('REDIS_CLIENT')),
     __metadata("design:paramtypes", [ioredis_1.default])
 ], ActivityLogService);
+//# sourceMappingURL=activity-log.service.js.map

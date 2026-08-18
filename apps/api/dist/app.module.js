@@ -29,7 +29,7 @@ const core_1 = require("@nestjs/core");
 const activity_log_module_1 = require("./activity-log/activity-log.module");
 const redis_module_1 = require("./redis/redis.module");
 const sign_up_count_service_1 = require("./sign-up-count/sign-up-count.service");
-const schedule_1 = require("@nestjs/schedule");
+//import { ScheduleModule } from '@nestjs/schedule';
 const soft_delete_service_1 = require("./soft-delete/soft-delete.service");
 const deletion_listener_service_1 = require("./soft-delete/deletion-listener.service");
 const deletion_cleanup_service_1 = require("./soft-delete/deletion-cleanup.service");
@@ -41,6 +41,7 @@ const shared_1 = require("@myapp/shared");
 const logging_interceptor_1 = require("./interceptors/logging.interceptor");
 const all_exceptions_filter_1 = require("./filters/all-exceptions.filter");
 const path_1 = __importDefault(require("path"));
+const billing_module_1 = require("./billing/billing.module");
 const disableThrottler = process.env.NODE_ENV === 'test' && process.env.DISABLE_THROTTLER !== 'false';
 let AppModule = class AppModule {
 };
@@ -59,7 +60,7 @@ exports.AppModule = AppModule = __decorate([
                 route: '/queues',
                 adapter: express_1.ExpressAdapter,
             }),
-            schedule_1.ScheduleModule.forRoot(),
+            //ScheduleModule.forRoot(),
             cache_manager_1.CacheModule.registerAsync({
                 isGlobal: true,
                 imports: [config_1.ConfigModule],
@@ -85,6 +86,7 @@ exports.AppModule = AppModule = __decorate([
                     expiresIn: '1h',
                 },
             }),
+            billing_module_1.BillingModule,
             shared_1.LoggerModule,
             users_module_1.UsersModule,
             auth_module_1.AuthModule,
@@ -115,3 +117,4 @@ exports.AppModule = AppModule = __decorate([
         ],
     })
 ], AppModule);
+//# sourceMappingURL=app.module.js.map

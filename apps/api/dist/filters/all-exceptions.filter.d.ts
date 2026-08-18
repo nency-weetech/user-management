@@ -4,3 +4,4 @@ export declare class AllExceptionFilter implements ExceptionFilter {
     constructor(logger: Logger);
     catch(exception: any, host: ArgumentsHost): void;
 }
+//# sourceMappingURL=all-exceptions.filter.d.ts.map

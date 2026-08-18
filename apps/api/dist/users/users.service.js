@@ -15,15 +15,20 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UsersService = void 0;
 const common_1 = require("@nestjs/common");
 const database_1 = require("@myapp/database");
+const database_2 = require("@myapp/database");
 const cache_manager_1 = require("@nestjs/cache-manager");
 const activity_log_service_1 = require("../activity-log/activity-log.service");
-const database_2 = require("@myapp/database");
+const database_3 = require("@myapp/database");
 let UsersService = class UsersService {
     repo;
+    userPlanRepo;
+    userUsageRepo;
     activityLogService;
     cacheManager;
-    constructor(repo, activityLogService, cacheManager) {
+    constructor(repo, userPlanRepo, userUsageRepo, activityLogService, cacheManager) {
         this.repo = repo;
+        this.userPlanRepo = userPlanRepo;
+        this.userUsageRepo = userUsageRepo;
         this.activityLogService = activityLogService;
         this.cacheManager = cacheManager;
     }
@@ -32,7 +37,10 @@ let UsersService = class UsersService {
     }
     async create(userData) {
         const user = this.repo.create(userData);
-        return this.repo.save(user);
+        await this.repo.save(user);
+        await this.userPlanRepo.createPlan(user.id, database_1.UserPlanEnum.FREE);
+        await this.userUsageRepo.createUsage(user.id);
+        return user;
     }
     async findAllPaginated(queryDto) {
         const { page, limit, search, role, isActive } = queryDto;
@@ -78,7 +86,7 @@ let UsersService = class UsersService {
         if (!user) {
             throw new common_1.NotFoundException('User not found');
         }
-        const isAdmin = currentUser.role === database_1.UserRole.ADMIN;
+        const isAdmin = currentUser.role === database_2.UserRole.ADMIN;
         const isSelf = currentUser.id === id;
         if (!isAdmin && !isSelf) {
             throw new common_1.ForbiddenException('You can update only your own profile');
@@ -152,7 +160,10 @@ let UsersService = class UsersService {
 exports.UsersService = UsersService;
 exports.UsersService = UsersService = __decorate([
     (0, common_1.Injectable)(),
-    __param(2, (0, common_1.Inject)(cache_manager_1.CACHE_MANAGER)),
-    __metadata("design:paramtypes", [database_2.UserRepository,
+    __param(4, (0, common_1.Inject)(cache_manager_1.CACHE_MANAGER)),
+    __metadata("design:paramtypes", [database_3.UserRepository,
+        database_1.UserPlanRepository,
+        database_1.UserUsageRepository,
         activity_log_service_1.ActivityLogService, Object])
 ], UsersService);
+//# sourceMappingURL=users.service.js.map

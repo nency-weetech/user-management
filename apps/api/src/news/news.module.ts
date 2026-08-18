@@ -11,10 +11,12 @@ import { BullModule } from '@nestjs/bullmq';
 import { BullBoardModule } from '@bull-board/nestjs';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import { NewsQueueService } from './news.queue.service';
+import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Article, NewsFetchLog]),
+    UsersModule,
     HttpModule,
     BullModule.registerQueue({
       name: 'newsQueue',

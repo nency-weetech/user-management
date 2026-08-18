@@ -14,7 +14,7 @@ export enum fetchTrigger {
   ADMIN = 'admin',
 }
 
-@Entity('new-fetch-log')
+@Entity('news-fetch-log')
 export class NewsFetchLog {
   @PrimaryGeneratedColumn('uuid')
   id!: string;

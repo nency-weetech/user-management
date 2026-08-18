@@ -77,5 +77,5 @@ __decorate([
     __metadata("design:type", Date)
 ], NewsFetchLog.prototype, "updatedAt", void 0);
 exports.NewsFetchLog = NewsFetchLog = __decorate([
-    (0, typeorm_1.Entity)('new-fetch-log')
+    (0, typeorm_1.Entity)('news-fetch-log')
 ], NewsFetchLog);

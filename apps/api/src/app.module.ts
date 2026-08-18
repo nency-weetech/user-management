@@ -17,7 +17,7 @@ import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ActivityLogModule } from './activity-log/activity-log.module';
 import { RedisModule } from './redis/redis.module';
 import { SignUpCountService } from './sign-up-count/sign-up-count.service';
-import { ScheduleModule } from '@nestjs/schedule';
+//import { ScheduleModule } from '@nestjs/schedule';
 import { SoftDeleteService } from './soft-delete/soft-delete.service';
 import { DeletionListenerService } from './soft-delete/deletion-listener.service';
 import { DeletionCleanupService } from './soft-delete/deletion-cleanup.service';
@@ -29,6 +29,7 @@ import { LoggerModule } from '@myapp/shared';
 import { LoggingInterceptor } from './interceptors/logging.interceptor';
 import { AllExceptionFilter } from './filters/all-exceptions.filter';
 import path from 'path';
+import { BillingModule } from './billing/billing.module';
 const disableThrottler =
   process.env.NODE_ENV === 'test' && process.env.DISABLE_THROTTLER !== 'false';
 
@@ -45,7 +46,7 @@ const disableThrottler =
       route: '/queues',
       adapter: ExpressAdapter,
     }),
-    ScheduleModule.forRoot(),
+    //ScheduleModule.forRoot(),
     CacheModule.registerAsync({
       isGlobal: true,
       imports: [ConfigModule],
@@ -74,6 +75,7 @@ const disableThrottler =
         expiresIn: '1h',
       },
     }),
+    BillingModule,
     LoggerModule,
     UsersModule,
     AuthModule,

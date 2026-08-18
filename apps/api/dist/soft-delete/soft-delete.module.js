@@ -22,3 +22,4 @@ exports.SoftDeleteModule = SoftDeleteModule = __decorate([
         exports: [soft_delete_service_1.SoftDeleteService]
     })
 ], SoftDeleteModule);
+//# sourceMappingURL=soft-delete.module.js.map

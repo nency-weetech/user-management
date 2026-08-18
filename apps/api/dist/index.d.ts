@@ -7,3 +7,4 @@ export * from './users/users.service';
 export * from './news/news.queue.service';
 export * from './mail/mail.service';
 export * from './sign-up-count/sign-up-count.service';
+//# sourceMappingURL=index.d.ts.map

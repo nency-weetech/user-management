@@ -6,3 +6,4 @@ export declare class CreateUserDto {
     lastName: string;
     role?: UserRole;
 }
+//# sourceMappingURL=create-user.dto.d.ts.map

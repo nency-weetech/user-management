@@ -14,11 +14,19 @@ const common_1 = require("@nestjs/common");
 const database_1 = require("@myapp/database");
 let NewsService = class NewsService {
     articleRepository;
-    constructor(articleRepository) {
+    userPlanRepo;
+    userUsageRepo;
+    constructor(articleRepository, userPlanRepo, userUsageRepo) {
         this.articleRepository = articleRepository;
+        this.userPlanRepo = userPlanRepo;
+        this.userUsageRepo = userUsageRepo;
     }
-    async findAll(page, limit, category) {
+    async findAll(userId, page, limit, category) {
         const [items, total] = await this.articleRepository.findAllPaginated(page, limit, category);
+        const userPlan = await this.userPlanRepo.findByUserId(userId);
+        if (userPlan.plan !== database_1.UserPlanEnum.PAID) {
+            this.userUsageRepo.incrementViewCount(userId, items.length);
+        }
         return {
             data: items,
             meta: {
@@ -48,5 +56,6 @@ let NewsService = class NewsService {
 exports.NewsService = NewsService;
 exports.NewsService = NewsService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [database_1.ArticleRepository])
+    __metadata("design:paramtypes", [database_1.ArticleRepository, database_1.UserPlanRepository, database_1.UserUsageRepository])
 ], NewsService);
+//# sourceMappingURL=news.service.js.map

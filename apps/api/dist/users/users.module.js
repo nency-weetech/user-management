@@ -19,9 +19,23 @@ let UsersModule = class UsersModule {
 exports.UsersModule = UsersModule;
 exports.UsersModule = UsersModule = __decorate([
     (0, common_1.Module)({
-        imports: [typeorm_1.TypeOrmModule.forFeature([database_1.User]), activity_log_module_1.ActivityLogModule],
+        imports: [
+            typeorm_1.TypeOrmModule.forFeature([database_1.User, database_1.UserPlan, database_1.UserUsage]),
+            activity_log_module_1.ActivityLogModule,
+        ],
         controllers: [users_controller_1.UsersController],
-        providers: [users_service_1.UsersService, database_2.UserRepository],
-        exports: [users_service_1.UsersService]
+        providers: [
+            users_service_1.UsersService,
+            database_2.UserRepository,
+            database_1.UserPlanRepository,
+            database_1.UserUsageRepository,
+        ],
+        exports: [
+            users_service_1.UsersService,
+            database_2.UserRepository,
+            database_1.UserPlanRepository,
+            database_1.UserUsageRepository,
+        ],
     })
 ], UsersModule);
+//# sourceMappingURL=users.module.js.map

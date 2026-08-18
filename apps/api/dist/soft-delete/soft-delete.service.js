@@ -50,3 +50,4 @@ exports.SoftDeleteService = SoftDeleteService = __decorate([
     __metadata("design:paramtypes", [ioredis_1.default,
         users_service_1.UsersService])
 ], SoftDeleteService);
+//# sourceMappingURL=soft-delete.service.js.map
