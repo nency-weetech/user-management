@@ -5,3 +5,4 @@ export declare class AuthGuard implements CanActivate {
     constructor(jwtService: JwtService);
     canActivate(context: ExecutionContext): Promise<boolean>;
 }
+//# sourceMappingURL=auth.guard.d.ts.map

@@ -36,3 +36,4 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], UpdateArticleDto.prototype, "summary", void 0);
+//# sourceMappingURL=update-article.dto.js.map

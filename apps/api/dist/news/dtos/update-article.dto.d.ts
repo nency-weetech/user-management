@@ -3,3 +3,4 @@ export declare class UpdateArticleDto {
     catagory?: string;
     summary?: string;
 }
+//# sourceMappingURL=update-article.dto.d.ts.map

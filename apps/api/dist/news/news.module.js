@@ -20,6 +20,7 @@ const bullmq_1 = require("@nestjs/bullmq");
 const nestjs_1 = require("@bull-board/nestjs");
 const bullMQAdapter_1 = require("@bull-board/api/bullMQAdapter");
 const news_queue_service_1 = require("./news.queue.service");
+const users_module_1 = require("../users/users.module");
 let NewsModule = class NewsModule {
 };
 exports.NewsModule = NewsModule;
@@ -27,6 +28,7 @@ exports.NewsModule = NewsModule = __decorate([
     (0, common_1.Module)({
         imports: [
             typeorm_1.TypeOrmModule.forFeature([database_1.Article, database_3.NewsFetchLog]),
+            users_module_1.UsersModule,
             axios_1.HttpModule,
             bullmq_1.BullModule.registerQueue({
                 name: 'newsQueue',
@@ -46,3 +48,4 @@ exports.NewsModule = NewsModule = __decorate([
         exports: [news_queue_service_1.NewsQueueService]
     })
 ], NewsModule);
+//# sourceMappingURL=news.module.js.map

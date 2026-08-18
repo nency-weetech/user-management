@@ -12,12 +12,13 @@ const nest_winston_1 = require("nest-winston");
 const shared_1 = require("@myapp/shared");
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule, {
-        logger: nest_winston_1.WinstonModule.createLogger(shared_1.winstonConfig)
+        logger: nest_winston_1.WinstonModule.createLogger(shared_1.winstonConfig),
+        rawBody: true,
     });
     app.useGlobalPipes(new common_1.ValidationPipe({
         whitelist: true,
         forbidNonWhitelisted: true,
-        transform: true
+        transform: true,
     }));
     if (process.env.NODE_ENV !== 'production') {
         const config = new swagger_1.DocumentBuilder()
@@ -40,3 +41,4 @@ async function bootstrap() {
     await app.listen(process.env.PORT ?? 3100);
 }
 bootstrap();
+//# sourceMappingURL=main.js.map

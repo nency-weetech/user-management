@@ -43,3 +43,4 @@ exports.RedisModule = RedisModule = __decorate([
         exports: ['REDIS_CLIENT', bullmq_1.BullModule],
     })
 ], RedisModule);
+//# sourceMappingURL=redis.module.js.map

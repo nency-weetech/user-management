@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from '@myapp/database';
+import { User, UserPlanEnum, UserPlanRepository, UserUsageRepository } from '@myapp/database';
 import { LessThan, MoreThan, Repository } from 'typeorm';
 import { UserRole } from '@myapp/database';
 import { UpdateUserStatusDto } from './dto/update-user-state.dto';
@@ -21,6 +21,8 @@ import { UserRepository } from '@myapp/database';
 export class UsersService {
   constructor(
     private repo: UserRepository,
+    private userPlanRepo : UserPlanRepository,
+    private userUsageRepo: UserUsageRepository,
     private activityLogService: ActivityLogService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
@@ -30,7 +32,10 @@ export class UsersService {
 
   async create(userData: Partial<User>): Promise<User> {
     const user = this.repo.create(userData);
-    return this.repo.save(user);
+    await this.repo.save(user);
+    await this.userPlanRepo.createPlan(user.id, UserPlanEnum.FREE);
+    await this.userUsageRepo.createUsage(user.id);
+    return user;
   }
 
   async findAllPaginated(queryDto: GetUserQueryDto) {

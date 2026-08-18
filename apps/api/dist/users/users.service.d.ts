@@ -1,5 +1,5 @@
 import { UpdateUserDto } from './dto/update-user.dto';
-import { User } from '@myapp/database';
+import { User, UserPlanRepository, UserUsageRepository } from '@myapp/database';
 import { UpdateUserStatusDto } from './dto/update-user-state.dto';
 import { GetUserQueryDto } from './dto/get-user-query.dto';
 import { type Cache } from 'cache-manager';
@@ -7,9 +7,11 @@ import { ActivityLogService } from '../activity-log/activity-log.service';
 import { UserRepository } from '@myapp/database';
 export declare class UsersService {
     private repo;
+    private userPlanRepo;
+    private userUsageRepo;
     private activityLogService;
     private cacheManager;
-    constructor(repo: UserRepository, activityLogService: ActivityLogService, cacheManager: Cache);
+    constructor(repo: UserRepository, userPlanRepo: UserPlanRepository, userUsageRepo: UserUsageRepository, activityLogService: ActivityLogService, cacheManager: Cache);
     private userCacheKey;
     create(userData: Partial<User>): Promise<User>;
     findAllPaginated(queryDto: GetUserQueryDto): Promise<{
@@ -44,3 +46,4 @@ export declare class UsersService {
     findStaleDeletionRequests(cutoffDate: Date): Promise<User[]>;
     updateCreatedAtForTest(userId: string, date: Date): Promise<void>;
 }
+//# sourceMappingURL=users.service.d.ts.map

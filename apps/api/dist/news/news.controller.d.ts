@@ -11,7 +11,7 @@ export declare class NewsController {
     refreshNes(dto: {
         query: string;
         number?: number;
-    }, admin: User): Promise<{
+    }, admin: User, request: any): Promise<{
         status: number;
         jobId: string;
         message: string;
@@ -69,7 +69,9 @@ export declare class NewsController {
         SuccessRate: string | number;
         AvgDurationMs: string;
     }>;
-    findAll(page?: number, limit?: number, category?: string): Promise<{
+    findAll(currentUser: {
+        id: string;
+    }, page?: number, limit?: number, category?: string): Promise<{
         data: import("@myapp/database").Article[];
         meta: {
             total: number;
@@ -84,3 +86,4 @@ export declare class NewsController {
     }>;
     updateArticle(id: string, dto: UpdateArticleDto): Promise<import("@myapp/database").Article>;
 }
+//# sourceMappingURL=news.controller.d.ts.map

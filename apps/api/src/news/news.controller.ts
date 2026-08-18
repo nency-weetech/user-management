@@ -7,6 +7,7 @@ import {
   Patch,
   Post,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { NewsService } from './news.service';
@@ -30,6 +31,8 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { NewsQueueService } from './news.queue.service';
+import { ViewLimitGuard } from '../guards/view-limit-guard/view-limit-guard';
+import { FetchLimitGuard } from '../guards/fetch-limit/fetch-limit.guard';
 
 @ApiTags('News')
 @Controller('news')
@@ -57,15 +60,19 @@ export class NewsController {
   })
   @ApiResponse({ status: 403, description: 'Admin role reuire' })
   @Post('refresh')
-  @UseGuards(AuthGuard, RoleGuard)
+  @UseGuards(AuthGuard, RoleGuard, FetchLimitGuard)
   @Roles([UserRole.ADMIN])
   async refreshNes(
     @Body() dto: { query: string; number?: number },
     @currentUser() admin: User,
+    @Req() request: any,
   ) {
+    const requestNumber = dto.number ?? 5;
+    const remaining = request.remainingFetchLimit;
+    const numberToFetch = remaining === null ? requestNumber: Math.min(requestNumber, remaining);
     const { jobId } = await this.newsQueueService.queueNewsFetch(
       dto.query,
-      dto.number ?? 5,
+      numberToFetch,
       admin.id,
     );
 
@@ -146,13 +153,14 @@ export class NewsController {
   @ApiQuery({ name: 'category', required: false, type: String })
   @ApiResponse({ status: 200, description: 'Article return' })
   @Get()
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, ViewLimitGuard)
   async findAll(
+    @currentUser() currentUser: { id: string },
     @Query('page') page = 1,
     @Query('limit') limit = 10,
     @Query('category') category?: string,
   ) {
-    return this.newsService.findAll(Number(page), Number(limit), category);
+    return this.newsService.findAll(currentUser.id,Number(page), Number(limit), category);
   }
 
   @ApiOperation({ summary: 'Delete an article by id (admin only)' })

@@ -6,3 +6,4 @@ export declare class GetUserQueryDto {
     role?: UserRole;
     isActive?: boolean;
 }
+//# sourceMappingURL=get-user-query.dto.d.ts.map

@@ -41,3 +41,4 @@ exports.AllExceptionFilter = AllExceptionFilter = __decorate([
     __param(0, (0, common_1.Inject)(nest_winston_1.WINSTON_MODULE_NEST_PROVIDER)),
     __metadata("design:paramtypes", [common_1.Logger])
 ], AllExceptionFilter);
+//# sourceMappingURL=all-exceptions.filter.js.map

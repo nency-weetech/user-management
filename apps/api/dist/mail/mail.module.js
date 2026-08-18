@@ -32,3 +32,4 @@ exports.MailModule = MailModule = __decorate([
         exports: [mail_service_1.MailService],
     })
 ], MailModule);
+//# sourceMappingURL=mail.module.js.map

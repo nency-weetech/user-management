@@ -6,3 +6,4 @@ exports.currentUser = (0, common_1.createParamDecorator)((data, context) => {
     const request = context.switchToHttp().getRequest();
     return request.user;
 });
+//# sourceMappingURL=current-user.decorator.js.map

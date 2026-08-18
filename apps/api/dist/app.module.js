@@ -41,6 +41,7 @@ const shared_1 = require("@myapp/shared");
 const logging_interceptor_1 = require("./interceptors/logging.interceptor");
 const all_exceptions_filter_1 = require("./filters/all-exceptions.filter");
 const path_1 = __importDefault(require("path"));
+const billing_module_1 = require("./billing/billing.module");
 const disableThrottler = process.env.NODE_ENV === 'test' && process.env.DISABLE_THROTTLER !== 'false';
 let AppModule = class AppModule {
 };
@@ -85,6 +86,7 @@ exports.AppModule = AppModule = __decorate([
                     expiresIn: '1h',
                 },
             }),
+            billing_module_1.BillingModule,
             shared_1.LoggerModule,
             users_module_1.UsersModule,
             auth_module_1.AuthModule,
@@ -115,3 +117,4 @@ exports.AppModule = AppModule = __decorate([
         ],
     })
 ], AppModule);
+//# sourceMappingURL=app.module.js.map

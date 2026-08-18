@@ -61,6 +61,7 @@
     "cookie-parser": "^1.4.7",
     "crypto": "^1.0.1",
     "express": "^5.2.1",
+    "gu": "^0.6.2",
     "ioredis": "^5.11.1",
     "nest-winston": "^1.10.2",
     "nodemailer": "^9.0.3",

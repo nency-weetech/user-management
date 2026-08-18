@@ -20,3 +20,4 @@ exports.ActivityLogModule = ActivityLogModule = __decorate([
         exports: [activity_log_service_1.ActivityLogService]
     })
 ], ActivityLogModule);
+//# sourceMappingURL=activity-log.module.js.map

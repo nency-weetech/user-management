@@ -53,3 +53,4 @@ export declare class NewsQueueService {
         jobId: string;
     }>;
 }
+//# sourceMappingURL=news.queue.service.d.ts.map

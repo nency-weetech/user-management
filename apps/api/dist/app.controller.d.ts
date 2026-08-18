@@ -9,3 +9,4 @@ export declare class AppController {
         value: unknown;
     }>;
 }
+//# sourceMappingURL=app.controller.d.ts.map

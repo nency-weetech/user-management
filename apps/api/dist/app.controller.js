@@ -50,3 +50,4 @@ exports.AppController = AppController = __decorate([
     __param(1, (0, common_1.Inject)(cache_manager_1.CACHE_MANAGER)),
     __metadata("design:paramtypes", [app_service_1.AppService, Object])
 ], AppController);
+//# sourceMappingURL=app.controller.js.map

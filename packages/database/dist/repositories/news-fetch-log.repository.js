@@ -33,11 +33,13 @@ let NewsFetchLogRepository = class NewsFetchLogRepository extends base_repositor
     }
     async countFailuersSince(date) {
         return this.newsFetchLogRepository.count({
-            where: { success: false, createdAt: (0, typeorm_2.MoreThan)(date) }
+            where: { success: false, createdAt: (0, typeorm_2.MoreThan)(date) },
         });
     }
     async getStats(sinceDate) {
-        const total = await this.newsFetchLogRepository.count({ where: { createdAt: (0, typeorm_2.MoreThan)(sinceDate) } });
+        const total = await this.newsFetchLogRepository.count({
+            where: { createdAt: (0, typeorm_2.MoreThan)(sinceDate) },
+        });
         const failauer = await this.countFailuersSince(sinceDate);
         const avgDuration = await this.newsFetchLogRepository
             .createQueryBuilder('log')
@@ -48,8 +50,20 @@ let NewsFetchLogRepository = class NewsFetchLogRepository extends base_repositor
             TotalFetches: total,
             FailedFetch: failauer,
             SuccessRate: total > 0 ? (((total - failauer) / total) * 100).toFixed(3) : 100,
-            AvgDurationMs: (Number(avgDuration?.avg ?? 0)).toFixed(3)
+            AvgDurationMs: Number(avgDuration?.avg ?? 0).toFixed(3),
         };
+    }
+    async sumArticleFetchToday(userId) {
+        const startOfDay = new Date();
+        startOfDay.setHours(0, 0, 0, 0);
+        const result = await this.newsFetchLogRepository
+            .createQueryBuilder('log')
+            .select('SUM(log.articlesFetched)', 'total')
+            .where('log.triggeredByUserId = :userId', { userId })
+            .andWhere('log.triggeredBy = :triggeredBy', { triggeredBy: 'admin' })
+            .andWhere('log.createdAt >= :startOfDay', { startOfDay })
+            .getRawOne();
+        return Number(result?.total) || 0;
     }
 };
 exports.NewsFetchLogRepository = NewsFetchLogRepository;

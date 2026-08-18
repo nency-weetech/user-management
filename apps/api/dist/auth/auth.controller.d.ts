@@ -51,3 +51,4 @@ export declare class AuthController {
         message: string;
     }>;
 }
+//# sourceMappingURL=auth.controller.d.ts.map

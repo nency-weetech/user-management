@@ -13,4 +13,5 @@ export declare class NewsFetchLogRepository extends BaseAbstractRepostitory<News
         SuccessRate: string | number;
         AvgDurationMs: string;
     }>;
+    sumArticleFetchToday(userId: string): Promise<number>;
 }

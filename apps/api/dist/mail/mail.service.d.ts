@@ -13,3 +13,4 @@ export declare class MailService {
         createdAt: Date;
     }[]): Promise<void>;
 }
+//# sourceMappingURL=mail.service.d.ts.map

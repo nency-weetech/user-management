@@ -14,3 +14,4 @@ describe('SignUpCountService', () => {
         expect(service).toBeDefined();
     });
 });
+//# sourceMappingURL=sign-up-count.service.spec.js.map

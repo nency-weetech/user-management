@@ -10,3 +10,4 @@ export declare class SoftDeleteService {
     isPendingDeletion(userId: string): Promise<boolean>;
     cancelDeletion(userId: string): Promise<void>;
 }
+//# sourceMappingURL=soft-delete.service.d.ts.map

@@ -29,6 +29,7 @@ import { LoggerModule } from '@myapp/shared';
 import { LoggingInterceptor } from './interceptors/logging.interceptor';
 import { AllExceptionFilter } from './filters/all-exceptions.filter';
 import path from 'path';
+import { BillingModule } from './billing/billing.module';
 const disableThrottler =
   process.env.NODE_ENV === 'test' && process.env.DISABLE_THROTTLER !== 'false';
 
@@ -74,6 +75,7 @@ const disableThrottler =
         expiresIn: '1h',
       },
     }),
+    BillingModule,
     LoggerModule,
     UsersModule,
     AuthModule,

@@ -6,3 +6,4 @@ export declare class DeletionListenerService implements OnModuleInit {
     constructor(userService: UsersService);
     onModuleInit(): void;
 }
+//# sourceMappingURL=deletion-listener.service.d.ts.map

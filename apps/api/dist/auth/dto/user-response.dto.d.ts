@@ -9,3 +9,4 @@ export declare class UserResponseDto {
     createdAt: Date;
     lastLoginAt?: Date;
 }
+//# sourceMappingURL=user-response.dto.d.ts.map

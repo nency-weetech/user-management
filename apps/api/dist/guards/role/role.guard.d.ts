@@ -5,3 +5,4 @@ export declare class RoleGuard implements CanActivate {
     constructor(reflactor: Reflector);
     canActivate(context: ExecutionContext): true;
 }
+//# sourceMappingURL=role.guard.d.ts.map

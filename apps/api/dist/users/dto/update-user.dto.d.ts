@@ -5,3 +5,4 @@ export declare class UpdateUserDto extends UpdateUserDto_base {
     lastName?: string;
 }
 export {};
+//# sourceMappingURL=update-user.dto.d.ts.map

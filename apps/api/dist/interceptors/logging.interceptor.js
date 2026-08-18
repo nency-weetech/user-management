@@ -39,3 +39,4 @@ exports.LoggingInterceptor = LoggingInterceptor = __decorate([
     __param(0, (0, common_1.Inject)(nest_winston_1.WINSTON_MODULE_NEST_PROVIDER)),
     __metadata("design:paramtypes", [common_1.Logger])
 ], LoggingInterceptor);
+//# sourceMappingURL=logging.interceptor.js.map

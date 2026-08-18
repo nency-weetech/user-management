@@ -25,6 +25,8 @@ const database_3 = require("@myapp/database");
 const update_article_dto_1 = require("./dtos/update-article.dto");
 const swagger_1 = require("@nestjs/swagger");
 const news_queue_service_1 = require("./news.queue.service");
+const view_limit_guard_1 = require("../guards/view-limit-guard/view-limit-guard");
+const fetch_limit_guard_1 = require("../guards/fetch-limit/fetch-limit.guard");
 let NewsController = class NewsController {
     newsService;
     newsQueueService;
@@ -38,8 +40,11 @@ let NewsController = class NewsController {
     // async testFetch(){
     //   return this.newsFetcherService.fetchAndStoreNews('technology', 2);
     // }
-    async refreshNes(dto, admin) {
-        const { jobId } = await this.newsQueueService.queueNewsFetch(dto.query, dto.number ?? 5, admin.id);
+    async refreshNes(dto, admin, request) {
+        const requestNumber = dto.number ?? 5;
+        const remaining = request.remainingFetchLimit;
+        const numberToFetch = remaining === null ? requestNumber : Math.min(requestNumber, remaining);
+        const { jobId } = await this.newsQueueService.queueNewsFetch(dto.query, numberToFetch, admin.id);
         return {
             status: 202,
             jobId,
@@ -62,8 +67,8 @@ let NewsController = class NewsController {
         const sinceDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
         return this.newsFetchLogRepository.getStats(sinceDate);
     }
-    async findAll(page = 1, limit = 10, category) {
-        return this.newsService.findAll(Number(page), Number(limit), category);
+    async findAll(currentUser, page = 1, limit = 10, category) {
+        return this.newsService.findAll(currentUser.id, Number(page), Number(limit), category);
     }
     async remove(id) {
         const deleteArticle = await this.newsService.remove(id);
@@ -86,12 +91,13 @@ __decorate([
     }),
     (0, swagger_1.ApiResponse)({ status: 403, description: 'Admin role reuire' }),
     (0, common_1.Post)('refresh'),
-    (0, common_1.UseGuards)(auth_guard_1.AuthGuard, role_guard_1.RoleGuard),
+    (0, common_1.UseGuards)(auth_guard_1.AuthGuard, role_guard_1.RoleGuard, fetch_limit_guard_1.FetchLimitGuard),
     (0, role_decorator_1.Roles)([database_1.UserRole.ADMIN]),
     __param(0, (0, common_1.Body)()),
     __param(1, (0, current_user_decorator_1.currentUser)()),
+    __param(2, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, database_2.User]),
+    __metadata("design:paramtypes", [Object, database_2.User, Object]),
     __metadata("design:returntype", Promise)
 ], NewsController.prototype, "refreshNes", null);
 __decorate([
@@ -171,12 +177,13 @@ __decorate([
     (0, swagger_1.ApiQuery)({ name: 'category', required: false, type: String }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Article return' }),
     (0, common_1.Get)(),
-    (0, common_1.UseGuards)(auth_guard_1.AuthGuard),
-    __param(0, (0, common_1.Query)('page')),
-    __param(1, (0, common_1.Query)('limit')),
-    __param(2, (0, common_1.Query)('category')),
+    (0, common_1.UseGuards)(auth_guard_1.AuthGuard, view_limit_guard_1.ViewLimitGuard),
+    __param(0, (0, current_user_decorator_1.currentUser)()),
+    __param(1, (0, common_1.Query)('page')),
+    __param(2, (0, common_1.Query)('limit')),
+    __param(3, (0, common_1.Query)('category')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object, String]),
+    __metadata("design:paramtypes", [Object, Object, Object, String]),
     __metadata("design:returntype", Promise)
 ], NewsController.prototype, "findAll", null);
 __decorate([
@@ -217,3 +224,4 @@ exports.NewsController = NewsController = __decorate([
         news_queue_service_1.NewsQueueService,
         database_3.NewsFetchLogRepository])
 ], NewsController);
+//# sourceMappingURL=news.controller.js.map

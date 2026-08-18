@@ -120,3 +120,4 @@ exports.MailService = MailService = MailService_1 = __decorate([
     __param(0, (0, bullmq_1.InjectQueue)('mailQueue')),
     __metadata("design:paramtypes", [bullmq_2.Queue])
 ], MailService);
+//# sourceMappingURL=mail.service.js.map

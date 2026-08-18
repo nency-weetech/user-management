@@ -42,7 +42,6 @@ import path from 'path';
     NewsFetcherService,
     NewsQueueService,
     NewsProcessor,
-    NewsService,
     NewsRefreshCorn,
   ],
 })

@@ -7,3 +7,4 @@ export declare class SignUpCountService {
     getSignUpCount(): Promise<number>;
     resetSignUpCount(): Promise<void>;
 }
+//# sourceMappingURL=sign-up-count.service.d.ts.map

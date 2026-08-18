@@ -3,6 +3,8 @@
     "module": "nodenext",
     "target": "ES2023",
     "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
     "outDir": "./dist",
     "rootDir": "./src",
     "strict": false,
