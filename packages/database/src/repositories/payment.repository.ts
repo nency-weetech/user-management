@@ -34,4 +34,13 @@ export class PaymentRepository extends BaseAbstractRepostitory<Payments> impleme
             }
         )
     }
+
+    async markExpired(sessionId: string): Promise<void>{
+        await this.paymentsRepo.update(
+            {stripeCheckoutSessionId : sessionId},
+            {
+                status: PaymentStatus.EXPIRED
+            }
+        )
+    }
 }

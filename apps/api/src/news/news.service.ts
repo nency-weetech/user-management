@@ -7,15 +7,16 @@ import { Article } from '@myapp/database';
 export class NewsService {
   constructor(private articleRepository: ArticleRepository, private userPlanRepo : UserPlanRepository, private userUsageRepo : UserUsageRepository) {}
 
-  async findAll(userId: string, page: number, limit: number, category?: string) {
+  async findAll(userId: string, page: number, limit: number, remainingViewLimit: number | null, category?: string ) {
+    const cappedLimit = remainingViewLimit === null ? limit : Math.min(limit, remainingViewLimit)
     const [items, total] = await this.articleRepository.findAllPaginated(
       page,
-      limit,
+      cappedLimit,
       category,
     );
 
     const userPlan = await this.userPlanRepo.findByUserId(userId);
-    if(userPlan.plan !== UserPlanEnum.PAID){
+    if(userPlan.plan !== UserPlanEnum.MAX){
       this.userUsageRepo.incrementViewCount(userId, items.length)
     }
     return {
@@ -23,7 +24,7 @@ export class NewsService {
       meta: {
         total,
         page,
-        limit,
+        cappedLimit,
         totalPage: Math.ceil(total / limit),
       },
     };

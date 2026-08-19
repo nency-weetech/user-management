@@ -2,7 +2,7 @@
 import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
 import { NewsFetcherService } from './news/news-fetcher.service';
-import { ArticleRepository, User } from '@myapp/database';
+import { ArticleRepository, PaymentRepository, Payments, User, UserPlan, UserPlanRepository } from '@myapp/database';
 import { NewsFetchLogRepository } from '@myapp/database';
 import { MailProcessor } from './mail/mail.processor';
 import { RedisModule } from './redis/redis.module';
@@ -18,6 +18,7 @@ import { NewsFetchLog } from '@myapp/database';
 import { Article } from '@myapp/database';
 import { LoggerModule } from '@myapp/shared';
 import path from 'path';
+import { PaymentEventProcessor } from './billing/payment-event.processor';
 
 @Module({
   imports: [
@@ -30,13 +31,18 @@ import path from 'path';
     }),
     LoggerModule,
     TypeOrmModule.forRoot(datasourceOptions),
-    TypeOrmModule.forFeature([Article, NewsFetchLog, User]),
+    TypeOrmModule.forFeature([Article, NewsFetchLog, User, Payments, UserPlan]),
     RedisModule,
     HttpModule,
-    BullModule.registerQueue({ name: 'newsQueue' }, { name: 'mailQueue' }),
+    BullModule.registerQueue({ name: 'newsQueue' }, { name: 'mailQueue' }, {name: 'billingQueue'}),
   ],
   providers: [
     MailProcessor,
+    
+    PaymentEventProcessor,
+    PaymentRepository,
+    UserPlanRepository,
+    
     ArticleRepository,
     NewsFetchLogRepository,
     NewsFetcherService,

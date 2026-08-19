@@ -19,21 +19,23 @@ export class ViewLimitGuard implements CanActivate {
     private userUsageRepo: UserUsageRepository,
   ) {}
   async canActivate(context: ExecutionContext) {
-    const { user } = context.switchToHttp().getRequest();
+    const request = context.switchToHttp().getRequest();
+    const { user } = request;
     if (!user) {
       throw new NotFoundException('User Not exists');
     }
 
     const userPlan = await this.userPlanRepo.findByUserId(user.id);
-
     if (!userPlan) {
       throw new NotFoundException('User plan not found');
     }
 
-    if (userPlan.plan === UserPlanEnum.PAID) {
+    if (userPlan.plan === UserPlanEnum.MAX) {
       return true;
     }
 
+    const dailyLimit = userPlan.plan === UserPlanEnum.PRO ? 100 : 20;
+    console.log(dailyLimit);
     const userUsage = await this.userUsageRepo.findByUserId(user.id);
     if (!userUsage) {
       throw new NotFoundException('User usage not found');
@@ -61,13 +63,13 @@ export class ViewLimitGuard implements CanActivate {
       currentCount = userUsage.dailyArticleViewCount;
     }
 
-    if (currentCount >= 20) {
+    if (currentCount >= dailyLimit) {
       throw new ForbiddenException(
-        'Daily View limit Reached, Upgrad to pro for unlimited access.',
+        'Daily View limit Reached, Upgrad plan for unlimited access.',
       );
     }
 
-    // await this.userUsageRepo.incrementViewCount(user.id, 1);
+    request.remainingViewLimit = dailyLimit - currentCount;
     return true;
-  }
+  } 
 }
