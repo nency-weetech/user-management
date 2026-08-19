@@ -56,3 +56,5 @@ pids
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 apps/api/dist/
 apps/*/dist/
+apps/*/dist/
+apps/*/dist/
