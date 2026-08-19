@@ -18,14 +18,17 @@ const stripe_service_1 = require("./stripe.service");
 const database_1 = require("@myapp/database");
 const auth_guard_1 = require("../guards/auth/auth.guard");
 const current_user_decorator_1 = require("../decorators/current-user.decorator");
+const billing_queue_service_1 = require("./billing.queue.service");
 let BillingController = class BillingController {
     stripeService;
     paymentRepository;
     userPlanRepo;
-    constructor(stripeService, paymentRepository, userPlanRepo) {
+    billingQueueService;
+    constructor(stripeService, paymentRepository, userPlanRepo, billingQueueService) {
         this.stripeService = stripeService;
         this.paymentRepository = paymentRepository;
         this.userPlanRepo = userPlanRepo;
+        this.billingQueueService = billingQueueService;
     }
     async checkout(user) {
         const userPlan = await this.userPlanRepo.findByUserId(user.id);
@@ -48,29 +51,31 @@ let BillingController = class BillingController {
         if (event.type === 'checkout.session.expired') {
             const session = event.data.object;
             const sessionId = session.id;
-            const payment = await this.paymentRepository.findBySessionId(sessionId);
-            if (!payment) {
-                return { received: true };
-            }
-            if (payment.status !== database_1.PaymentStatus.PENDING) {
-                return { received: true };
-            }
-            await this.paymentRepository.markExpired(sessionId);
+            await this.billingQueueService.queuePaymentUpdate('expired', sessionId);
+            // const payment = await this.paymentRepository.findBySessionId(sessionId);
+            // if (!payment) {
+            //   return { received: true };
+            // }
+            // if (payment.status !== PaymentStatus.PENDING) {
+            //   return { received: true };
+            // }
+            // await this.paymentRepository.markExpired(sessionId);
         }
         if (event.type === 'checkout.session.completed') {
             const session = event.data.object;
             const sessionId = session.id;
             const userId = session.metadata.userId;
             const paymentIntentId = session.payment_intent;
-            const payment = await this.paymentRepository.findBySessionId(sessionId);
-            if (!payment) {
-                return { received: true };
-            }
-            if (payment.status === database_1.PaymentStatus.SUCCEEDED) {
-                return { received: true };
-            }
-            await this.paymentRepository.markSucceeded(sessionId, paymentIntentId);
-            await this.userPlanRepo.upgradeToPaid(userId);
+            await this.billingQueueService.queuePaymentUpdate('completed', sessionId, userId, paymentIntentId);
+            // const payment = await this.paymentRepository.findBySessionId(sessionId);
+            // if (!payment) {
+            //   return { received: true };
+            // }
+            // if (payment.status === PaymentStatus.SUCCEEDED) {
+            //   return { received: true };
+            // }
+            // await this.paymentRepository.markSucceeded(sessionId, paymentIntentId);
+            // await this.userPlanRepo.upgradeToPaid(userId);
         }
         return { received: true };
     }
@@ -104,6 +109,7 @@ exports.BillingController = BillingController = __decorate([
     (0, common_1.Controller)('billing'),
     __metadata("design:paramtypes", [stripe_service_1.StripeService,
         database_1.PaymentRepository,
-        database_1.UserPlanRepository])
+        database_1.UserPlanRepository,
+        billing_queue_service_1.BillingQueueService])
 ], BillingController);
 //# sourceMappingURL=billing.controller.js.map

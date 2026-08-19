@@ -25,7 +25,6 @@ export class ViewLimitGuard implements CanActivate {
     }
 
     const userPlan = await this.userPlanRepo.findByUserId(user.id);
-
     if (!userPlan) {
       throw new NotFoundException('User plan not found');
     }

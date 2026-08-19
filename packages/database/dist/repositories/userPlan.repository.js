@@ -33,7 +33,7 @@ let UserPlanRepository = class UserPlanRepository extends base_repository_1.Base
         return this.userPlanRepository.save(userPlan);
     }
     findByUserId(userId) {
-        return this.userPlanRepository.findOneBy({ userId: userId });
+        return this.userPlanRepository.findOne({ where: { userId: userId } });
     }
     async upgradeToPaid(userId) {
         await this.userPlanRepository.update({ userId }, { plan: user_plan_enum_1.UserPlanEnum.PAID, planUpgradedAt: new Date() });
