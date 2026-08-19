@@ -43,6 +43,11 @@ let PaymentRepository = class PaymentRepository extends base_repository_1.BaseAb
             status: payment_status_enum_1.PaymentStatus.SUCCEEDED
         });
     }
+    async markExpired(sessionId) {
+        await this.paymentsRepo.update({ stripeCheckoutSessionId: sessionId }, {
+            status: payment_status_enum_1.PaymentStatus.EXPIRED
+        });
+    }
 };
 exports.PaymentRepository = PaymentRepository;
 exports.PaymentRepository = PaymentRepository = __decorate([

@@ -7,4 +7,5 @@ var PaymentStatus;
     PaymentStatus["SUCCEEDED"] = "succeeded";
     PaymentStatus["FAILED"] = "failed";
     PaymentStatus["REFUNDED"] = "refunded";
+    PaymentStatus["EXPIRED"] = "expired";
 })(PaymentStatus || (exports.PaymentStatus = PaymentStatus = {}));

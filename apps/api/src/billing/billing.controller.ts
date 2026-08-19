@@ -59,6 +59,22 @@ export class BillingController {
       );
     }
 
+    if(event.type === 'checkout.session.expired'){
+      const session = event.data.object as any;
+      const sessionId = session.id;
+
+      const payment = await this.paymentRepository.findBySessionId(sessionId);
+      if(!payment){
+        return {received: true}
+      }
+
+      if(payment.status !== PaymentStatus.PENDING ){
+        return {received: true}
+      }
+
+      await this.paymentRepository.markExpired(sessionId)
+    }
+    
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object as any;
       const sessionId = session.id;
