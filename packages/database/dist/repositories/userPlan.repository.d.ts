@@ -8,5 +8,5 @@ export declare class UserPlanRepository extends BaseAbstractRepostitory<UserPlan
     constructor(userPlanRepository: Repository<UserPlan>);
     createPlan(userId: string, plan: UserPlanEnum): Promise<UserPlan>;
     findByUserId(userId: string): Promise<UserPlan | null>;
-    upgradeToPaid(userId: string): Promise<void>;
+    upgradeToPaid(userId: string, plan: UserPlanEnum): Promise<void>;
 }

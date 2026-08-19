@@ -27,10 +27,10 @@ export class UserPlanRepository extends BaseAbstractRepostitory<UserPlan> implem
     return this.userPlanRepository.findOne({where:{userId: userId}});
   }
 
-  async upgradeToPaid(userId: string): Promise<void> {
+  async upgradeToPaid(userId: string,plan : UserPlanEnum): Promise<void> {
     await this.userPlanRepository.update(
       { userId },
-      { plan: UserPlanEnum.PAID, planUpgradedAt: new Date() },
+      { plan: plan, planUpgradedAt: new Date() },
     );
   }
 }

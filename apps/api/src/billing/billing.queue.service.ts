@@ -1,3 +1,4 @@
+import { UserPlanEnum } from '@myapp/database';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Injectable, Logger } from '@nestjs/common';
 import { Queue } from 'bullmq';
@@ -14,7 +15,9 @@ export class BillingQueueService {
     eventType: string,
     sessionId: string,
     userId?: string,
+    plan?: UserPlanEnum,
     paymentIntentId?: string,
+    hostedInvoiceUrl?:string,
   ) {
     const isTest = process.env.NODE_ENV === 'test';
     const job = await this.billingQueue.add(
@@ -23,7 +26,9 @@ export class BillingQueueService {
         eventType,
         sessionId,
         userId,
+        plan,
         paymentIntentId,
+        hostedInvoiceUrl
       },
       {
         attempts: isTest ? 1 : 3,

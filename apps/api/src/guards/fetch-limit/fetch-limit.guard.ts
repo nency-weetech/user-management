@@ -13,9 +13,6 @@ import {
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 
-
-const DAILY_FETCH_LIMIT = 30;
-
 @Injectable()
 export class FetchLimitGuard implements CanActivate {
   constructor(
@@ -35,16 +32,17 @@ export class FetchLimitGuard implements CanActivate {
       throw new NotFoundException('User plan not found');
     }
 
-    if (userPlan.plan === UserPlanEnum.PAID) {
+    if (userPlan.plan === UserPlanEnum.MAX) {
       request.remainingFetchLimit = null;
       return true;
     }
 
+    const DAILY_FETCH_LIMIT = userPlan.plan === UserPlanEnum.PRO ? 60 : 30;
     const sum = await this.newsFetchLogRepo.sumArticleFetchToday(user.id);
 
     if (sum >= DAILY_FETCH_LIMIT) {
       throw new ForbiddenException(
-        'Daily View limit Reached, Upgrad to pro for unlimited access.',
+        'Daily View limit Reached, Upgrad plan for unlimited access.',
       );
     }
     request.remainingFetchLimit = DAILY_FETCH_LIMIT - sum;

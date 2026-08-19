@@ -17,7 +17,6 @@ const typeorm_1 = require("@nestjs/typeorm");
 const base_repository_1 = require("../common/base.repository");
 const userPlan_entity_1 = require("../entities/userPlan.entity");
 const typeorm_2 = require("typeorm");
-const user_plan_enum_1 = require("../enums/user-plan.enum");
 let UserPlanRepository = class UserPlanRepository extends base_repository_1.BaseAbstractRepostitory {
     userPlanRepository;
     constructor(userPlanRepository) {
@@ -35,8 +34,8 @@ let UserPlanRepository = class UserPlanRepository extends base_repository_1.Base
     findByUserId(userId) {
         return this.userPlanRepository.findOne({ where: { userId: userId } });
     }
-    async upgradeToPaid(userId) {
-        await this.userPlanRepository.update({ userId }, { plan: user_plan_enum_1.UserPlanEnum.PAID, planUpgradedAt: new Date() });
+    async upgradeToPaid(userId, plan) {
+        await this.userPlanRepository.update({ userId }, { plan: plan, planUpgradedAt: new Date() });
     }
 };
 exports.UserPlanRepository = UserPlanRepository;

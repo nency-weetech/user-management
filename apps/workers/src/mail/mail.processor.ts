@@ -59,6 +59,9 @@ export class MailProcessor extends WorkerHost {
           case 'send-weekly-report':
             result = this.sendWeeklyReportMail(job);
             break;
+          case 'send-invoice':
+            result = this.sendInvoice(job);
+            break;
           default:
             this.logger.warn(`Unkonown Job type: ${job.name}`);
             break;
@@ -206,4 +209,36 @@ export class MailProcessor extends WorkerHost {
     const info = await this.transporter.sendMail(mailOption);
     this.logger.log(`weekly signup report: ${nodemailer.getTestMessageUrl(info)}`);
   }
+
+async sendInvoice(job: Job<{ toEmail: string; hostedInvoiceUrl: string; invoicePDF: string }>) {
+  const { toEmail, hostedInvoiceUrl, invoicePDF } = job.data;
+
+  const mailOptions = {
+    from: '"App Billing" <no-reply@myapp.com>',
+    to: toEmail,
+    subject: 'Your payment invoice',
+    html: `
+      <div style="font-family: Arial, sans-serif; margin: 0 auto;">
+        <h2 style="color: #333;">Thank you for your payment</h2>
+        <p style="color: #555;">Your invoice is ready. You can view or download it using the links below.</p>
+
+        <div style="margin: 24px 0;">
+          <a href="${hostedInvoiceUrl}"
+             style="display: inline-block; padding: 10px 20px; background-color: #4A90E2; color: #fff; text-decoration: none; border-radius: 4px; margin-right: 12px;">
+            View Invoice
+          </a>
+          <a href="${invoicePDF}"
+             style="display: inline-block; padding: 10px 20px; background-color: #f0f0f0; color: #333; text-decoration: none; border-radius: 4px;">
+            Download PDF
+          </a>
+        </div>
+
+        <p style="color: #999; font-size: 12px;">If the buttons don't work, copy this link into your browser: ${hostedInvoiceUrl}</p>
+      </div>
+    `,
+  };
+
+  const info = await this.transporter.sendMail(mailOptions);
+  this.logger.log(`Invoice mail sent to ${toEmail}: ${nodemailer.getTestMessageUrl(info)}`);
+}
 }

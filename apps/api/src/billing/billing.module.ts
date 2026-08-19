@@ -8,11 +8,13 @@ import { BillingQueueService } from './billing.queue.service';
 import { BullBoardModule } from '@bull-board/nestjs';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import { BullModule } from '@nestjs/bullmq';
+import { MailModule } from '../mail/mail.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Payments]),
     UsersModule,
+    MailModule,
     BullModule.registerQueue({
         name: 'billingQueue'
     }),

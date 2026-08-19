@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Controller,
   Get,
+  Param,
   Post,
   RawBodyRequest,
   Req,
@@ -14,11 +15,13 @@ import {
   User,
   UserPlanEnum,
   UserPlanRepository,
+  UserRepository,
 } from '@myapp/database';
 import { AuthGuard } from '../guards/auth/auth.guard';
 import { currentUser } from '../decorators/current-user.decorator';
 import { Request } from 'express';
 import { BillingQueueService } from './billing.queue.service';
+import { MailService } from '../mail/mail.service';
 
 @Controller('billing')
 export class BillingController {
@@ -27,17 +30,27 @@ export class BillingController {
     private paymentRepository: PaymentRepository,
     private userPlanRepo: UserPlanRepository,
     private billingQueueService: BillingQueueService,
+    private mailService: MailService,
+    private userRepository : UserRepository
   ) {}
 
-  @Post('checkout')
+  @Post('checkout/:plan')
   @UseGuards(AuthGuard)
-  async checkout(@currentUser() user: User) {
+  async checkout(
+    @currentUser() user: User,
+    @Param('plan') plan: 'pro' | 'max',
+  ) {
+
+    if (!['pro', 'max'].includes(plan)) {
+      throw new BadRequestException('Invalid plan');
+    }
+
     const userPlan = await this.userPlanRepo.findByUserId(user.id);
-    if (userPlan?.plan === UserPlanEnum.PAID) {
+    if (userPlan?.plan === UserPlanEnum.MAX) {
       return { message: 'You already have the upgraded version.' };
     }
 
-    const session = await this.stripeService.createCheckoutSession(user.id);
+    const session = await this.stripeService.createCheckoutSession(user.id, user.email, plan);
     await this.paymentRepository.createPayment(
       user.id,
       session.id,
@@ -64,7 +77,7 @@ export class BillingController {
       const session = event.data.object as any;
       const sessionId = session.id;
 
-      await this.billingQueueService.queuePaymentUpdate('expired', sessionId)
+      await this.billingQueueService.queuePaymentUpdate('expired', sessionId);
       // const payment = await this.paymentRepository.findBySessionId(sessionId);
       // if (!payment) {
       //   return { received: true };
@@ -81,14 +94,20 @@ export class BillingController {
       const session = event.data.object as any;
       const sessionId = session.id;
       const userId = session.metadata.userId;
+      const plan = session.metadata.plan;
       const paymentIntentId = session.payment_intent;
 
+      const {hostedInvoiceUrl, invoicePDF} = await this.stripeService.getInvoiceUrl(session.invoice)
       await this.billingQueueService.queuePaymentUpdate(
         'completed',
         sessionId,
         userId,
-        paymentIntentId,
+        plan,
+        paymentIntentId
       );
+
+      const user = await this.userRepository.findOneById(userId);
+      await this.mailService.sendInvoice(user.email, hostedInvoiceUrl, invoicePDF);
       // const payment = await this.paymentRepository.findBySessionId(sessionId);
       // if (!payment) {
       //   return { received: true };

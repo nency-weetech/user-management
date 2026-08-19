@@ -41,7 +41,7 @@ export class PaymentEventProcessor extends WorkerHost {
   }
 
   async handlePaymentEvent(job: Job) {
-    const { eventType, sessionId, userId, paymentIntentId } = job.data;
+    const { eventType, sessionId, userId, paymentIntentId, plan , hostedInvoiceUrl} = job.data;
 
     const payment = await this.paymentsRepo.findBySessionId(sessionId);
     if (!payment) return;
@@ -49,7 +49,7 @@ export class PaymentEventProcessor extends WorkerHost {
     if (eventType === 'completed') {
       if (payment.status === PaymentStatus.SUCCEEDED) return;
       await this.paymentsRepo.markSucceeded(sessionId, paymentIntentId);
-      await this.userPlanRepo.upgradeToPaid(userId);
+      await this.userPlanRepo.upgradeToPaid(userId, plan);
       this.logger.log(`Payment completed`);
     }
 

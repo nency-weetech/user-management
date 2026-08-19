@@ -39,23 +39,72 @@ export class MailService {
         removeOnComplete: false,
         removeOnFail: false,
       },
-      
     );
     await this.mailQueue.add(
       'send-otp-reminder',
-      {toEmail},
+      { toEmail },
       {
         priority: 5,
         delay: 30 * 1000,
-        attempts: 2
-      }
-    )
+        attempts: 2,
+      },
+    );
   }
 
   async welcomeMail(toEmail: string) {
     await this.mailQueue.add(
       'send-welcome',
-      { toEmail},
+      { toEmail },
+      {
+        priority: 3,
+        attempts: 3,
+        backoff: { type: 'exponential', delay: 3000 },
+        removeOnComplete: false,
+        removeOnFail: false,
+      },
+    );
+  }
+
+  async sendResetPassOtpEmail(toEmail: string, otp: string): Promise<void> {
+    await this.mailQueue.add(
+      'send-reset-pass-otp',
+      { toEmail, otp },
+      {
+        priority: 1,
+        attempts: 3,
+        backoff: { type: 'exponential', delay: 3000 },
+        removeOnComplete: false,
+        removeOnFail: false,
+      },
+    );
+  }
+
+  async sendWeeklyReportMail(
+    toEmail: string,
+    count: number,
+    users: { email: string; createdAt: Date }[],
+  ) {
+    await this.mailQueue.add(
+      'send-weekly-report',
+      { toEmail, count, users },
+      {
+        priority: 5,
+        attempts: 3,
+        backoff: { type: 'exponential', delay: 3000 },
+        removeOnComplete: false,
+        removeOnFail: false,
+      },
+    );
+  }
+
+  async sendInvoice(
+    toEmail: string,
+    hostedInvoiceUrl: string,
+    invoicePDF: string,
+  ) {
+    await this.mailQueue.add(
+      'send-invoice',
+      {toEmail, hostedInvoiceUrl, invoicePDF},
       {
         priority: 3,
         attempts: 3,
@@ -64,39 +113,5 @@ export class MailService {
         removeOnFail: false
       }
     )
-  }
-
-  async sendResetPassOtpEmail(toEmail: string, otp: string): Promise<void> {
-    await this.mailQueue.add(
-      'send-reset-pass-otp',
-      {toEmail, otp},
-      {
-        priority: 1,
-        attempts: 3,
-        backoff: {type: 'exponential', delay: 3000},
-        removeOnComplete: false,
-        removeOnFail: false
-      }
-    )
-  }
-
-  async sendWeeklyReportMail(
-    toEmail: string,
-    count: number,
-    users: { email: string; createdAt: Date }[],
-  ) {
-
-    await this.mailQueue.add(
-      'send-weekly-report',
-      {toEmail, count, users },
-      {
-        priority: 5,
-        attempts: 3,
-        backoff: {type: 'exponential', delay: 3000},
-        removeOnComplete: false,
-        removeOnFail: false
-      }
-    )
-    
   }
 }

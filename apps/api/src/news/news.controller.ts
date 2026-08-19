@@ -158,9 +158,11 @@ export class NewsController {
     @currentUser() currentUser: { id: string },
     @Query('page') page = 1,
     @Query('limit') limit = 10,
+    @Req() request: any,
     @Query('category') category?: string,
   ) {
-    return this.newsService.findAll(currentUser.id,Number(page), Number(limit), category);
+    const remaining = request.remainingViewLimit;
+    return this.newsService.findAll(currentUser.id,Number(page), Number(limit),remaining, category);
   }
 
   @ApiOperation({ summary: 'Delete an article by id (admin only)' })
