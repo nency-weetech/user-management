@@ -1,5 +1,5 @@
-import { DeepPartial, FindManyOptions, FindOneOptions, Repository } from "typeorm";
-import { BaseInterfaceRepository } from "./base.interface";
+import { DeepPartial, FindManyOptions, FindOneOptions, Repository } from 'typeorm';
+import { BaseInterfaceRepository } from './base.interface';
 interface HasId {
     id: string;
 }
@@ -13,6 +13,7 @@ export declare abstract class BaseAbstractRepostitory<T extends HasId> implement
     createMany(data: DeepPartial<T>[]): T[];
     findOneById(id: any): Promise<T | null>;
     findByCondition(filterCondition: FindOneOptions<T>): Promise<T | null>;
+    findManyByCondition(filterCondition: FindManyOptions<T>): Promise<T[]>;
     findWithRelations(relations: FindManyOptions<T>): Promise<T[]>;
     findAll(options?: FindManyOptions<T>): Promise<T[]>;
     remove(data: T): Promise<T>;

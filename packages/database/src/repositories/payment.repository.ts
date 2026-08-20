@@ -1,9 +1,12 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { BaseAbstractRepostitory } from '../common/base.repository';
 import { Payments } from '../entities/payment.entity';
-import { LessThan, Repository } from 'typeorm';
+import { In, LessThan, Repository } from 'typeorm';
 import { PaymentStatus } from '../enums/payment-status.enum';
 import { PaymentsInterface } from '../interfaces/payments.interface';
+import { UserPlanEnum } from '../enums/user-plan.enum';
+import { UserRepository } from './user.repository';
+import { User } from '../entities/user.entity';
 
 export class PaymentRepository
   extends BaseAbstractRepostitory<Payments>
@@ -12,12 +15,14 @@ export class PaymentRepository
   constructor(
     @InjectRepository(Payments)
     private readonly paymentsRepo: Repository<Payments>,
+    private readonly userRepository: UserRepository,
   ) {
     super(paymentsRepo);
   }
 
   createPayment(
     userId: string,
+    plan: UserPlanEnum,
     sessionId: string,
     amount: number,
     currency: string,
@@ -25,6 +30,7 @@ export class PaymentRepository
     const userPayment = this.paymentsRepo.create({
       userId,
       stripeCheckoutSessionId: sessionId,
+      plan,
       amount,
       currency,
       status: PaymentStatus.PENDING,
@@ -62,5 +68,43 @@ export class PaymentRepository
     return this.paymentsRepo.find({
       where: { status: PaymentStatus.PENDING, createdAt: LessThan(cutoff) },
     });
+  }
+
+  async findAllPaginated(page: number, limit: number, status?: PaymentStatus, plan?: UserPlanEnum): Promise<[Payments[], number]>{
+    const skip = (page - 1) * limit;
+    const query = this.paymentsRepo.createQueryBuilder('payment');
+
+    if(status){
+        query.andWhere('payment.status = :status', {status});
+    }
+
+    if(plan){
+        query.andWhere('payment.plan = :plan', {plan})
+    }
+
+    query.orderBy('payment.createdAt', 'DESC')
+    .skip(skip)
+    .take(limit)
+
+    const [payments, total] = await query.getManyAndCount();
+
+    const userIds = payments.map((p)=> p.userId)
+    const users = await this.userRepository.findManyByCondition({
+        where: {id: In(userIds)},
+        select: {
+            id: true,
+            email: true,
+            firstName: true,
+            lastName: true
+        }
+    })
+
+    const userMap = new Map(users.map((u)=> [u.id, u]))
+    const enrichPayment = payments.map((p)=> ({
+        ...p,
+        user: userMap.get(p.userId) || null
+    }));
+
+    return [enrichPayment, total]
   }
 }

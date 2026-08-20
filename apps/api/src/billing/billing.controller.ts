@@ -4,6 +4,7 @@ import {
   Get,
   Param,
   Post,
+  Query,
   RawBodyRequest,
   Req,
   UseGuards,
@@ -16,12 +17,15 @@ import {
   UserPlanEnum,
   UserPlanRepository,
   UserRepository,
+  UserRole,
 } from '@myapp/database';
 import { AuthGuard } from '../guards/auth/auth.guard';
 import { currentUser } from '../decorators/current-user.decorator';
 import { Request } from 'express';
 import { BillingQueueService } from './billing.queue.service';
 import { MailService } from '../mail/mail.service';
+import { RoleGuard } from '../guards/role/role.guard';
+import { Roles } from '../decorators/role.decorator';
 
 @Controller('billing')
 export class BillingController {
@@ -31,16 +35,12 @@ export class BillingController {
     private userPlanRepo: UserPlanRepository,
     private billingQueueService: BillingQueueService,
     private mailService: MailService,
-    private userRepository : UserRepository
+    private userRepository: UserRepository,
   ) {}
 
   @Post('checkout/:plan')
   @UseGuards(AuthGuard)
-  async checkout(
-    @currentUser() user: User,
-    @Param('plan') plan: 'pro' | 'max',
-  ) {
-
+  async checkout(@currentUser() user: User, @Param('plan') plan: UserPlanEnum) {
     if (!['pro', 'max'].includes(plan)) {
       throw new BadRequestException('Invalid plan');
     }
@@ -50,9 +50,14 @@ export class BillingController {
       return { message: 'You already have the upgraded version.' };
     }
 
-    const session = await this.stripeService.createCheckoutSession(user.id, user.email, plan);
+    const session = await this.stripeService.createCheckoutSession(
+      user.id,
+      user.email,
+      plan,
+    );
     await this.paymentRepository.createPayment(
       user.id,
+      plan,
       session.id,
       session.amount_total,
       session.currency,
@@ -97,17 +102,22 @@ export class BillingController {
       const plan = session.metadata.plan;
       const paymentIntentId = session.payment_intent;
 
-      const {hostedInvoiceUrl, invoicePDF} = await this.stripeService.getInvoiceUrl(session.invoice)
+      const { hostedInvoiceUrl, invoicePDF } =
+        await this.stripeService.getInvoiceUrl(session.invoice);
       await this.billingQueueService.queuePaymentUpdate(
         'completed',
         sessionId,
         userId,
         plan,
-        paymentIntentId
+        paymentIntentId,
       );
 
       const user = await this.userRepository.findOneById(userId);
-      await this.mailService.sendInvoice(user.email, hostedInvoiceUrl, invoicePDF);
+      await this.mailService.sendInvoice(
+        user.email,
+        hostedInvoiceUrl,
+        invoicePDF,
+      );
       // const payment = await this.paymentRepository.findBySessionId(sessionId);
       // if (!payment) {
       //   return { received: true };
@@ -125,5 +135,32 @@ export class BillingController {
   @Get('success')
   async paymentSuccess() {
     return { message: 'Payment successful, you can close this tab.' };
+  }
+
+  @UseGuards(AuthGuard, RoleGuard)
+  @Roles([UserRole.ADMIN])
+  @Get('payment-history')
+  async getAllPayments(
+    @Query('page') page = 1,
+    @Query('limit') limit = 10,
+    @Query('payment-status') status?: PaymentStatus,
+    @Query('plan') plan?: UserPlanEnum,
+  ) {
+    const [payments, total] = await this.paymentRepository.findAllPaginated(
+      Number(page),
+      Number(limit),
+      status,
+      plan,
+    );
+
+    return { 
+      data: payments,
+      meta: {
+        total,
+        page: Number(page),
+        limit: Number(limit),
+        totalPages : Math.ceil(total / Number(limit))
+      }
+    }
   }
 }

@@ -18,16 +18,20 @@ const base_repository_1 = require("../common/base.repository");
 const payment_entity_1 = require("../entities/payment.entity");
 const typeorm_2 = require("typeorm");
 const payment_status_enum_1 = require("../enums/payment-status.enum");
+const user_repository_1 = require("./user.repository");
 let PaymentRepository = class PaymentRepository extends base_repository_1.BaseAbstractRepostitory {
     paymentsRepo;
-    constructor(paymentsRepo) {
+    userRepository;
+    constructor(paymentsRepo, userRepository) {
         super(paymentsRepo);
         this.paymentsRepo = paymentsRepo;
+        this.userRepository = userRepository;
     }
-    createPayment(userId, sessionId, amount, currency) {
+    createPayment(userId, plan, sessionId, amount, currency) {
         const userPayment = this.paymentsRepo.create({
             userId,
             stripeCheckoutSessionId: sessionId,
+            plan,
             amount,
             currency,
             status: payment_status_enum_1.PaymentStatus.PENDING,
@@ -53,9 +57,40 @@ let PaymentRepository = class PaymentRepository extends base_repository_1.BaseAb
             where: { status: payment_status_enum_1.PaymentStatus.PENDING, createdAt: (0, typeorm_2.LessThan)(cutoff) },
         });
     }
+    async findAllPaginated(page, limit, status, plan) {
+        const skip = (page - 1) * limit;
+        const query = this.paymentsRepo.createQueryBuilder('payment');
+        if (status) {
+            query.andWhere('payment.status = :status', { status });
+        }
+        if (plan) {
+            query.andWhere('payment.plan = :plan', { plan });
+        }
+        query.orderBy('payment.createdAt', 'DESC')
+            .skip(skip)
+            .take(limit);
+        const [payments, total] = await query.getManyAndCount();
+        const userIds = payments.map((p) => p.userId);
+        const users = await this.userRepository.findManyByCondition({
+            where: { id: (0, typeorm_2.In)(userIds) },
+            select: {
+                id: true,
+                email: true,
+                firstName: true,
+                lastName: true
+            }
+        });
+        const userMap = new Map(users.map((u) => [u.id, u]));
+        const enrichPayment = payments.map((p) => ({
+            ...p,
+            user: userMap.get(p.userId) || null
+        }));
+        return [enrichPayment, total];
+    }
 };
 exports.PaymentRepository = PaymentRepository;
 exports.PaymentRepository = PaymentRepository = __decorate([
     __param(0, (0, typeorm_1.InjectRepository)(payment_entity_1.Payments)),
-    __metadata("design:paramtypes", [typeorm_2.Repository])
+    __metadata("design:paramtypes", [typeorm_2.Repository,
+        user_repository_1.UserRepository])
 ], PaymentRepository);

@@ -1,3 +1,4 @@
+import { UserPlanEnum } from '@myapp/database';
 import { Injectable } from '@nestjs/common';
 // import { ConfigService } from '@nestjs/config';
 import Stripe from 'stripe';
@@ -14,7 +15,7 @@ export class StripeService {
   async createCheckoutSession(
     userId: string,
     email: string,
-    plan : 'pro'|'max'
+    plan : UserPlanEnum
   ): Promise<Stripe.Checkout.Session> {
     const priceId = plan === 'pro' ? process.env.STRIPE_PRO_PRICE_ID : process.env.STRIPE_MAX_PRICE_ID
     const session = await this.stripe.checkout.sessions.create({

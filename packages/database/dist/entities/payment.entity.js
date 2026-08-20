@@ -13,12 +13,14 @@ exports.Payments = void 0;
 const typeorm_1 = require("typeorm");
 const user_entity_1 = require("./user.entity");
 const payment_status_enum_1 = require("../enums/payment-status.enum");
+const user_plan_enum_1 = require("../enums/user-plan.enum");
 let Payments = class Payments {
     id;
     userId;
     user;
     stripeCheckoutSessionId;
     stripePaymentIntentId;
+    plan;
     amount;
     currency;
     status;
@@ -47,6 +49,10 @@ __decorate([
     (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)
 ], Payments.prototype, "stripePaymentIntentId", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'enum', enum: user_plan_enum_1.UserPlanEnum }),
+    __metadata("design:type", String)
+], Payments.prototype, "plan", void 0);
 __decorate([
     (0, typeorm_1.Column)(),
     __metadata("design:type", Number)
