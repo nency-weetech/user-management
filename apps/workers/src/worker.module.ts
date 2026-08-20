@@ -19,6 +19,7 @@ import { Article } from '@myapp/database';
 import { LoggerModule } from '@myapp/shared';
 import path from 'path';
 import { PaymentEventProcessor } from './billing/payment-event.processor';
+import { PaymentCleanUpCorn } from './billing/payment-cleanup.corn';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { PaymentEventProcessor } from './billing/payment-event.processor';
     
     PaymentEventProcessor,
     PaymentRepository,
+    PaymentCleanUpCorn,
     UserPlanRepository,
     
     ArticleRepository,

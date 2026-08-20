@@ -25,6 +25,7 @@ export class StripeService {
                 quantity: 1
             }
         ],
+        expires_at: Math.floor(Date.now()/1000) + 30 * 60,
         metadata: {userId, plan},
         customer_email: email,
         invoice_creation: {enabled: true},

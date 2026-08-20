@@ -30,7 +30,7 @@ let PaymentRepository = class PaymentRepository extends base_repository_1.BaseAb
             stripeCheckoutSessionId: sessionId,
             amount,
             currency,
-            status: payment_status_enum_1.PaymentStatus.PENDING
+            status: payment_status_enum_1.PaymentStatus.PENDING,
         });
         return this.paymentsRepo.save(userPayment);
     }
@@ -40,12 +40,17 @@ let PaymentRepository = class PaymentRepository extends base_repository_1.BaseAb
     async markSucceeded(sessionId, paymentIntentId) {
         await this.paymentsRepo.update({ stripeCheckoutSessionId: sessionId }, {
             stripePaymentIntentId: paymentIntentId,
-            status: payment_status_enum_1.PaymentStatus.SUCCEEDED
+            status: payment_status_enum_1.PaymentStatus.SUCCEEDED,
         });
     }
     async markExpired(sessionId) {
         await this.paymentsRepo.update({ stripeCheckoutSessionId: sessionId }, {
-            status: payment_status_enum_1.PaymentStatus.EXPIRED
+            status: payment_status_enum_1.PaymentStatus.EXPIRED,
+        });
+    }
+    async findStalePending(cutoff) {
+        return this.paymentsRepo.find({
+            where: { status: payment_status_enum_1.PaymentStatus.PENDING, createdAt: (0, typeorm_2.LessThan)(cutoff) },
         });
     }
 };
