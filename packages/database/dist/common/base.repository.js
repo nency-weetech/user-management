@@ -24,12 +24,15 @@ class BaseAbstractRepostitory {
     }
     async findOneById(id) {
         const options = {
-            id: id
+            id: id,
         };
         return await this.entity.findOneBy(options);
     }
     async findByCondition(filterCondition) {
         return await this.entity.findOne(filterCondition);
+    }
+    async findManyByCondition(filterCondition) {
+        return await this.entity.find(filterCondition);
     }
     async findWithRelations(relations) {
         return await this.entity.find(relations);

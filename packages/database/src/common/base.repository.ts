@@ -1,65 +1,80 @@
-import { DeepPartial, FindManyOptions, FindOneOptions, FindOptionsWhere, Repository } from "typeorm";
-import { BaseInterfaceRepository } from "./base.interface";
-
+import {
+  DeepPartial,
+  FindManyOptions,
+  FindOneOptions,
+  FindOptionsWhere,
+  Repository,
+} from 'typeorm';
+import { BaseInterfaceRepository } from './base.interface';
 
 interface HasId {
-    id: string
+  id: string;
 }
 
-export abstract class BaseAbstractRepostitory<T extends HasId> implements BaseInterfaceRepository<T>{
-    private entity: Repository<T>
-    protected constructor(entity: Repository<T>) {
-        this.entity = entity
-    }
+export abstract class BaseAbstractRepostitory<
+  T extends HasId,
+> implements BaseInterfaceRepository<T> {
+  private entity: Repository<T>;
+  protected constructor(entity: Repository<T>) {
+    this.entity = entity;
+  }
 
-    public async save(data: DeepPartial<T>): Promise<T> {
-        return await this.entity.save(data)
-    }
+  public async save(data: DeepPartial<T>): Promise<T> {
+    return await this.entity.save(data);
+  }
 
-    public async saveMany(data: DeepPartial<T>[]): Promise<T[]> {
-        return this.entity.save(data)
-    }
+  public async saveMany(data: DeepPartial<T>[]): Promise<T[]> {
+    return this.entity.save(data);
+  }
 
-    public create(data: DeepPartial<T>): T {
-        return this.entity.create(data);
-    }
+  public create(data: DeepPartial<T>): T {
+    return this.entity.create(data);
+  }
 
-    public createAndSave(data : DeepPartial<T>): Promise<T>{
-        const createdData = this.entity.create(data)
-        return this.entity.save(createdData)
-    }
-    public createMany(data: DeepPartial<T>[]): T[] {
-        return this.entity.create(data);
-    }
+  public createAndSave(data: DeepPartial<T>): Promise<T> {
+    const createdData = this.entity.create(data);
+    return this.entity.save(createdData);
+  }
+  public createMany(data: DeepPartial<T>[]): T[] {
+    return this.entity.create(data);
+  }
 
-    public async findOneById(id: any): Promise<T | null> {
-        const options: FindOptionsWhere<T> = {
-            id: id
-        }
-        return await this.entity.findOneBy(options)
-    }
+  public async findOneById(id: any): Promise<T | null> {
+    const options: FindOptionsWhere<T> = {
+      id: id,
+    };
+    return await this.entity.findOneBy(options);
+  }
 
-    public async findByCondition(filterCondition: FindOneOptions<T>): Promise<T | null> {
-        return await this.entity.findOne(filterCondition)
-    }
+  public async findByCondition(
+    filterCondition: FindOneOptions<T>,
+  ): Promise<T | null> {
+    return await this.entity.findOne(filterCondition);
+  }
 
-    public async findWithRelations(relations: FindManyOptions<T>): Promise<T[]> {
-        return await this.entity.find(relations)
-    }
+  public async findManyByCondition(
+    filterCondition: FindManyOptions<T>,
+  ): Promise<T[]> {
+    return await this.entity.find(filterCondition);
+  }
 
-    public async findAll(options?: FindManyOptions<T>): Promise<T[]> {
-        return await this.entity.find(options)
-    }
+  public async findWithRelations(relations: FindManyOptions<T>): Promise<T[]> {
+    return await this.entity.find(relations);
+  }
 
-    public async remove(data: T): Promise<T> {
-        return await this.entity.remove(data)
-    }
+  public async findAll(options?: FindManyOptions<T>): Promise<T[]> {
+    return await this.entity.find(options);
+  }
 
-    public async preload(entityLike: DeepPartial<T>): Promise<T| undefined> {
-        return await this.entity.preload(entityLike)
-    }
+  public async remove(data: T): Promise<T> {
+    return await this.entity.remove(data);
+  }
 
-    public async findOne(options: FindOneOptions<T>): Promise<T | null> {
-        return this.entity.findOne(options)
-    }
+  public async preload(entityLike: DeepPartial<T>): Promise<T | undefined> {
+    return await this.entity.preload(entityLike);
+  }
+
+  public async findOne(options: FindOneOptions<T>): Promise<T | null> {
+    return this.entity.findOne(options);
+  }
 }

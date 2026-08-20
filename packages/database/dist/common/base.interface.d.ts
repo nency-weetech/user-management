@@ -1,4 +1,4 @@
-import { DeepPartial, FindManyOptions, FindOneOptions } from "typeorm";
+import { DeepPartial, FindManyOptions, FindOneOptions } from 'typeorm';
 export interface BaseInterfaceRepository<T> {
     create(data: DeepPartial<T>): T;
     createMany(data: DeepPartial<T>[]): T[];
@@ -7,6 +7,7 @@ export interface BaseInterfaceRepository<T> {
     saveMany(data: DeepPartial<T>[]): Promise<T[]>;
     findOneById(id: string): Promise<T | null>;
     findByCondition(filterCondition: FindOneOptions<T>): Promise<T | null>;
+    findManyByCondition(filterCondition: FindManyOptions<T>): Promise<T[]>;
     findAll(options?: FindManyOptions<T>): Promise<T[]>;
     remove(data: T): Promise<T>;
     findWithRelations(relations: FindManyOptions<T>): Promise<T[]>;

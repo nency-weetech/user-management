@@ -9,6 +9,7 @@ import {
 } from 'typeorm';
 import { User } from './user.entity';
 import { PaymentStatus } from '../enums/payment-status.enum';
+import { UserPlanEnum } from '../enums/user-plan.enum';
 
 @Entity('Payments')
 export class Payments {
@@ -27,6 +28,9 @@ export class Payments {
 
   @Column({ nullable: true })
   stripePaymentIntentId!: string;
+
+  @Column({type: 'enum', enum: UserPlanEnum})
+  plan!:UserPlanEnum;
 
   @Column()
   amount!: Number;
