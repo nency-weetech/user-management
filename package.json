@@ -20,6 +20,7 @@
     "build:database": "npm run build --workspace=packages/database",
     "build:shared": "npm run build --workspace=packages/shared",
     "build:packages": "npm run build:database && npm run build:shared",
+    "start:web": "npm run start --workspace=apps/web",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",

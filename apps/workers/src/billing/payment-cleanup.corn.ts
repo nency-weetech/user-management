@@ -12,7 +12,7 @@ export class PaymentCleanUpCorn{
         const cutoff = new Date(Date.now() - 60 * 60 * 100)
         const stalePayments = await this.paymentRepo.findStalePending(cutoff);
         for(const payment of stalePayments){
-            await this.paymentRepo.markExpired(payment.stripeCheckoutSessionId);
+            await this.paymentRepo.markExpired(payment.stripePaymentIntentId);
         }
         this.logger.log(`Cleaned up ${stalePayments.length} stale pending payments`);
     }

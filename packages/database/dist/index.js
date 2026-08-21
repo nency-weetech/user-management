@@ -24,6 +24,7 @@ __exportStar(require("./enums/user-role.enum"), exports);
 __exportStar(require("./enums/user-plan.enum"), exports);
 __exportStar(require("./enums/payment-status.enum"), exports);
 __exportStar(require("./config/data-source"), exports);
+__exportStar(require("./config/plan.config"), exports);
 __exportStar(require("./common/base.interface"), exports);
 __exportStar(require("./common/base.repository"), exports);
 __exportStar(require("./repositories/article.repository"), exports);

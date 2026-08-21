@@ -23,10 +23,10 @@ export class Payments {
   @JoinColumn({ name: 'userId' })
   user!: User | null;
 
-  @Column({ unique: true })
-  stripeCheckoutSessionId!: string;
-
   @Column({ nullable: true })
+  stripeCheckoutSessionId!: string|null;
+
+  @Column({ unique: true })
   stripePaymentIntentId!: string;
 
   @Column({type: 'enum', enum: UserPlanEnum})

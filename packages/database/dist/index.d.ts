@@ -8,6 +8,7 @@ export * from './enums/user-role.enum';
 export * from './enums/user-plan.enum';
 export * from './enums/payment-status.enum';
 export * from './config/data-source';
+export * from './config/plan.config';
 export * from './common/base.interface';
 export * from './common/base.repository';
 export * from './repositories/article.repository';

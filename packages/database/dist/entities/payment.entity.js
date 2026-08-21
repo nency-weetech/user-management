@@ -42,11 +42,11 @@ __decorate([
     __metadata("design:type", user_entity_1.User)
 ], Payments.prototype, "user", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ unique: true }),
+    (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)
 ], Payments.prototype, "stripeCheckoutSessionId", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ nullable: true }),
+    (0, typeorm_1.Column)({ unique: true }),
     __metadata("design:type", String)
 ], Payments.prototype, "stripePaymentIntentId", void 0);
 __decorate([

@@ -9,8 +9,7 @@ import cookieParser from 'cookie-parser';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { WinstonModule } from 'nest-winston';
 import { LoggerUserInterceptor, winstonConfig } from '@myapp/shared';
-import { LoggingInterceptor } from './interceptors/logging.interceptor';
-import { AllExceptionFilter } from './filters/all-exceptions.filter';
+
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -25,6 +24,10 @@ async function bootstrap() {
       transform: true,
     }),
   );
+  app.enableCors({
+    origin: 'http://localhost:8080',
+    credentials: true,
+  });
 
   if (process.env.NODE_ENV !== 'production') {
     const config = new DocumentBuilder()

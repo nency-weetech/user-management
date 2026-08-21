@@ -2,7 +2,7 @@
 import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
 import { NewsFetcherService } from './news/news-fetcher.service';
-import { ArticleRepository, PaymentRepository, Payments, User, UserPlan, UserPlanRepository } from '@myapp/database';
+import { ArticleRepository, PaymentRepository, Payments, User, UserPlan, UserPlanRepository, UserRepository } from '@myapp/database';
 import { NewsFetchLogRepository } from '@myapp/database';
 import { MailProcessor } from './mail/mail.processor';
 import { RedisModule } from './redis/redis.module';
@@ -44,6 +44,7 @@ import { PaymentCleanUpCorn } from './billing/payment-cleanup.corn';
     PaymentRepository,
     PaymentCleanUpCorn,
     UserPlanRepository,
+    UserRepository,
     
     ArticleRepository,
     NewsFetchLogRepository,

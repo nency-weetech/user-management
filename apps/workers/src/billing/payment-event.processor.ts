@@ -41,22 +41,23 @@ export class PaymentEventProcessor extends WorkerHost {
   }
 
   async handlePaymentEvent(job: Job) {
-    const { eventType, sessionId, userId, paymentIntentId, plan , hostedInvoiceUrl} = job.data;
+    const { eventType, userId, paymentIntentId, plan } = job.data;
 
-    const payment = await this.paymentsRepo.findBySessionId(sessionId);
+    const payment = await this.paymentsRepo.findByPaymentIntentId(paymentIntentId);
     if (!payment) return;
 
     if (eventType === 'completed') {
       if (payment.status === PaymentStatus.SUCCEEDED) return;
-      await this.paymentsRepo.markSucceeded(sessionId, paymentIntentId);
+      const status = await this.paymentsRepo.markSucceeded(paymentIntentId);
+      console.log("status:",  status)
       await this.userPlanRepo.upgradeToPaid(userId, plan);
       this.logger.log(`Payment completed`);
     }
 
-    if (eventType === 'expired') {
+    if (eventType === 'failed') {
       if (payment.status !== PaymentStatus.PENDING) return;
-      await this.paymentsRepo.markExpired(sessionId);
-      this.logger.warn(`Payment expired`);
+      await this.paymentsRepo.markExpired(paymentIntentId);
+      this.logger.warn(`Payment failed`);
     }
   }
 }
