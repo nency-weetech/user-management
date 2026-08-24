@@ -79,6 +79,7 @@ export class BillingController {
 
   @Post('webhook')
   async webhook(@Req() request: RawBodyRequest<Request>) {
+      console.log('=== WEBHOOK HIT ===');
     const signature = request.headers['stripe-signature'] as string;
     let event: any;
 
@@ -108,6 +109,7 @@ export class BillingController {
     }
 
     if (event.type === 'payment_intent.succeeded') {
+      console.log('Event type received:', event.type);
       const paymentIntent = event.data.object as any;
       const paymentIntentId = paymentIntent.id;
       const userId = paymentIntent.metadata.userId;
@@ -116,8 +118,8 @@ export class BillingController {
       //const { hostedInvoiceUrl, invoicePDF } = await this.stripeService.getInvoiceUrl(session.invoice);
       await this.billingQueueService.queuePaymentUpdate(
         'completed',
-        paymentIntentId,
         userId,
+        paymentIntentId,
         plan,
       );
 

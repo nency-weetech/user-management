@@ -42,7 +42,7 @@ let PaymentRepository = class PaymentRepository extends base_repository_1.BaseAb
         return this.paymentsRepo.findOneBy({ stripeCheckoutSessionId: sessionId });
     }
     findByPaymentIntentId(paymentIntentId) {
-        return this.paymentsRepo.findOneBy({ stripeCheckoutSessionId: paymentIntentId });
+        return this.paymentsRepo.findOneBy({ stripePaymentIntentId: paymentIntentId });
     }
     async markSucceeded(paymentIntentId) {
         await this.paymentsRepo.update({ stripePaymentIntentId: paymentIntentId }, {

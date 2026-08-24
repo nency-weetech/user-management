@@ -32,7 +32,10 @@ export class PaymentEventProcessor extends WorkerHost {
         this.logger.log(`Processing Billing job: ${job.name}`);
         switch (job.name) {
           case 'process-payment-event':
-            return this.handlePaymentEvent(job);
+            console.log("start process")
+            await this.handlePaymentEvent(job);
+            console.log("end process")
+            break;
           default:
             this.logger.warn(`Unknown job type: ${job.name}`);
         }
@@ -41,9 +44,13 @@ export class PaymentEventProcessor extends WorkerHost {
   }
 
   async handlePaymentEvent(job: Job) {
+    console.log("inside processor:::::::::::")
+    console.log(job.data)
     const { eventType, userId, paymentIntentId, plan } = job.data;
 
+    console.log(paymentIntentId)
     const payment = await this.paymentsRepo.findByPaymentIntentId(paymentIntentId);
+    console.log(payment)
     if (!payment) return;
 
     if (eventType === 'completed') {

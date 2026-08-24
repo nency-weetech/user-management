@@ -43,7 +43,7 @@ export class PaymentRepository
   }
 
   findByPaymentIntentId(paymentIntentId: string): Promise<Payments | null> {
-    return this.paymentsRepo.findOneBy({ stripeCheckoutSessionId: paymentIntentId });
+    return this.paymentsRepo.findOneBy({ stripePaymentIntentId: paymentIntentId });
   }
 
   async markSucceeded(
