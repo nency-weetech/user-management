@@ -122,6 +122,7 @@ export class BillingController {
         paymentIntentId,
         plan,
       );
+      
 
       //const user = await this.userRepository.findOneById(userId);
       // await this.mailService.sendInvoice(
