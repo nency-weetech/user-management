@@ -11,8 +11,9 @@ import {
 import { Server, Socket } from 'socket.io';
 import { WsGuard } from '../guards/ws/ws.guard';
 import { In, Repository } from 'typeorm';
-import { User, UserRepository } from '@myapp/database';
+import { RoomMemberRepository, User, UserRepository } from '@myapp/database';
 import { InjectRepository } from '@nestjs/typeorm';
+import { RoomsService } from '../rooms/rooms.service';
 
 @WebSocketGateway({
   cors: {
@@ -27,6 +28,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    private readonly roomMembersRepository: RoomMemberRepository,
+    private readonly roomsService: RoomsService,
   ) {}
   private readonly logger = new Logger(ChatGateway.name);
 
@@ -76,19 +79,41 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
   ) {
     this.registerOnline(client);
-    await client.join(data.roomId);
 
-    this.logger.log(`User ${client.data.userId} joined room ${data.roomId}`);
+    const userId = client.data.userId;
+    const membership = await this.roomMembersRepository.findByUserAndRoom(
+      userId,
+      data.roomId,
+    );
 
-    client.emit('room_joined', {
-      roomId: data.roomId,
-      message: `Successfully joined room ${data.roomId}`,
-    });
+    if (membership) {
+      await client.join(data.roomId);
 
-    const onlineUsersWithNames = await this.buildOnlineUsersList();
-    client.emit('online_users', {
-      users: onlineUsersWithNames,
-    });
+      this.logger.log(`User ${client.data.userId} joined room ${data.roomId}`);
+
+      client.emit('room_joined', {
+        roomId: data.roomId,
+        message: `Successfully joined room ${data.roomId}`,
+      });
+
+      const onlineUsersWithNames = await this.buildOnlineUsersList();
+      client.emit('online_users', {
+        users: onlineUsersWithNames,
+      });
+    }
+
+    try {
+      await this.roomsService.requestToJoin(userId, data.roomId)
+      client.emit('join_request_pending', {
+        roomId: data.roomId,
+        message: 'Your request to join has been sent to the room admins.',
+      });
+    } catch (error) {
+      client.emit('join_room_error', {
+        roomId: data.roomId,
+        message: error.message
+      })
+    }
   }
 
   private async buildOnlineUsersList(): Promise<

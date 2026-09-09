@@ -7,7 +7,7 @@ import { RoomsController } from './rooms.controller';
 @Module({
     imports: [TypeOrmModule.forFeature([Room, RoomMember, RoomJoinRequest])],
     providers: [RoomRepository, RoomMemberRepository, JoinRequestRepository ,RoomsService],
-    exports: [RoomRepository, RoomMemberRepository, JoinRequestRepository],
+    exports: [RoomsService, RoomRepository, RoomMemberRepository, JoinRequestRepository],
     controllers: [RoomsController]
 })
 export class RoomsModule {}
