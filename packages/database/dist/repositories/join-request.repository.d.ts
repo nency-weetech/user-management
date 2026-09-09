@@ -10,4 +10,5 @@ export declare class JoinRequestRepository implements JoinRequestInterface {
     findPendingRequestsForRoom(roomId: string): Promise<RoomJoinRequest[]>;
     findRequestById(requestId: string): Promise<RoomJoinRequest | null>;
     updateRequestStatus(requestId: string, status: JoinRequestStatus, reviewedById: string): Promise<void>;
+    findAllPendingForUser(userId: string): Promise<RoomJoinRequest[]>;
 }

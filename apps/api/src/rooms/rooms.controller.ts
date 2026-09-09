@@ -32,6 +32,11 @@ export class RoomsController {
     return this.roomService.getMyRooms(currentUser.id);
   }
 
+  @Get('discover')
+  async discoverRooms(@currentUser() user: { id: string }) {
+    return this.roomService.getDiscoverableRooms(user.id);
+  }
+
   @Get(':id')
   async getRoomById(@Param('id') id: string) {
     return this.roomService.getRoomById(id);
@@ -61,7 +66,7 @@ export class RoomsController {
     await this.roomService.approveRequest(currentUser.id, requestId);
     return { message: 'Request Approved' };
   }
-  
+
   @Post(':id/join-request/:requestId/reject-request')
   async rejectRequest(
     @currentUser() currentUser: { id: string },

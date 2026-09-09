@@ -52,5 +52,9 @@ export class JoinRequestRepository implements JoinRequestInterface {
     });
   }
 
-  
+  async findAllPendingForUser(userId: string): Promise<RoomJoinRequest[]> {
+  return this.joinRequestRepo.find({
+    where: { userId, status: JoinRequestStatus.PENDING },
+  });
+}
 }

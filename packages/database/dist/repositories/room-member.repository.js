@@ -16,12 +16,15 @@ exports.RoomMemberRepository = void 0;
 const typeorm_1 = require("@nestjs/typeorm");
 const roomMember_entity_1 = require("../entities/roomMember.entity");
 const typeorm_2 = require("typeorm");
-let RoomMemberRepository = class RoomMemberRepository {
+const room_member_role_enum_1 = require("../enums/room-member-role.enum");
+const base_repository_1 = require("../common/base.repository");
+let RoomMemberRepository = class RoomMemberRepository extends base_repository_1.BaseAbstractRepostitory {
     roomMemberRepo;
     constructor(roomMemberRepo) {
+        super(roomMemberRepo);
         this.roomMemberRepo = roomMemberRepo;
     }
-    async create(roomMember) {
+    async createRoomMember(roomMember) {
         const newRoomMember = this.roomMemberRepo.create(roomMember);
         return this.roomMemberRepo.save(newRoomMember);
     }
@@ -35,6 +38,11 @@ let RoomMemberRepository = class RoomMemberRepository {
     }
     async findByRoomId(roomId) {
         return this.roomMemberRepo.find({ where: { room_id: roomId } });
+    }
+    async findByAdminsForRoom(roomId) {
+        return this.roomMemberRepo.find({
+            where: { room_id: roomId, role: room_member_role_enum_1.RoomMemberRole.ADMIN }
+        });
     }
 };
 exports.RoomMemberRepository = RoomMemberRepository;

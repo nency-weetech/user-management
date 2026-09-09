@@ -17,11 +17,13 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateRoomDto } from './dtos/create-room-dto';
 import { DataSource } from 'typeorm';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
 export class RoomsService {
   constructor(
     private readonly datasource: DataSource,
+    private readonly eventEmitter: EventEmitter2,
     private readonly roomRepository: RoomRepository,
     private readonly roomMemberRepository: RoomMemberRepository,
     private readonly roomJoinRequestRepo: JoinRequestRepository,
@@ -77,6 +79,31 @@ export class RoomsService {
     return this.roomRepository.findByUserId(userId);
   }
 
+  // RoomsService
+  async getDiscoverableRooms(userId: string) {
+    const allRooms = await this.roomRepository.findAll();
+    const myMemberships =
+      await this.roomMemberRepository.findAll({where: {user_id : userId}});
+    const myPendingRequests =
+      await this.roomJoinRequestRepo.findAllPendingForUser(userId);
+
+    const membershipByRoomId = new Map(myMemberships.map((m) => [m.room_id, m]));
+    const pendingRoomIds = new Set(myPendingRequests.map((r) => r.roomId));
+
+    return allRooms.map((room) => {
+      const membership = membershipByRoomId.get(room.id);
+      return {
+        ...room,
+        membershipStatus: membership
+          ? 'member'
+          : pendingRoomIds.has(room.id)
+            ? 'pending'
+            : 'none',
+        role: membership?.role ?? null, // NEW — 'ADMIN' | 'MEMBER' | null
+      };
+    });
+  }
+
   async requestToJoin(userId: string, roomId: string) {
     const room = await this.roomRepository.findById(roomId);
     if (!room) {
@@ -102,14 +129,24 @@ export class RoomsService {
       );
     }
 
-    return this.roomJoinRequestRepo.createJoinRequest(userId, roomId);
+    const request = await this.roomJoinRequestRepo.createJoinRequest(
+      userId,
+      roomId,
+    );
+    this.eventEmitter.emit('room.join_request.created', {
+      requestId: request.id,
+      roomId,
+      requesterId: userId,
+    });
+
+    return request;
   }
 
   async getPendingRequest(
     adminUserId: string,
     roomId: string,
   ): Promise<RoomJoinRequest[]> {
-    await this.assertIsRoomAdmin(adminUserId, roomId)
+    await this.assertIsRoomAdmin(adminUserId, roomId);
     return this.roomJoinRequestRepo.findPendingRequestsForRoom(roomId);
   }
 
@@ -137,17 +174,31 @@ export class RoomsService {
         role: RoomMemberRole.MEMBER,
       });
     });
+    this.eventEmitter.emit('room.join_request.reviewed', {
+      requesterId: request.userId,
+      roomId: request.roomId,
+      status: JoinRequestStatus.APPROVED,
+    });
   }
 
-  async rejectRequest(adminUserId:string, requestId: string): Promise<void>{
-    const request = await this.roomJoinRequestRepo.findRequestById(requestId)
-    if(!request){
+  async rejectRequest(adminUserId: string, requestId: string): Promise<void> {
+    const request = await this.roomJoinRequestRepo.findRequestById(requestId);
+    if (!request) {
       throw new NotFoundException('Join request not found');
     }
-    if(request.status !== JoinRequestStatus.PENDING){
+    if (request.status !== JoinRequestStatus.PENDING) {
       throw new BadRequestException('This request has already been reviewed');
     }
     await this.assertIsRoomAdmin(adminUserId, request.roomId);
-    await this.roomJoinRequestRepo.updateRequestStatus(requestId, JoinRequestStatus.REJECTED, adminUserId)
+    await this.roomJoinRequestRepo.updateRequestStatus(
+      requestId,
+      JoinRequestStatus.REJECTED,
+      adminUserId,
+    );
+    this.eventEmitter.emit('room.join_request.reviewed', {
+      requesterId: request.userId,
+      roomId: request.roomId,
+      status: JoinRequestStatus.REJECTED,
+    });
   }
 }

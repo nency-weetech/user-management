@@ -52,6 +52,11 @@ let JoinRequestRepository = class JoinRequestRepository {
             reviewedAt: new Date(),
         });
     }
+    async findAllPendingForUser(userId) {
+        return this.joinRequestRepo.find({
+            where: { userId, status: join_request_status_dto_1.JoinRequestStatus.PENDING },
+        });
+    }
 };
 exports.JoinRequestRepository = JoinRequestRepository;
 exports.JoinRequestRepository = JoinRequestRepository = __decorate([

@@ -16,14 +16,15 @@ exports.RoomRepository = void 0;
 const typeorm_1 = require("@nestjs/typeorm");
 const room_entity_1 = require("../entities/room.entity");
 const typeorm_2 = require("typeorm");
-let RoomRepository = class RoomRepository {
+const base_repository_1 = require("../common/base.repository");
+let RoomRepository = class RoomRepository extends base_repository_1.BaseAbstractRepostitory {
     roomRepository;
     constructor(roomRepository) {
+        super(roomRepository);
         this.roomRepository = roomRepository;
     }
-    async create(room) {
+    async createRoom(room) {
         const newRoom = this.roomRepository.create(room);
-        console.log(newRoom);
         return await this.roomRepository.save(newRoom);
     }
     async findById(id) {

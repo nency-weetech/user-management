@@ -2,15 +2,17 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { IRoomRepository } from '../interfaces/room.interface';
 import { Room } from '../entities/room.entity';
 import { Repository } from 'typeorm';
+import { BaseAbstractRepostitory } from '../common/base.repository';
 
-export class RoomRepository implements IRoomRepository {
+export class RoomRepository extends BaseAbstractRepostitory<Room> implements IRoomRepository {
   constructor(
     @InjectRepository(Room) private readonly roomRepository: Repository<Room>,
-  ) {}
+  ) {
+    super(roomRepository);
+  }
 
-  async create(room: Partial<Room>): Promise<Room> {
+  async createRoom(room: Partial<Room>): Promise<Room> {
     const newRoom = this.roomRepository.create(room);
-    console.log(newRoom)
     return await this.roomRepository.save(newRoom);
   }
 

@@ -11,9 +11,16 @@ import {
 import { Server, Socket } from 'socket.io';
 import { WsGuard } from '../guards/ws/ws.guard';
 import { In, Repository } from 'typeorm';
-import { RoomMemberRepository, User, UserRepository } from '@myapp/database';
+import {
+  JoinRequestStatus,
+  RoomMemberRepository,
+  RoomRepository,
+  User,
+  UserRepository,
+} from '@myapp/database';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RoomsService } from '../rooms/rooms.service';
+import { OnEvent } from '@nestjs/event-emitter';
 
 @WebSocketGateway({
   cors: {
@@ -29,6 +36,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly roomMembersRepository: RoomMemberRepository,
+    private readonly roomRepository: RoomRepository,
     private readonly roomsService: RoomsService,
   ) {}
   private readonly logger = new Logger(ChatGateway.name);
@@ -53,6 +61,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         this.server.emit('user_offline', { userId });
       }
     }
+  }
+
+  @SubscribeMessage('register_presence')
+  handleRegisterPresence(@ConnectedSocket() client: Socket) {
+    this.registerOnline(client);
   }
 
   private registerOnline(client: Socket) {
@@ -103,16 +116,16 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
 
     try {
-      await this.roomsService.requestToJoin(userId, data.roomId)
-      client.emit('join_request_pending', {
+      await this.roomsService.requestToJoin(userId, data.roomId);
+      client.emit('join_request_submitted', {
         roomId: data.roomId,
         message: 'Your request to join has been sent to the room admins.',
       });
     } catch (error) {
       client.emit('join_room_error', {
         roomId: data.roomId,
-        message: error.message
-      })
+        message: error.message,
+      });
     }
   }
 
@@ -157,5 +170,56 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     };
 
     this.server.to(data.roomId).emit('new_message', messageData);
+  }
+
+  @OnEvent('room.join_request.created')
+  async handleJoinRequestCreated(payload: {
+    requestId: string;
+    roomId: string;
+    requesterId: string;
+  }) {
+    const admins = await this.roomMembersRepository.findByAdminsForRoom(
+      payload.roomId,
+    );
+    const requester = await this.userRepository.findOne({
+      where: { id: payload.requesterId },
+    });
+
+    const room = await this.roomRepository.findById(payload.roomId);
+    for (const admin of admins) {
+      const adminSocket = this.onlineUsers.get(admin.user_id);
+      if (!adminSocket) continue;
+
+      for (const socketId of adminSocket) {
+        this.server.to(socketId).emit('join_request_pending', {
+          requestId: payload.requestId,
+          roomId: payload.roomId,
+          roomName: room?.name ?? 'a room',
+          requesterId: payload.requesterId,
+          requesterName: requester?.firstName ?? 'Someone',
+        });
+      }
+    }
+  }
+
+  @OnEvent('room.join_request.reviewed')
+  handleJoinRequestReviewed(payload: {
+    requesterId: string;
+    roomId: string;
+    status: JoinRequestStatus;
+  }) {
+    const requesterSocket = this.onlineUsers.get(payload.requesterId);
+    if (!requesterSocket) return;
+
+    const eventName =
+      payload.status === JoinRequestStatus.APPROVED
+        ? 'join_request_approved'
+        : 'join_request_rejected';
+
+    for (const socketId of requesterSocket) {
+      this.server.to(socketId).emit(eventName, {
+        roomId: payload.roomId,
+      });
+    }
   }
 }

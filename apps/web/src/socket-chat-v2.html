@@ -9,348 +9,492 @@
         * {
             box-sizing: border-box;
             margin: 0;
-            padding: 0;
+            padding: 0
         }
 
         :root {
-            --bg: #eef0f4;
-            --sidebar-bg: #1a1c2b;
-            --sidebar-bg-2: #22253a;
-            --accent: #6366f1;
-            --accent-dark: #4f46e5;
-            --text-dark: #18181b;
-            --text-muted: #71717a;
-            --danger: #ef4444;
+            --bg: #f4f6f8;
+            --surface: #ffffff;
+            --surface-soft: #f8fafc;
+            --border: #e7eaf0;
+            --text: #171a21;
+            --muted: #7a8190;
+            --muted-2: #a3a9b4;
+            --primary: #5b5ce2;
+            --primary-2: #4b4dcc;
             --success: #22c55e;
+            --danger: #ef4444;
+            --sidebar: #15171d;
+            --sidebar-2: #1b1e26;
+            --sidebar-text: #e9ebf0;
+            --sidebar-muted: #858b99;
+            --shadow: 0 20px 55px rgba(20, 24, 35, .12);
+        }
+
+        html,
+        body {
+            min-height: 100%
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-            background: var(--bg);
-            min-height: 100vh;
+            font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            background:
+                radial-gradient(circle at 15% 0%, rgba(91, 92, 226, .08), transparent 30%),
+                var(--bg);
+            color: var(--text);
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            gap: 18px;
-            padding: 20px;
+            gap: 14px;
+            padding: 24px;
         }
 
+        /* Top navigation */
         .top-nav {
-            width: 960px;
+            width: 1120px;
             max-width: 100%;
+            height: 28px;
+            display: flex;
+            align-items: center;
             padding: 0 4px;
         }
 
         .home-link {
-            font-size: 13px;
-            color: #71717a;
+            color: var(--muted);
             text-decoration: none;
-            font-weight: 500;
+            font-size: 13px;
+            font-weight: 600;
+            transition: .18s ease;
         }
 
         .home-link:hover {
-            color: #18181b;
-            text-decoration: underline;
+            color: var(--text)
         }
 
-        /* ---- Auth card ---- */
+        /* Connection / auth bar */
         .auth-card {
-            width: 960px;
+            width: 1120px;
             max-width: 100%;
-            background: #fff;
-            border-radius: 14px;
-            padding: 16px 20px;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, .06);
+            min-height: 70px;
+            background: rgba(255, 255, 255, .88);
+            border: 1px solid rgba(231, 234, 240, .95);
+            border-radius: 16px;
+            padding: 12px 14px;
+            box-shadow: 0 8px 28px rgba(20, 24, 35, .06);
             display: flex;
-            gap: 10px;
             align-items: center;
+            gap: 10px;
+            backdrop-filter: blur(12px);
         }
 
-        .auth-card .label {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-muted);
+        .auth-card::before {
+            content: "Socket connection";
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--muted);
+            padding: 0 8px;
             white-space: nowrap;
         }
 
         .auth-card input {
             flex: 1;
-            padding: 11px 14px;
-            border: 1.5px solid #e4e4e7;
-            border-radius: 8px;
-            font-size: 14px;
+            min-width: 0;
+            height: 44px;
+            padding: 0 14px;
+            border: 1px solid var(--border);
+            border-radius: 11px;
+            background: var(--surface-soft);
+            color: var(--text);
+            font-size: 13px;
             outline: none;
-            transition: border-color .15s;
+            transition: .18s ease;
+        }
+
+        .auth-card input::placeholder {
+            color: var(--muted-2)
         }
 
         .auth-card input:focus {
-            border-color: var(--accent);
+            background: #fff;
+            border-color: rgba(91, 92, 226, .55);
+            box-shadow: 0 0 0 4px rgba(91, 92, 226, .09);
         }
 
         .btn {
-            border: none;
-            border-radius: 8px;
-            padding: 11px 20px;
+            border: 0;
+            border-radius: 10px;
+            min-height: 40px;
+            padding: 0 16px;
             cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            transition: opacity .15s, transform .1s;
+            font-size: 13px;
+            font-weight: 700;
+            transition: transform .12s ease, background .18s ease, opacity .18s ease, box-shadow .18s ease;
         }
 
         .btn:active {
-            transform: scale(.97);
+            transform: scale(.98)
         }
 
         .btn:disabled {
-            opacity: .4;
-            cursor: not-allowed;
+            opacity: .45;
+            cursor: not-allowed
         }
 
         .btn-primary {
-            background: var(--accent);
+            background: var(--primary);
             color: #fff;
+            box-shadow: 0 6px 16px rgba(91, 92, 226, .22);
         }
 
         .btn-primary:hover:not(:disabled) {
-            background: var(--accent-dark);
+            background: var(--primary-2);
+            box-shadow: 0 8px 20px rgba(91, 92, 226, .28);
         }
 
-        /* ---- Chat shell ---- */
+        /* Main app */
         .chat-app {
-            width: 960px;
-            height: 640px;
+            width: 1120px;
+            height: 720px;
             max-width: 100%;
             display: flex;
-            background: #fff;
-            border-radius: 16px;
             overflow: hidden;
-            box-shadow: 0 12px 40px rgba(0, 0, 0, .14);
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            box-shadow: var(--shadow);
         }
 
+        /* Sidebar */
         .sidebar {
-            width: 270px;
-            background: linear-gradient(180deg, var(--sidebar-bg), var(--sidebar-bg-2));
-            color: #fff;
-            padding: 22px 18px;
+            width: 290px;
+            flex: 0 0 290px;
+            background: linear-gradient(180deg, var(--sidebar), var(--sidebar-2));
+            color: var(--sidebar-text);
+            padding: 22px 16px 16px;
             display: flex;
             flex-direction: column;
+            overflow: hidden;
         }
 
         .brand {
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 22px;
+            gap: 11px;
+            padding: 0 6px;
+            margin-bottom: 18px;
         }
 
         .brand-icon {
-            width: 34px;
-            height: 34px;
-            border-radius: 10px;
-            background: var(--accent);
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            background: linear-gradient(145deg, #7778f0, #4d4fd0);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 700;
+            color: #fff;
+            font-weight: 800;
             font-size: 15px;
+            box-shadow: 0 8px 20px rgba(91, 92, 226, .28);
         }
 
         .brand h2 {
-            font-size: 17px;
-            font-weight: 700;
+            font-size: 16px;
+            letter-spacing: -.02em;
+            font-weight: 750;
         }
 
         .status-pill {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            font-size: 12.5px;
-            color: #a1a1aa;
-            background: rgba(255, 255, 255, .06);
-            padding: 6px 10px;
-            border-radius: 20px;
-            margin-bottom: 26px;
-            width: fit-content;
+            gap: 8px;
+            width: max-content;
+            padding: 7px 10px;
+            margin: 0 6px 22px;
+            border: 1px solid rgba(255, 255, 255, .07);
+            border-radius: 999px;
+            background: rgba(255, 255, 255, .045);
+            color: var(--sidebar-muted);
+            font-size: 11.5px;
+            font-weight: 650;
         }
 
         .status-dot {
             width: 7px;
             height: 7px;
             border-radius: 50%;
-            background: #71717a;
+            background: #686e7b;
+        }
+
+        .status-pill.connected {
+            color: #a9f0bf;
+            background: rgba(34, 197, 94, .08);
+            border-color: rgba(34, 197, 94, .12);
         }
 
         .status-pill.connected .status-dot {
             background: var(--success);
-            box-shadow: 0 0 6px var(--success);
-        }
-
-        .status-pill.connected {
-            color: #bbf7d0;
-        }
-
-        .status-pill.error .status-dot {
-            background: var(--danger);
+            box-shadow: 0 0 0 4px rgba(34, 197, 94, .10), 0 0 8px rgba(34, 197, 94, .65);
         }
 
         .status-pill.error {
             color: #fecaca;
+            background: rgba(239, 68, 68, .08);
+        }
+
+        .status-pill.error .status-dot {
+            background: var(--danger)
         }
 
         .rooms-title {
-            font-size: 11px;
+            margin: 0 6px 9px;
+            color: #6f7583;
+            font-size: 10px;
             text-transform: uppercase;
-            letter-spacing: .06em;
-            color: #71717a;
-            margin-bottom: 12px;
-            font-weight: 700;
+            letter-spacing: .12em;
+            font-weight: 800;
         }
 
         .rooms {
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 3px;
+            max-height: 170px;
+            overflow-y: auto;
         }
 
         .room {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 10px 12px;
-            border-radius: 8px;
+            gap: 9px;
+            min-height: 42px;
+            padding: 0 11px;
+            border-radius: 10px;
             cursor: pointer;
-            color: #d4d4d8;
-            font-size: 14px;
-            transition: background .12s;
+            color: #c8ccd5;
+            font-size: 13px;
+            font-weight: 600;
+            transition: .16s ease;
         }
 
         .room:hover {
-            background: rgba(255, 255, 255, .06);
+            background: rgba(255, 255, 255, .055);
+            color: #fff
         }
 
         .room.active {
-            background: var(--accent);
+            background: linear-gradient(90deg, rgba(91, 92, 226, .9), rgba(91, 92, 226, .72));
             color: #fff;
+            box-shadow: 0 7px 18px rgba(0, 0, 0, .16);
         }
 
         .room .hash {
-            opacity: .6;
-            font-weight: 600;
+            opacity: .5;
+            font-weight: 800;
         }
 
         .room.active .hash {
-            opacity: .85;
+            opacity: .85
+        }
+
+        .pending-list {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            overflow-y: auto;
+            max-height: 150px;
+        }
+
+        .pending-item {
+            background: rgba(255, 255, 255, .045);
+            border: 1px solid rgba(255, 255, 255, .055);
+            border-radius: 11px;
+            padding: 10px;
+            font-size: 11.5px;
+        }
+
+        .pending-item .req-text {
+            color: #c8ccd5;
+            margin-bottom: 9px;
+            line-height: 1.45;
+        }
+
+        .pending-item .req-text strong {
+            color: #fff
+        }
+
+        .pending-item .req-actions {
+            display: flex;
+            gap: 6px
+        }
+
+        .pending-item button {
+            flex: 1;
+            min-height: 27px;
+            padding: 0 8px;
+            border: 0;
+            border-radius: 7px;
+            cursor: pointer;
+            font-size: 10.5px;
+            font-weight: 750;
+            transition: .16s ease;
+        }
+
+        .btn-approve {
+            background: rgba(34, 197, 94, .9);
+            color: #fff
+        }
+
+        .btn-approve:hover:not(:disabled) {
+            background: #16a34a
+        }
+
+        .btn-reject {
+            background: rgba(239, 68, 68, .9);
+            color: #fff
+        }
+
+        .btn-reject:hover:not(:disabled) {
+            background: #dc2626
+        }
+
+        .pending-item button:disabled {
+            opacity: .45;
+            cursor: not-allowed
         }
 
         .online-list {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 3px;
             overflow-y: auto;
+            min-height: 0;
         }
 
-        .online-list .empty-hint {
-            font-size: 12.5px;
-            color: #52525b;
-            padding: 4px 2px;
+        .online-list .empty-hint,
+        .pending-list .empty-hint {
+            font-size: 11.5px;
+            color: #656b78;
+            padding: 5px 6px;
         }
 
         .participant {
             display: flex;
             align-items: center;
-            gap: 8px;
-            padding: 6px 8px;
-            border-radius: 6px;
-            font-size: 13px;
-            color: #d4d4d8;
+            gap: 9px;
+            min-height: 34px;
+            padding: 0 8px;
+            border-radius: 8px;
+            color: #bfc4ce;
+            font-size: 12px;
+        }
+
+        .participant:hover {
+            background: rgba(255, 255, 255, .035)
         }
 
         .participant .p-dot {
-            width: 8px;
-            height: 8px;
+            width: 7px;
+            height: 7px;
             border-radius: 50%;
-            background: #52525b;
-            flex-shrink: 0;
+            background: #4c515d;
         }
 
         .participant.online .p-dot {
             background: var(--success);
-            box-shadow: 0 0 5px var(--success);
+            box-shadow: 0 0 0 4px rgba(34, 197, 94, .08);
         }
 
-        /* ---- Main chat panel ---- */
+        /* Chat */
         .chat {
             flex: 1;
+            min-width: 0;
             display: flex;
             flex-direction: column;
-            min-width: 0;
+            background: #fff;
         }
 
         .chat-header {
-            height: 68px;
-            border-bottom: 1px solid #ececef;
+            min-height: 76px;
+            border-bottom: 1px solid var(--border);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 24px;
+            padding: 0 26px;
             flex-shrink: 0;
+            background: rgba(255, 255, 255, .96);
         }
 
         .chat-header h3 {
-            font-size: 16.5px;
-            font-weight: 700;
-            color: var(--text-dark);
+            color: var(--text);
+            font-size: 17px;
+            line-height: 1.2;
+            font-weight: 800;
+            letter-spacing: -.02em;
         }
 
         .chat-header .sub {
-            font-size: 12px;
-            color: var(--text-muted);
-            font-weight: 400;
+            margin-top: 4px;
+            color: var(--muted);
+            font-size: 11.5px;
+            font-weight: 550;
         }
 
         .room-actions {
             display: flex;
-            gap: 8px;
+            gap: 7px
         }
 
         .btn-ghost {
-            background: #f4f4f5;
-            color: var(--text-dark);
+            background: #f5f6f8;
+            color: #454b57;
+            border: 1px solid #eceef2;
         }
 
         .btn-ghost:hover:not(:disabled) {
-            background: #e4e4e7;
+            background: #ececf1;
+            color: #1f232b
         }
 
         .btn-sm {
-            padding: 8px 14px;
-            font-size: 13px;
+            min-height: 35px;
+            padding: 0 13px;
+            font-size: 12px
         }
 
+        /* Messages */
         .messages {
             flex: 1;
-            padding: 22px 24px;
+            min-height: 0;
+            padding: 24px 28px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            background: #fafafb;
+            gap: 13px;
+            background:
+                radial-gradient(circle at 50% 0%, rgba(91, 92, 226, .035), transparent 38%),
+                #fafbfc;
         }
 
-        .messages::-webkit-scrollbar {
-            width: 6px;
+        .messages::-webkit-scrollbar,
+        .rooms::-webkit-scrollbar,
+        .pending-list::-webkit-scrollbar,
+        .online-list::-webkit-scrollbar {
+            width: 5px
         }
 
-        .messages::-webkit-scrollbar-thumb {
-            background: #d4d4d8;
-            border-radius: 3px;
+        .messages::-webkit-scrollbar-thumb,
+        .rooms::-webkit-scrollbar-thumb,
+        .pending-list::-webkit-scrollbar-thumb,
+        .online-list::-webkit-scrollbar-thumb {
+            background: #d7dbe3;
+            border-radius: 99px;
         }
 
         .msg-row {
             display: flex;
-            gap: 8px;
-            max-width: 65%;
+            gap: 9px;
+            max-width: 68%;
             align-self: flex-start;
         }
 
@@ -360,156 +504,246 @@
         }
 
         .msg-row.own .avatar {
-            display: none;
+            display: none
         }
 
         .avatar {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            background: var(--accent);
-            color: #fff;
-            font-size: 12px;
-            font-weight: 700;
+            width: 30px;
+            height: 30px;
+            flex: 0 0 30px;
+            margin-top: 2px;
+            border-radius: 10px;
+            background: #e8e9ff;
+            color: #5354c9;
+            font-size: 11px;
+            font-weight: 800;
             display: flex;
             align-items: center;
             justify-content: center;
-            flex-shrink: 0;
-            margin-top: 2px;
         }
 
         .bubble-wrap {
             display: flex;
             flex-direction: column;
-            gap: 2px;
+            gap: 3px;
             max-width: 100%;
         }
 
         .msg-row.own .bubble-wrap {
-            align-items: flex-end;
+            align-items: flex-end
         }
 
         .sender-name {
-            font-size: 11.5px;
-            font-weight: 700;
-            color: var(--accent);
-            padding: 0 4px;
+            padding: 0 5px;
+            color: #6269d8;
+            font-size: 10.5px;
+            font-weight: 800;
         }
 
         .msg-row.own .sender-name {
-            display: none;
+            display: none
         }
 
         .bubble {
-            padding: 8px 12px;
-            border-radius: 16px;
+            padding: 9px 13px;
+            border: 1px solid #eceef2;
+            border-radius: 15px 15px 15px 5px;
             background: #fff;
-            color: var(--text-dark);
-            font-size: 14.5px;
-            line-height: 1.4;
+            color: #262a33;
+            font-size: 13.5px;
+            line-height: 1.5;
             word-break: break-word;
-            border-bottom-left-radius: 4px;
-            box-shadow: 0 1px 1px rgba(0, 0, 0, .06);
+            box-shadow: 0 2px 7px rgba(20, 24, 35, .045);
         }
 
         .msg-row.own .bubble {
-            background: var(--accent);
+            background: var(--primary);
+            border-color: var(--primary);
             color: #fff;
-            border-bottom-left-radius: 16px;
-            border-bottom-right-radius: 4px;
+            border-radius: 15px 15px 5px 15px;
+            box-shadow: 0 5px 13px rgba(91, 92, 226, .18);
         }
 
         .msg-time {
-            font-size: 10.5px;
-            color: var(--text-muted);
-            padding: 0 4px;
+            padding: 0 5px;
+            color: #a1a7b2;
+            font-size: 9.5px;
         }
 
         .msg-row.own .msg-time {
-            text-align: right;
+            text-align: right
         }
 
         .system-message {
             align-self: center;
-            font-size: 12px;
-            color: var(--text-muted);
-            padding: 4px 12px;
-            background: #f0f0f2;
-            border-radius: 20px;
+            max-width: 80%;
+            padding: 6px 11px;
+            border: 1px solid #e9ebef;
+            border-radius: 999px;
+            background: #f1f3f6;
+            color: #818793;
+            font-size: 10.5px;
+            font-weight: 600;
+            text-align: center;
         }
 
         .system-message.error {
-            color: #b91c1c;
-            background: #fee2e2;
-            font-weight: 600;
+            color: #b42318;
+            background: #fff1f0;
+            border-color: #ffd6d2;
+            font-weight: 700;
         }
 
+        /* Composer */
         .message-form {
-            height: 76px;
-            border-top: 1px solid #ececef;
+            min-height: 82px;
+            border-top: 1px solid var(--border);
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 14px 20px;
+            gap: 9px;
+            padding: 15px 20px;
             flex-shrink: 0;
+            background: #fff;
         }
 
         .message-input {
             flex: 1;
-            height: 44px;
-            border: 1.5px solid #e4e4e7;
-            border-radius: 22px;
-            padding: 0 18px;
+            min-width: 0;
+            height: 46px;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 0 16px;
+            background: #f8fafb;
+            color: var(--text);
             outline: none;
-            font-size: 14px;
-            transition: border-color .15s;
+            font-size: 13px;
+            transition: .18s ease;
+        }
+
+        .message-input::placeholder {
+            color: #a4aab5
         }
 
         .message-input:focus {
-            border-color: var(--accent);
+            background: #fff;
+            border-color: rgba(91, 92, 226, .55);
+            box-shadow: 0 0 0 4px rgba(91, 92, 226, .08);
         }
 
         .message-input:disabled {
-            background: #fafafa;
-            color: #a1a1aa;
+            background: #f5f6f7;
+            color: #a3a8b1
         }
 
         .send-btn {
-            height: 44px;
-            width: 44px;
-            border-radius: 50%;
-            background: var(--accent);
+            width: 46px;
+            height: 46px;
+            flex: 0 0 46px;
+            border: 0;
+            border-radius: 14px;
+            background: var(--primary);
             color: #fff;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 0;
-            font-size: 16px;
+            font-size: 17px;
+            cursor: pointer;
+            box-shadow: 0 7px 16px rgba(91, 92, 226, .2);
+            transition: .18s ease;
         }
 
         .send-btn:hover:not(:disabled) {
-            background: var(--accent-dark);
+            background: var(--primary-2);
+            transform: translateY(-1px);
         }
 
-        @media(max-width:1000px) {
+        .send-btn:disabled {
+            opacity: .4;
+            cursor: not-allowed;
+            box-shadow: none
+        }
 
-            .chat-app,
+        /* Responsive */
+        @media(max-width:1000px) {
+            body {
+                padding: 0
+            }
+
+            .top-nav {
+                width: 100%;
+                padding: 0 16px
+            }
+
             .auth-card {
                 width: 100%;
+                border-radius: 0;
+                border-left: 0;
+                border-right: 0;
+                box-shadow: none;
+            }
+
+            .auth-card::before {
+                display: none
             }
 
             .chat-app {
-                height: 100vh;
+                width: 100%;
+                height: calc(100vh - 116px);
+                min-height: 560px;
                 border-radius: 0;
+                border-left: 0;
+                border-right: 0;
+                box-shadow: none;
             }
 
             .sidebar {
-                width: 200px;
-                padding: 18px 12px;
+                width: 220px;
+                flex-basis: 220px
             }
 
             .msg-row {
-                max-width: 85%;
+                max-width: 82%
+            }
+        }
+
+        @media(max-width:700px) {
+            .auth-card {
+                padding: 10px
+            }
+
+            .chat-app {
+                height: calc(100vh - 100px)
+            }
+
+            .sidebar {
+                width: 190px;
+                flex-basis: 190px;
+                padding: 16px 10px
+            }
+
+            .brand {
+                padding: 0 4px
+            }
+
+            .brand h2 {
+                font-size: 14px
+            }
+
+            .chat-header {
+                padding: 0 16px
+            }
+
+            .messages {
+                padding: 18px 14px
+            }
+
+            .message-form {
+                padding: 12px
+            }
+
+            .msg-row {
+                max-width: 90%
             }
         }
     </style>
@@ -518,11 +752,11 @@
 
 <body>
     <div class="top-nav">
-        <a href="index.html" class="home-link">← NewsHub</a>
+        <a href="index.html" class="home-link">← Back to NewsHub</a>
     </div>
 
     <div class="auth-card">
-        <input type="text" id="tokenInput" placeholder="Paste JWT token here">
+        <input type="text" id="tokenInput" placeholder="Paste your JWT access token">
         <button id="connectButton" class="btn btn-primary" type="button">Connect</button>
     </div>
 
@@ -538,14 +772,16 @@
                 <span class="status-text">Disconnected</span>
             </div>
 
-            <div class="rooms-title">Rooms</div>
+            <div class="rooms-title">Your rooms</div>
             <div id="rooms" class="rooms">
-                <div class="room" data-room="developers"><span class="hash">#</span>developers</div>
-                <div class="room" data-room="testing"><span class="hash">#</span>testing</div>
-                <div class="room active" data-room="general"><span class="hash">#</span>general</div>
             </div>
 
-            <div class="rooms-title" style="margin-top: 22px;">Online</div>
+            <div class="rooms-title" style="margin-top: 22px;">Join requests</div>
+            <div id="pendingRequests" class="pending-list">
+                <div class="empty-hint">No pending requests</div>
+            </div>
+
+            <div class="rooms-title" style="margin-top: 22px;">Online now</div>
             <div id="onlineUsers" class="online-list">
                 <div class="empty-hint">No one else online yet</div>
             </div>
@@ -568,7 +804,7 @@
             </section>
 
             <form id="messageForm" class="message-form">
-                <input type="text" id="messageInput" class="message-input" placeholder="Type a message..."
+                <input type="text" id="messageInput" class="message-input" placeholder="Write a message..."
                     autocomplete="off" disabled>
                 <button type="submit" id="sendButton" class="send-btn" disabled>➤</button>
             </form>
@@ -581,10 +817,13 @@
 
         let socket = null;
         let currentUserId = null;
-        let currentRoom = "general";
+        let currentRoomId = null;      // was: currentRoom (now holds a real UUID, not a slug)
+        let currentRoomName = null;    // new: separate display name, since currentRoomId is now a UUID
         let isJoined = false;
-        let pendingRoom = null;
+        let pendingRoomId = null;      // was: pendingRoom
+        let pendingRoomName = null;    // new: needed since we display names, not IDs
         let onlineUsersMap = {};
+        let pendingRequestsMap = {};
 
         const connectionStatus = document.getElementById("connectionStatus");
         const statusText = connectionStatus.querySelector(".status-text");
@@ -596,13 +835,9 @@
         const leaveButton = document.getElementById("leaveButton");
         const sendButton = document.getElementById("sendButton");
         const messageForm = document.getElementById("messageForm");
-        const tokenInput = document.getElementById("tokenInput");
-        const connectButton = document.getElementById("connectButton");
 
         // ---- Connection lifecycle ----
 
-        // Decode a JWT's payload client-side (no signature check — just reading the claims
-        // we already trust because we're the ones who received this token from login).
         function decodeJwtPayload(token) {
             try {
                 const base64Url = token.split(".")[1];
@@ -623,14 +858,12 @@
             const token = getToken();
             const payload = decodeJwtPayload(token);
 
-            console.log(payload);
-            console.log(decodeJwtPayload(getToken()));
             if (!payload || !payload.id) {
                 addSystemMessage("Could not read a valid user id from your session. Please sign in again.", true);
                 return;
             }
 
-            currentUserId = payload.sub;
+            currentUserId = payload.id; // FIXED: was payload.sub (your JWT payload's real key is "id")
 
             socket = io("http://localhost:3100", {
                 auth: { token },
@@ -646,12 +879,11 @@
 
         function wireSocketEvents() {
             socket.on("connect", () => {
-                // currentUserId was already set from the decoded token before connecting —
-                // do NOT overwrite it with socket.id here, since socket.id never matches
-                // the senderId the backend broadcasts.
                 setStatus("Connected", "connected");
                 addSystemMessage("Connected to server.");
-                joinCurrentRoom();
+                socket.emit("register_presence");
+                loadRooms();
+                loadMyPendingRequests();
             });
 
             socket.on("auth_error", (data) => {
@@ -665,9 +897,9 @@
             });
 
             socket.on("disconnect", () => {
-                currentUserId = null;
                 isJoined = false;
-                pendingRoom = null;
+                pendingRoomId = null;
+                pendingRoomName = null;
                 setStatus("Disconnected");
                 roomSub.textContent = "Not joined";
                 addSystemMessage("Disconnected.");
@@ -678,25 +910,29 @@
 
             socket.on("room_joined", (data) => {
                 isJoined = true;
-                currentRoom = data.roomId;
-                currentRoomElement.textContent = currentRoom;
+                currentRoomId = data.roomId;
+                // currentRoomName was already set in handleRoomClick before emitting join_room —
+                // don't overwrite it with the raw ID here.
+                currentRoomElement.textContent = currentRoomName || currentRoomId;
                 roomSub.textContent = "Joined";
                 updateActiveRoom();
                 clearMessages();
-                addSystemMessage(`You joined #${currentRoom}`);
+                addSystemMessage(`You joined #${currentRoomName || currentRoomId}`);
                 updateButtons();
             });
 
             socket.on("room_left", (data) => {
                 isJoined = false;
                 roomSub.textContent = "Not joined";
-                addSystemMessage(`You left #${data.roomId}`);
+                addSystemMessage(`You left #${currentRoomName || data.roomId}`);
                 updateButtons();
 
-                if (pendingRoom) {
-                    currentRoom = pendingRoom;
-                    pendingRoom = null;
-                    currentRoomElement.textContent = currentRoom;
+                if (pendingRoomId) {
+                    currentRoomId = pendingRoomId;
+                    currentRoomName = pendingRoomName;
+                    pendingRoomId = null;
+                    pendingRoomName = null;
+                    currentRoomElement.textContent = currentRoomName;
                     updateActiveRoom();
                     clearMessages();
                     joinCurrentRoom();
@@ -704,7 +940,7 @@
             });
 
             socket.on("new_message", (data) => {
-                if (data.roomId !== currentRoom) return;
+                if (data.roomId !== currentRoomId) return;
                 addMessage(data);
             });
 
@@ -728,14 +964,205 @@
             socket.on("token_expired", () => {
                 handleTokenExpired();
             });
+
+            socket.on("join_request_submitted", (data) => {
+                addSystemMessage(data.message);
+                loadRooms(); // refresh badges — this room now shows "(pending)"
+            });
+
+            socket.on("join_request_pending", (data) => {
+                console.log("RECEIVED join_request_pending:", data);
+                pendingRequestsMap[data.requestId] = {
+                    roomId: data.roomId,
+                    roomName: data.roomName,
+                    requesterName: data.requesterName,
+                };
+                renderPendingRequests();
+                addSystemMessage(`${data.requesterName} wants to join a room you admin.`);
+            });
+
+            socket.on("join_request_approved", (data) => {
+                addSystemMessage(`Your request to join was approved! Joining now...`);
+                loadRooms(); // refresh badges — this room now shows as a real member
+                socket.emit("join_room", { roomId: data.roomId });
+            });
+
+            socket.on("join_request_rejected", (data) => {
+                addSystemMessage(`Your request to join was rejected.`, true);
+                loadRooms();
+            });
         }
 
         function joinCurrentRoom() {
-            if (!socket || !socket.connected || isJoined) return;
-            socket.emit("join_room", { roomId: currentRoom });
+            if (!socket || !socket.connected || isJoined || !currentRoomId) return;
+            socket.emit("join_room", { roomId: currentRoomId });
         }
 
-        // ---- Room UI ----
+        // ---- Dynamic room list (from the database) ----
+
+        async function loadRooms() {
+            try {
+                const res = await fetch('http://localhost:3100/rooms/discover', {
+                    method: 'GET',
+                    credentials: 'include',
+                    // sends the accessToken cookie automatically, matching AuthGuard
+                });
+
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}));
+                    addSystemMessage('Could not load rooms: ' + (err.message || res.statusText), true);
+                    return null;
+                }
+
+                const rooms = await res.json();
+                renderRoomList(rooms);
+            } catch (err) {
+                addSystemMessage('Could not load rooms: ' + err.message, true);
+            }
+        }
+
+        function renderRoomList(rooms) {
+            const container = document.getElementById('rooms');
+            container.innerHTML = '';
+
+            rooms.forEach(room => {
+                const el = document.createElement('div');
+                el.classList.add('room');
+                el.dataset.roomId = room.id;
+
+                if (room.id === currentRoomId) el.classList.add('active');
+
+                let statusBadge = '';
+                if (room.membershipStatus === 'pending') {
+                    statusBadge = ' <span style="opacity:.6;font-size:11px;">(pending)</span>';
+                } else if (room.membershipStatus === 'none') {
+                    statusBadge = ' <span style="opacity:.6;font-size:11px;">(join)</span>';
+                }
+
+                el.innerHTML = `<span class="hash">#</span>${room.name}${statusBadge}`;
+
+                el.addEventListener('click', () => handleRoomClick(room));
+                container.appendChild(el);
+            });
+        }
+
+        function handleRoomClick(room) {
+            if (!socket || !socket.connected) return;
+
+            if (room.membershipStatus === 'pending') {
+                addSystemMessage(`Your request to join #${room.name} is still pending approval.`);
+                return;
+            }
+
+            if (isJoined && room.id !== currentRoomId) {
+                pendingRoomId = room.id;
+                pendingRoomName = room.name;
+                socket.emit("leave_room", { roomId: currentRoomId });
+                return;
+            }
+
+            currentRoomId = room.id;
+            currentRoomName = room.name;
+            currentRoomElement.textContent = room.name;
+            clearMessages();
+            joinCurrentRoom();
+        }
+
+        async function loadMyPendingRequests() {
+            try {
+                const roomsRes = await fetch('http://localhost:3100/rooms/discover', {
+                    credentials: 'include',
+                });
+                const rooms = await roomsRes.json();
+
+                for (const room of rooms) {
+                    if (room.role !== 'admin') continue; // adjust field name to whatever your discover endpoint actually returns
+
+                    const reqRes = await fetch(`http://localhost:3100/rooms/${room.id}/pending-request`, {
+                        credentials: 'include',
+                    });
+
+                    if (!reqRes.ok) continue;
+
+                    const requests = await reqRes.json();
+                    requests.forEach(req => {
+                        pendingRequestsMap[req.id] = {
+                            roomId: room.id,
+                            roomName: room.name,
+                            requesterName: req.user?.firstName || 'Someone',
+                        };
+                    });
+                }
+
+                renderPendingRequests();
+            } catch (err) {
+                console.error('Could not load pending requests:', err);
+            }
+        }
+
+        function renderPendingRequests() {
+            const container = document.getElementById('pendingRequests');
+            const entries = Object.entries(pendingRequestsMap);
+
+            if (entries.length === 0) {
+                container.innerHTML = `<div class="empty-hint">No pending requests</div>`;
+                return;
+            }
+
+            container.innerHTML = '';
+            entries.forEach(([requestId, req]) => {
+                const item = document.createElement('div');
+                item.classList.add('pending-item');
+                item.innerHTML = `
+                    <div class="req-text"><strong>${req.requesterName}</strong> wants to join <strong>#${req.roomName}</strong></div>
+                    <div class="req-actions">
+                        <button class="btn-approve" data-action="approve-request" data-request-id="${requestId}">Approve</button>
+                        <button class="btn-reject" data-action="reject-request" data-request-id="${requestId}">Reject</button>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+
+            // Wire up the buttons just created
+            container.querySelectorAll('button[data-action]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const requestId = btn.dataset.requestId;
+                    const action = btn.dataset.action;
+                    const roomId = pendingRequestsMap[requestId]?.roomId;
+                    reviewRequest(roomId, requestId, action, btn);
+                });
+            });
+        }
+
+        async function reviewRequest(roomId, requestId, action, buttonEl) {
+            // Disable both buttons in this item while the request is in flight
+            const item = buttonEl.closest('.pending-item');
+            item.querySelectorAll('button').forEach(b => b.disabled = true);
+
+            try {
+                const res = await fetch(
+                    `http://localhost:3100/rooms/${roomId}/join-request/${requestId}/${action}`,
+                    {
+                        method: 'POST',
+                        credentials: 'include',
+                    }
+                );
+
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}));
+                    addSystemMessage(`Could not ${action} request: ${err.message || res.statusText}`, true);
+                    item.querySelectorAll('button').forEach(b => b.disabled = false);
+                    return;
+                }
+
+                addSystemMessage(`Request ${action}d.`);
+                delete pendingRequestsMap[requestId];
+                renderPendingRequests();
+            } catch (err) {
+                addSystemMessage(`Could not ${action} request: ${err.message}`, true);
+                item.querySelectorAll('button').forEach(b => b.disabled = false);
+            }
+        }
 
         joinButton.addEventListener("click", () => {
             joinCurrentRoom();
@@ -743,36 +1170,29 @@
 
         leaveButton.addEventListener("click", () => {
             if (!socket || !isJoined) return;
-            socket.emit("leave_room", { roomId: currentRoom });
+            socket.emit("leave_room", { roomId: currentRoomId });
         });
 
-        document.querySelectorAll(".room").forEach(room => {
-            room.addEventListener("click", () => {
-                if (!socket || !socket.connected) return;
-
-                const newRoom = room.dataset.room;
-
-                if (newRoom === currentRoom && isJoined) return;
-
-                if (isJoined) {
-                    pendingRoom = newRoom;
-                    socket.emit("leave_room", { roomId: currentRoom });
-                    return;
-                }
-
-                currentRoom = newRoom;
-                currentRoomElement.textContent = currentRoom;
-                updateActiveRoom();
-                clearMessages();
-                joinCurrentRoom();
+        function updateActiveRoom() {
+            document.querySelectorAll(".room").forEach(room => {
+                room.classList.remove("active");
             });
-        });
+
+            // FIXED: was matching data-room, elements now use data-room-id
+            const activeRoom = document.querySelector(`.room[data-room-id="${currentRoomId}"]`);
+
+            if (activeRoom) {
+                activeRoom.classList.add("active");
+            }
+        }
+
+        // ---- Token refresh ----
 
         async function refreshAccessToken() {
             try {
                 const res = await fetch('http://localhost:3100/auth/refresh', {
                     method: 'GET',
-                    credentials: 'include', // sends the httpOnly refresh cookie automatically
+                    credentials: 'include',
                 });
 
                 if (!res.ok) {
@@ -781,7 +1201,7 @@
 
                 const data = await res.json();
                 const newToken = data.accessToken;
-                setToken(newToken, getUserName()); // keep the existing stored name
+                setToken(newToken, getUserName());
                 return newToken;
             } catch {
                 return null;
@@ -804,7 +1224,7 @@
                 return;
             }
 
-            currentUserId = decodeJwtPayload(newToken)?.sub;
+            currentUserId = decodeJwtPayload(newToken)?.id; // FIXED: was ?.sub
 
             socket = io("http://localhost:3100", {
                 auth: { token: newToken },
@@ -812,6 +1232,8 @@
 
             wireSocketEvents();
         }
+
+        // ---- Online users ----
 
         function renderOnlineUsers() {
             const container = document.getElementById('onlineUsers');
@@ -824,22 +1246,10 @@
             container.innerHTML = '';
             entries.forEach(([userId, name]) => {
                 const row = document.createElement('div');
-                row.classList.add("participant", "online")
+                row.classList.add("participant", "online");
                 row.innerHTML = `<span class="p-dot"></span><span>${name || userId}</span>`;
-                container.appendChild(row)
-            })
-        }
-
-        function updateActiveRoom() {
-            document.querySelectorAll(".room").forEach(room => {
-                room.classList.remove("active");
+                container.appendChild(row);
             });
-
-            const activeRoom = document.querySelector(`.room[data-room="${currentRoom}"]`);
-
-            if (activeRoom) {
-                activeRoom.classList.add("active");
-            }
         }
 
         // ---- Messages ----
@@ -862,7 +1272,7 @@
             }
 
             socket.emit("send_message", {
-                roomId: currentRoom,
+                roomId: currentRoomId,
                 message: message
             });
 
@@ -937,7 +1347,7 @@
         }
 
         updateButtons();
-        connectSocket(); 
+        connectSocket();
     </script>
 </body>
 
