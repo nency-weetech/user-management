@@ -42,7 +42,8 @@ export class ChatService {
 
   async getHistory(userId: string, roomId: string, before?: Date) {
     await this.assertIsMember(userId, roomId);
-    const messages = await this.messageRepo.findByRoom(roomId, 50, before);
+    const membership = await this.roomMemberRepo.findByUserAndRoom(userId, roomId)
+    const messages = await this.messageRepo.findByRoom(roomId, 50, before, membership.joined_at);
     return messages.reverse();
   }
 }

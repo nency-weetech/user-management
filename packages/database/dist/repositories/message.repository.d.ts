@@ -6,5 +6,5 @@ export declare class MessageRepository extends BaseAbstractRepostitory<Message> 
     private readonly messageRepo;
     constructor(messageRepo: Repository<Message>);
     createMessage(senderId: string, roomId: string, content: string): Promise<Message>;
-    findByRoom(roomId: string, limit?: number, before?: Date): Promise<Message[]>;
+    findByRoom(roomId: string, limit?: number, before?: Date, after?: Date): Promise<Message[]>;
 }

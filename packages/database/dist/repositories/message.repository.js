@@ -31,16 +31,23 @@ let MessageRepository = class MessageRepository extends base_repository_1.BaseAb
         });
         return this.messageRepo.save(message);
     }
-    async findByRoom(roomId, limit = 50, before) {
-        const room = await this.messageRepo.find({
-            where: before
-                ? { room_id: roomId, created_at: (0, typeorm_1.LessThan)(before) }
-                : { room_id: roomId },
+    async findByRoom(roomId, limit = 50, before, after) {
+        const where = { room_id: roomId };
+        if (before && after) {
+            where.created_at = (0, typeorm_1.Between)(after, before);
+        }
+        else if (before) {
+            where.created_at = (0, typeorm_1.LessThan)(before);
+        }
+        else if (after) {
+            where.created_at = (0, typeorm_1.MoreThanOrEqual)(after);
+        }
+        return this.messageRepo.find({
+            where,
             relations: { sender: true },
             order: { created_at: 'DESC' },
             take: limit,
         });
-        return room;
     }
 };
 exports.MessageRepository = MessageRepository;

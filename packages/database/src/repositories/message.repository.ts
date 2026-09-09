@@ -1,4 +1,4 @@
-import { LessThan, Repository } from 'typeorm';
+import { Between, LessThan, MoreThanOrEqual, Repository } from 'typeorm';
 import { BaseAbstractRepostitory } from '../common/base.repository';
 import { Message } from '../entities/message.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -32,16 +32,23 @@ export class MessageRepository
     roomId: string,
     limit = 50,
     before?: Date,
+    after?: Date, // NEW
   ): Promise<Message[]> {
-    const room = await this.messageRepo.find({
-      where: before
-        ? { room_id: roomId, created_at: LessThan(before) }
-        : { room_id: roomId },
+    const where: any = { room_id: roomId };
+
+    if (before && after) {
+      where.created_at = Between(after, before);
+    } else if (before) {
+      where.created_at = LessThan(before);
+    } else if (after) {
+      where.created_at = MoreThanOrEqual(after);
+    }
+
+    return this.messageRepo.find({
+      where,
       relations: { sender: true },
       order: { created_at: 'DESC' },
       take: limit,
     });
-    
-    return room;
   }
 }
