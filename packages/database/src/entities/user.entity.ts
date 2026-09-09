@@ -4,12 +4,16 @@ import {
   DeleteDateColumn,
   Entity,
   Index,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
 import { Exclude } from 'class-transformer';
 import { UserRole } from '../enums/user-role.enum';
+import { RoomMember } from './roomMember.entity';
+import { Message } from './message.entity';
+import { Room } from './room.entity';
 
 @Entity('users')
 export class User {
@@ -55,6 +59,15 @@ export class User {
     default: false,
   })
   isEmailVerified!: boolean;
+
+  @OneToMany(() => RoomMember, (roomMember) => roomMember.user)
+  room_memberships!: RoomMember[];
+
+  @OneToMany(() => Message, (message) => message.sender)
+  messages!: Message[];
+
+  @OneToMany(() => Room, (room) => room.owner)
+  owned_rooms!: Room[];
 
   @Column({ type: 'varchar', nullable: true })
   emailVerificationOtp?: string | null;

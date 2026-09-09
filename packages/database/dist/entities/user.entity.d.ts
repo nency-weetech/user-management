@@ -1,4 +1,7 @@
 import { UserRole } from '../enums/user-role.enum';
+import { RoomMember } from './roomMember.entity';
+import { Message } from './message.entity';
+import { Room } from './room.entity';
 export declare class User {
     id: string;
     email: string;
@@ -8,6 +11,9 @@ export declare class User {
     role: UserRole;
     isActive: boolean;
     isEmailVerified: boolean;
+    room_memberships: RoomMember[];
+    messages: Message[];
+    owned_rooms: Room[];
     emailVerificationOtp?: string | null;
     emailVerificationExpires?: Date | null;
     passwordResetOtp?: string | null;
