@@ -21,6 +21,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { RoomsService } from '../rooms/rooms.service';
 import { OnEvent } from '@nestjs/event-emitter';
+import { ChatService } from './chat.service';
 
 @WebSocketGateway({
   cors: {
@@ -36,6 +37,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly roomMembersRepository: RoomMemberRepository,
+    private readonly chatService: ChatService,
     private readonly roomRepository: RoomRepository,
     private readonly roomsService: RoomsService,
   ) {}
@@ -158,18 +160,68 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('send_message')
-  handleMessage(
+  async handleMessage(
     @MessageBody() data: { roomId: string; message: string },
     @ConnectedSocket() client: Socket,
   ) {
-    const messageData = {
-      senderId: client.data.userId,
-      senderName: client.data.firstName,
-      roomId: data.roomId,
-      message: data.message,
-    };
+    try {
+      const saved = await this.chatService.sendMessage(
+        client.data.userId,
+        data.roomId,
+        data.message,
+      );
+      const messageData = {
+        id: saved.id,
+        senderId: saved.sender_id,
+        senderName: client.data.firstName,
+        roomId: saved.room_id,
+        message: saved.content,
+        created_at: saved.created_at,
+      };
 
-    this.server.to(data.roomId).emit('new_message', messageData);
+      this.server.to(data.roomId).emit('new_message', messageData);
+    } catch (error) {
+      this.logger.warn(
+        `send_message failed for user ${client.data.userId}: ${error.message}`,
+      );
+      client.emit('send_message_error', {
+        roomId: data.roomId,
+        message: error.message,
+      });
+    }
+  }
+
+  @SubscribeMessage('get_history')
+  async handleHistory(
+    @MessageBody() data: { roomId: string; before?: string },
+    @ConnectedSocket() client: Socket,
+  ) {
+    try {
+      const before = data.before ? new Date(data.before) : undefined;
+      const messages = await this.chatService.getHistory(
+        client.data.userId,
+        data.roomId,
+        before,
+      );
+      client.emit('message_history', {
+        roomId: data.roomId,
+        messages: messages.map((m) => ({
+          id: m.id,
+          senderId: m.sender_id,
+          senderName: m.sender?.firstName ?? 'Unkonwn',
+          roomId: m.room_id,
+          room: m.room,
+          message: m.content,
+          createdAt: m.created_at,
+        })),
+      });
+    } catch (error) {
+      console.log(error)
+      client.emit('get_history_error', {
+        roomId: data.roomId,
+        message: error.message,
+      });
+    }
   }
 
   @OnEvent('room.join_request.created')

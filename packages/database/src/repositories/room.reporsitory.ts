@@ -17,7 +17,8 @@ export class RoomRepository extends BaseAbstractRepostitory<Room> implements IRo
   }
 
   async findById(id: string): Promise<Room | null> {
-    return this.roomRepository.findOne({ where: { id: id } });
+    const room = await this.roomRepository.findOne({ where: { id: id } });
+    return room;
   }
 
   async findByOwnerId(ownerId: string): Promise<Room[]> {

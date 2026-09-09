@@ -28,7 +28,8 @@ let RoomRepository = class RoomRepository extends base_repository_1.BaseAbstract
         return await this.roomRepository.save(newRoom);
     }
     async findById(id) {
-        return this.roomRepository.findOne({ where: { id: id } });
+        const room = await this.roomRepository.findOne({ where: { id: id } });
+        return room;
     }
     async findByOwnerId(ownerId) {
         return this.roomRepository.find({ where: { owner_id: ownerId } });

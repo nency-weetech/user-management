@@ -31,6 +31,7 @@ export * from './repositories/payment.repository';
 export * from './repositories/room.reporsitory';
 export * from './repositories/room-member.repository';
 export * from './repositories/join-request.repository';
+export * from './repositories/message.repository';
 
 export * from './interfaces/article.interface';
 export * from './interfaces/news-fetch-log.interface.repository';
@@ -41,3 +42,4 @@ export * from './interfaces/payments.interface';
 export * from './interfaces/room.interface';
 export * from './interfaces/room-member.interface';
 export * from './interfaces/join-request.interface';
+export * from './interfaces/message.interface';

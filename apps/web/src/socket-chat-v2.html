@@ -919,6 +919,8 @@
                 clearMessages();
                 addSystemMessage(`You joined #${currentRoomName || currentRoomId}`);
                 updateButtons();
+
+                socket.emit("get_history", { roomId: data.roomId });
             });
 
             socket.on("room_left", (data) => {
@@ -971,7 +973,6 @@
             });
 
             socket.on("join_request_pending", (data) => {
-                console.log("RECEIVED join_request_pending:", data);
                 pendingRequestsMap[data.requestId] = {
                     roomId: data.roomId,
                     roomName: data.roomName,
@@ -990,6 +991,15 @@
             socket.on("join_request_rejected", (data) => {
                 addSystemMessage(`Your request to join was rejected.`, true);
                 loadRooms();
+            });
+
+            socket.on("message_history", (data) => {
+                if (data.roomId !== currentRoomId) return;
+                data.messages.forEach(msg => addMessage(msg));
+            });
+
+            socket.on("get_history_error", (data) => {
+                addSystemMessage(`Could not load message history: ${data.message}`, true);
             });
         }
 
@@ -1289,6 +1299,7 @@
         }
 
         function addMessage(data) {
+            console.log('comparing:', data.senderId, 'vs', currentUserId, '→', data.senderId === currentUserId);
             const isOwn = data.senderId === currentUserId;
             const displayName = data.senderName || data.senderId;
 
