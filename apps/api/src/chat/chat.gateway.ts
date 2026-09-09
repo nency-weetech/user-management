@@ -22,6 +22,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { RoomsService } from '../rooms/rooms.service';
 import { OnEvent } from '@nestjs/event-emitter';
 import { ChatService } from './chat.service';
+import { subscribe } from 'diagnostics_channel';
 
 @WebSocketGateway({
   cors: {
@@ -216,12 +217,33 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         })),
       });
     } catch (error) {
-      console.log(error)
+      console.log(error);
       client.emit('get_history_error', {
         roomId: data.roomId,
         message: error.message,
       });
     }
+  }
+
+  @SubscribeMessage('typing_start')
+  handleTypingStart(
+    @MessageBody() data: { roomId: string },
+    @ConnectedSocket() client: Socket,
+  ) {
+    client.to(data.roomId).emit('user_typing', {
+      userId: client.data.userId,
+      userName : client.data.firstName
+    })
+  }
+
+  @SubscribeMessage('typing_stop')
+  handleTypingStop(
+    @MessageBody() data: {roomId: string},
+    @ConnectedSocket() client: Socket
+  ){
+    client.to(data.roomId).emit('user_stopped_typing', {
+      userId: client.data.userId
+    })
   }
 
   @OnEvent('room.join_request.created')

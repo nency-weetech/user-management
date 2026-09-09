@@ -462,6 +462,20 @@
             font-size: 12px
         }
 
+        .typing-indicator {
+            height: 22px;
+            padding: 0 24px;
+            font-size: 12px;
+            color: var(--text-muted);
+            font-style: italic;
+            display: flex;
+            align-items: center;
+        }
+
+        .typing-indicator:empty {
+            display: none;
+        }
+
         /* Messages */
         .messages {
             flex: 1;
@@ -803,6 +817,7 @@
                 <div class="system-message">Paste a token and click Connect to start.</div>
             </section>
 
+            <div id="typingIndicator" class="typing-indicator"></div>
             <form id="messageForm" class="message-form">
                 <input type="text" id="messageInput" class="message-input" placeholder="Write a message..."
                     autocomplete="off" disabled>
@@ -824,6 +839,9 @@
         let pendingRoomName = null;    // new: needed since we display names, not IDs
         let onlineUsersMap = {};
         let pendingRequestsMap = {};
+        let typingTimeout = null;
+        let isCurrentlyTyping = false;
+        let typingUsersMap = {};
 
         const connectionStatus = document.getElementById("connectionStatus");
         const statusText = connectionStatus.querySelector(".status-text");
@@ -835,7 +853,36 @@
         const leaveButton = document.getElementById("leaveButton");
         const sendButton = document.getElementById("sendButton");
         const messageForm = document.getElementById("messageForm");
+        const typingIndicator = document.getElementById("typingIndicator");
 
+        messageInput.addEventListener("input", () => {
+            if (!socket || !isJoined) return;
+
+            if (!isCurrentlyTyping) {
+                isCurrentlyTyping = true;
+                socket.emit("typing_start", { roomId: currentRoomId });
+            }
+
+            clearTimeout(typingTimeout);
+            typingTimeout = setTimeout(() => {
+                isCurrentlyTyping = false;
+                socket.emit("typing_stop", { roomId: currentRoomId });
+            }, 3000);
+        });
+
+        function renderTypingIndicator() {
+            const names = Object.values(typingUsersMap);
+
+            if (names.length === 0) {
+                typingIndicator.textContent = "";
+            } else if (names.length === 1) {
+                typingIndicator.textContent = `${names[0]} is typing...`;
+            } else if (names.length === 2) {
+                typingIndicator.textContent = `${names[0]} and ${names[1]} are typing...`;
+            } else {
+                typingIndicator.textContent = `${names[0]}, ${names[1]} and ${names.length - 2} others are typing...`;
+            }
+        }
         // ---- Connection lifecycle ----
 
         function decodeJwtPayload(token) {
@@ -906,6 +953,9 @@
                 updateButtons();
                 onlineUsersMap = {};
                 renderOnlineUsers();
+
+                typingUsersMap = {};
+                renderTypingIndicator();
             });
 
             socket.on("room_joined", (data) => {
@@ -919,6 +969,9 @@
                 clearMessages();
                 addSystemMessage(`You joined #${currentRoomName || currentRoomId}`);
                 updateButtons();
+
+                typingUsersMap = {};
+                renderTypingIndicator();
 
                 socket.emit("get_history", { roomId: data.roomId });
             });
@@ -1000,6 +1053,16 @@
 
             socket.on("get_history_error", (data) => {
                 addSystemMessage(`Could not load message history: ${data.message}`, true);
+            });
+
+            socket.on("user_typing", (data) => {
+                typingUsersMap[data.userId] = data.userName;
+                renderTypingIndicator();
+            });
+
+            socket.on("user_stopped_typing", (data) => {
+                delete typingUsersMap[data.userId];
+                renderTypingIndicator();
             });
         }
 
@@ -1298,8 +1361,36 @@
             return new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
         }
 
+        function sendMessage() {
+            if (!socket) return;
+
+            const message = messageInput.value.trim();
+
+            if (!message) return;
+
+            if (!isJoined) {
+                addSystemMessage("You must join the room first.", true);
+                return;
+            }
+
+            // Immediately clear typing state on send, don't wait for the 3s timeout
+            if (isCurrentlyTyping) {
+                isCurrentlyTyping = false;
+                clearTimeout(typingTimeout);
+                socket.emit("typing_stop", { roomId: currentRoomId });
+            }
+
+            socket.emit("send_message", {
+                roomId: currentRoomId,
+                message: message
+            });
+
+            messageInput.value = "";
+            messageInput.focus();
+        }
+
         function addMessage(data) {
-            console.log('comparing:', data.senderId, 'vs', currentUserId, '→', data.senderId === currentUserId);
+           
             const isOwn = data.senderId === currentUserId;
             const displayName = data.senderName || data.senderId;
 
