@@ -9,6 +9,7 @@ import cookieParser from 'cookie-parser';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { WinstonModule } from 'nest-winston';
 import { LoggerUserInterceptor, winstonConfig } from '@myapp/shared';
+import { RedisIoAdapter } from './redis/redis-io.adapter';
 
 
 async function bootstrap() {
@@ -16,6 +17,10 @@ async function bootstrap() {
     logger: WinstonModule.createLogger(winstonConfig),
     rawBody: true,
   });
+
+  const redisIoAdapter = new RedisIoAdapter(app);
+  await redisIoAdapter.connectToRedis();
+  app.useWebSocketAdapter(redisIoAdapter);
 
   app.useGlobalPipes(
     new ValidationPipe({

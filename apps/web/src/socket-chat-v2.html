@@ -842,6 +842,7 @@
         let typingTimeout = null;
         let isCurrentlyTyping = false;
         let typingUsersMap = {};
+        let isHandlingTokenExpiry = false;
 
         const connectionStatus = document.getElementById("connectionStatus");
         const statusText = connectionStatus.querySelector(".status-text");
@@ -854,6 +855,7 @@
         const sendButton = document.getElementById("sendButton");
         const messageForm = document.getElementById("messageForm");
         const typingIndicator = document.getElementById("typingIndicator");
+        const SOCKET_PORT = new URLSearchParams(window.location.search).get('port') || '3100';
 
         messageInput.addEventListener("input", () => {
             if (!socket || !isJoined) return;
@@ -912,7 +914,9 @@
 
             currentUserId = payload.id; // FIXED: was payload.sub (your JWT payload's real key is "id")
 
-            socket = io("http://localhost:3100", {
+
+
+            socket = io(`http://localhost:${SOCKET_PORT}`, {
                 auth: { token },
             });
 
@@ -1282,6 +1286,8 @@
         }
 
         async function handleTokenExpired() {
+            if (isHandlingTokenExpiry) return;
+            isHandlingTokenExpiry = true;
             addSystemMessage("Session refreshing...", false);
 
             if (socket) {
@@ -1293,17 +1299,19 @@
 
             if (!newToken) {
                 addSystemMessage("Session expired. Please sign in again.", true);
+                isHandlingTokenExpiry = false;
                 setTimeout(() => signOut(), 1500);
                 return;
             }
 
-            currentUserId = decodeJwtPayload(newToken)?.id; // FIXED: was ?.sub
+            currentUserId = decodeJwtPayload(newToken)?.id;
 
-            socket = io("http://localhost:3100", {
+            socket = io(`http://localhost:${SOCKET_PORT}`, {
                 auth: { token: newToken },
             });
 
             wireSocketEvents();
+            isHandlingTokenExpiry = false;
         }
 
         // ---- Online users ----
@@ -1390,7 +1398,7 @@
         }
 
         function addMessage(data) {
-           
+
             const isOwn = data.senderId === currentUserId;
             const displayName = data.senderName || data.senderId;
 

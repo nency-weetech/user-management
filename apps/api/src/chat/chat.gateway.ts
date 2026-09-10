@@ -1,4 +1,4 @@
-import { Logger, UseGuards } from '@nestjs/common';
+import { Inject, Logger, UseGuards } from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody,
@@ -22,7 +22,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { RoomsService } from '../rooms/rooms.service';
 import { OnEvent } from '@nestjs/event-emitter';
 import { ChatService } from './chat.service';
-import { subscribe } from 'diagnostics_channel';
+import Redis from 'ioredis';
 
 @WebSocketGateway({
   cors: {
@@ -35,53 +35,53 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   server: Server;
 
   constructor(
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
+    @InjectRepository(User) private readonly userRepository: Repository<User>,
     private readonly roomMembersRepository: RoomMemberRepository,
     private readonly chatService: ChatService,
     private readonly roomRepository: RoomRepository,
     private readonly roomsService: RoomsService,
+    @Inject('REDIS_CLIENT') private readonly redis: Redis,
   ) {}
   private readonly logger = new Logger(ChatGateway.name);
-
-  private onlineUsers = new Map<string, Set<string>>();
 
   handleConnection(client: Socket) {
     this.logger.log(`Client connected: ${client.id}`);
   }
 
-  handleDisconnect(client: Socket) {
+  async handleDisconnect(client: Socket) {
     this.logger.log(`Client disconnected: ${client.id}`);
     const userId = client.data.userId;
     if (!userId) {
       return;
     }
-    const socket = this.onlineUsers.get(userId);
-    if (socket) {
-      socket.delete(client.id);
-      if (socket.size === 0) {
-        this.onlineUsers.delete(userId);
-        this.server.emit('user_offline', { userId });
-      }
+
+    const key = `online:${userId}`;
+
+    await this.redis.srem(key, client.id);
+    const remaining = await this.redis.scard(key);
+
+    if (remaining === 0) {
+      await this.redis.srem('online_users', userId);
+      this.server.emit('user_offline', { userId });
     }
   }
 
   @SubscribeMessage('register_presence')
-  handleRegisterPresence(@ConnectedSocket() client: Socket) {
-    this.registerOnline(client);
+  async handleRegisterPresence(@ConnectedSocket() client: Socket) {
+    await this.registerOnline(client);
   }
 
-  private registerOnline(client: Socket) {
+  private async registerOnline(client: Socket) {
     const userId = client.data.userId;
     if (!userId) return;
 
-    const wasOffline = !this.onlineUsers.has(userId);
-    if (!this.onlineUsers.has(userId)) {
-      this.onlineUsers.set(userId, new Set());
-    }
-    this.onlineUsers.get(userId).add(client.id);
+    const key = `online:${userId}`;
+    const wasOfflinebefore = (await this.redis.scard(key)) === 0;
 
-    if (wasOffline) {
+    await this.redis.sadd(key, client.id);
+    await this.redis.sadd('online_users', userId);
+
+    if (wasOfflinebefore) {
       this.server.emit('user_online', {
         userId,
         name: client.data.firstName,
@@ -94,7 +94,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() data: { roomId: string },
     @ConnectedSocket() client: Socket,
   ) {
-    this.registerOnline(client);
+    await this.registerOnline(client);
 
     const userId = client.data.userId;
     const membership = await this.roomMembersRepository.findByUserAndRoom(
@@ -135,7 +135,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private async buildOnlineUsersList(): Promise<
     { userId: string; name: string }[]
   > {
-    const userIds = Array.from(this.onlineUsers.keys());
+    const userIds = await this.redis.smembers('online_users');
     if (userIds.length === 0) return [];
 
     const users = await this.userRepository.find({
@@ -232,18 +232,18 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {
     client.to(data.roomId).emit('user_typing', {
       userId: client.data.userId,
-      userName : client.data.firstName
-    })
+      userName: client.data.firstName,
+    });
   }
 
   @SubscribeMessage('typing_stop')
   handleTypingStop(
-    @MessageBody() data: {roomId: string},
-    @ConnectedSocket() client: Socket
-  ){
+    @MessageBody() data: { roomId: string },
+    @ConnectedSocket() client: Socket,
+  ) {
     client.to(data.roomId).emit('user_stopped_typing', {
-      userId: client.data.userId
-    })
+      userId: client.data.userId,
+    });
   }
 
   @OnEvent('room.join_request.created')
@@ -261,10 +261,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     const room = await this.roomRepository.findById(payload.roomId);
     for (const admin of admins) {
-      const adminSocket = this.onlineUsers.get(admin.user_id);
-      if (!adminSocket) continue;
+      const key = `online:${admin.user_id}`;
+      const adminSocketIds = await this.redis.smembers(key);
+      if (adminSocketIds.length === 0) continue;
 
-      for (const socketId of adminSocket) {
+      for (const socketId of adminSocketIds) {
         this.server.to(socketId).emit('join_request_pending', {
           requestId: payload.requestId,
           roomId: payload.roomId,
@@ -277,20 +278,21 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @OnEvent('room.join_request.reviewed')
-  handleJoinRequestReviewed(payload: {
+  async handleJoinRequestReviewed(payload: {
     requesterId: string;
     roomId: string;
     status: JoinRequestStatus;
   }) {
-    const requesterSocket = this.onlineUsers.get(payload.requesterId);
-    if (!requesterSocket) return;
+    const key = `online:${payload.requesterId}`;
+    const requesterSocketIds = await this.redis.smembers(key);
+    if (requesterSocketIds.length === 0) return;
 
     const eventName =
       payload.status === JoinRequestStatus.APPROVED
         ? 'join_request_approved'
         : 'join_request_rejected';
 
-    for (const socketId of requesterSocket) {
+    for (const socketId of requesterSocketIds) {
       this.server.to(socketId).emit(eventName, {
         roomId: payload.roomId,
       });
