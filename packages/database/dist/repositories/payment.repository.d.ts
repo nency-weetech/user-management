@@ -9,10 +9,11 @@ export declare class PaymentRepository extends BaseAbstractRepostitory<Payments>
     private readonly paymentsRepo;
     private readonly userRepository;
     constructor(paymentsRepo: Repository<Payments>, userRepository: UserRepository);
-    createPayment(userId: string, plan: UserPlanEnum, sessionId: string, amount: number, currency: string): Promise<Payments>;
+    createPayment(userId: string, plan: UserPlanEnum, paymentIntentId: string, amount: number, currency: string): Promise<Payments>;
     findBySessionId(sessionId: string): Promise<Payments | null>;
-    markSucceeded(sessionId: string, paymentIntentId: string): Promise<void>;
-    markExpired(sessionId: string): Promise<void>;
+    findByPaymentIntentId(paymentIntentId: string): Promise<Payments | null>;
+    markSucceeded(paymentIntentId: string): Promise<void>;
+    markExpired(paymentIntentId: string): Promise<void>;
     findStalePending(cutoff: Date): Promise<Payments[]>;
     findAllPaginated(page: number, limit: number, status?: PaymentStatus, plan?: UserPlanEnum): Promise<[Payments[], number]>;
 }

@@ -107,7 +107,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Refresh access and refresh token using cookie' })
   @ApiCookieAuth('refreshToken')
   @ApiResponse({ status: 200, description: 'Token Refresh successfully' })
-  @ApiResponse({ status : 401, description: 'Invalid or missing refresh token'})
+  @ApiResponse({ status: 401, description: 'Invalid or missing refresh token' })
   @Get('refresh')
   async refreshToken(
     @Req() req: any,
@@ -129,7 +129,6 @@ export class AuthController {
     }
 
     const userId = decoded.id;
-
     const tokens = await this.authService.refreshTokens(userId, refreshToken);
 
     res.cookie('accessToken', tokens.accessToken, {
@@ -141,13 +140,16 @@ export class AuthController {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    return { message: 'Tokens refreshed successfully' };
+    return {
+      message: 'Tokens refreshed successfully',
+      accessToken: tokens.accessToken, // ← add this so JS can actually use it
+    };
   }
 
-  @ApiOperation({ summary: 'Logged out current user'})
+  @ApiOperation({ summary: 'Logged out current user' })
   @ApiCookieAuth('accessToken')
-  @ApiResponse({ status : 200, description: 'User logged out successfull'})
-  @ApiResponse({ status: 401, description: 'Unathorised'})
+  @ApiResponse({ status: 200, description: 'User logged out successfull' })
+  @ApiResponse({ status: 401, description: 'Unathorised' })
   @Get('logout')
   @UseGuards(AuthGuard)
   async logout(
@@ -162,10 +164,10 @@ export class AuthController {
     return { message: 'User Logged out' };
   }
 
-  @ApiOperation({ summary: 'Get the current logged in user\'s profile'})
+  @ApiOperation({ summary: "Get the current logged in user's profile" })
   @ApiCookieAuth('accessToken')
-  @ApiResponse({ status: 200, description: 'User fetched Successfully'})
-  @ApiResponse({ status: 401, description: 'Unauthorised'})
+  @ApiResponse({ status: 200, description: 'User fetched Successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorised' })
   @Get()
   @UseGuards(AuthGuard)
   async getProfile(@currentUser() currentUser: { id: string }) {
@@ -176,40 +178,49 @@ export class AuthController {
     return user;
   }
 
-  @ApiOperation({summary: 'Request password rest OTP'})
-  @ApiResponse({ status: 200, description: 'Generic message return (OTP is sent if account exist'})
+  @ApiOperation({ summary: 'Request password rest OTP' })
+  @ApiResponse({
+    status: 200,
+    description: 'Generic message return (OTP is sent if account exist',
+  })
   @Post('forgot-password')
   async forgotpass(@Body() dto: ForgotPasswordDto) {
     return this.authService.forgotPassword(dto);
   }
 
-  @ApiOperation({ summary: 'Verify password rest OTP'})
-  @ApiResponse({ status: 200, description: 'OTP verified, reset session token returned'})
-  @ApiResponse({ status: 400, description: 'Invalid OTP or Too many failed attempts'})
+  @ApiOperation({ summary: 'Verify password rest OTP' })
+  @ApiResponse({
+    status: 200,
+    description: 'OTP verified, reset session token returned',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid OTP or Too many failed attempts',
+  })
   @Post('verify-otp')
   async verifyOtp(@Body() dto: VerifyEmailDto) {
     return this.authService.verifyOtp(dto);
   }
 
-  @ApiOperation({ summary: 'Reset pasword using a valid session token'})
-  @ApiResponse({ status: 200, description: 'Password rest successfully'})
-  @ApiResponse({ status: 401, description: 'Invalid or expired session token'})
+  @ApiOperation({ summary: 'Reset pasword using a valid session token' })
+  @ApiResponse({ status: 200, description: 'Password rest successfully' })
+  @ApiResponse({ status: 401, description: 'Invalid or expired session token' })
   @Post('reset-password')
   async resetPassword(@Body() dto: ResetPasswordDto) {
     return this.authService.resetPassword(dto);
   }
 
-  @ApiOperation({ summary: 'Get recent activity log for user'})
-  @ApiParam({name: 'id', description: 'User Id'})
-  @ApiResponse({ status: 200, description: 'Activity list returned'})
+  @ApiOperation({ summary: 'Get recent activity log for user' })
+  @ApiParam({ name: 'id', description: 'User Id' })
+  @ApiResponse({ status: 200, description: 'Activity list returned' })
   @UseGuards(AuthGuard)
   @Get(':id/activity')
   async getActivity(@Param('id') id: string) {
     return this.activityLogservice.getRecentActivity(id);
   }
 
-  @ApiOperation({summary: 'Request account deletion (30-day grace period)'})
-  @ApiResponse({ status: 200, description: 'Account schedule for deletion'})
+  @ApiOperation({ summary: 'Request account deletion (30-day grace period)' })
+  @ApiResponse({ status: 200, description: 'Account schedule for deletion' })
   @ApiCookieAuth('accessToken')
   @Delete('account')
   @UseGuards(AuthGuard)

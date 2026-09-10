@@ -9,14 +9,18 @@ import cookieParser from 'cookie-parser';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { WinstonModule } from 'nest-winston';
 import { LoggerUserInterceptor, winstonConfig } from '@myapp/shared';
-import { LoggingInterceptor } from './interceptors/logging.interceptor';
-import { AllExceptionFilter } from './filters/all-exceptions.filter';
+import { RedisIoAdapter } from './redis/redis-io.adapter';
+
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     logger: WinstonModule.createLogger(winstonConfig),
     rawBody: true,
   });
+
+  const redisIoAdapter = new RedisIoAdapter(app);
+  await redisIoAdapter.connectToRedis();
+  app.useWebSocketAdapter(redisIoAdapter);
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -25,6 +29,10 @@ async function bootstrap() {
       transform: true,
     }),
   );
+  app.enableCors({
+    origin: 'http://localhost:8080',
+    credentials: true,
+  });
 
   if (process.env.NODE_ENV !== 'production') {
     const config = new DocumentBuilder()

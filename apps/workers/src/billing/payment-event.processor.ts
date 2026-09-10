@@ -32,7 +32,10 @@ export class PaymentEventProcessor extends WorkerHost {
         this.logger.log(`Processing Billing job: ${job.name}`);
         switch (job.name) {
           case 'process-payment-event':
-            return this.handlePaymentEvent(job);
+            console.log("start process")
+            await this.handlePaymentEvent(job);
+            console.log("end process")
+            break;
           default:
             this.logger.warn(`Unknown job type: ${job.name}`);
         }
@@ -41,22 +44,27 @@ export class PaymentEventProcessor extends WorkerHost {
   }
 
   async handlePaymentEvent(job: Job) {
-    const { eventType, sessionId, userId, paymentIntentId, plan , hostedInvoiceUrl} = job.data;
+    console.log("inside processor:::::::::::")
+    console.log(job.data)
+    const { eventType, userId, paymentIntentId, plan } = job.data;
 
-    const payment = await this.paymentsRepo.findBySessionId(sessionId);
+    console.log(paymentIntentId)
+    const payment = await this.paymentsRepo.findByPaymentIntentId(paymentIntentId);
+    console.log(payment)
     if (!payment) return;
 
     if (eventType === 'completed') {
       if (payment.status === PaymentStatus.SUCCEEDED) return;
-      await this.paymentsRepo.markSucceeded(sessionId, paymentIntentId);
+      const status = await this.paymentsRepo.markSucceeded(paymentIntentId);
+      console.log("status:",  status)
       await this.userPlanRepo.upgradeToPaid(userId, plan);
       this.logger.log(`Payment completed`);
     }
 
-    if (eventType === 'expired') {
+    if (eventType === 'failed') {
       if (payment.status !== PaymentStatus.PENDING) return;
-      await this.paymentsRepo.markExpired(sessionId);
-      this.logger.warn(`Payment expired`);
+      await this.paymentsRepo.markExpired(paymentIntentId);
+      this.logger.warn(`Payment failed`);
     }
   }
 }

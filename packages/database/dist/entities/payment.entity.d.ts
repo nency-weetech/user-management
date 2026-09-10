@@ -5,7 +5,7 @@ export declare class Payments {
     id: string;
     userId: string | null;
     user: User | null;
-    stripeCheckoutSessionId: string;
+    stripeCheckoutSessionId: string | null;
     stripePaymentIntentId: string;
     plan: UserPlanEnum;
     amount: Number;

@@ -13,6 +13,9 @@ exports.User = void 0;
 const typeorm_1 = require("typeorm");
 const class_transformer_1 = require("class-transformer");
 const user_role_enum_1 = require("../enums/user-role.enum");
+const roomMember_entity_1 = require("./roomMember.entity");
+const message_entity_1 = require("./message.entity");
+const room_entity_1 = require("./room.entity");
 let User = class User {
     id;
     email;
@@ -22,6 +25,9 @@ let User = class User {
     role;
     isActive;
     isEmailVerified;
+    room_memberships;
+    messages;
+    owned_rooms;
     emailVerificationOtp;
     emailVerificationExpires;
     passwordResetOtp;
@@ -87,6 +93,18 @@ __decorate([
     }),
     __metadata("design:type", Boolean)
 ], User.prototype, "isEmailVerified", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => roomMember_entity_1.RoomMember, (roomMember) => roomMember.user),
+    __metadata("design:type", Array)
+], User.prototype, "room_memberships", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => message_entity_1.Message, (message) => message.sender),
+    __metadata("design:type", Array)
+], User.prototype, "messages", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => room_entity_1.Room, (room) => room.owner),
+    __metadata("design:type", Array)
+], User.prototype, "owned_rooms", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: 'varchar', nullable: true }),
     __metadata("design:type", String)

@@ -23,13 +23,13 @@ export class PaymentRepository
   createPayment(
     userId: string,
     plan: UserPlanEnum,
-    sessionId: string,
+    paymentIntentId: string,
     amount: number,
     currency: string,
   ): Promise<Payments> {
     const userPayment = this.paymentsRepo.create({
       userId,
-      stripeCheckoutSessionId: sessionId,
+      stripePaymentIntentId: paymentIntentId,
       plan,
       amount,
       currency,
@@ -42,22 +42,24 @@ export class PaymentRepository
     return this.paymentsRepo.findOneBy({ stripeCheckoutSessionId: sessionId });
   }
 
+  findByPaymentIntentId(paymentIntentId: string): Promise<Payments | null> {
+    return this.paymentsRepo.findOneBy({ stripePaymentIntentId: paymentIntentId });
+  }
+
   async markSucceeded(
-    sessionId: string,
     paymentIntentId: string,
   ): Promise<void> {
     await this.paymentsRepo.update(
-      { stripeCheckoutSessionId: sessionId },
+      {  stripePaymentIntentId: paymentIntentId },
       {
-        stripePaymentIntentId: paymentIntentId,
         status: PaymentStatus.SUCCEEDED,
       },
     );
   }
 
-  async markExpired(sessionId: string): Promise<void> {
+  async markExpired(paymentIntentId: string,): Promise<void> {
     await this.paymentsRepo.update(
-      { stripeCheckoutSessionId: sessionId },
+      {  stripePaymentIntentId: paymentIntentId },
       {
         status: PaymentStatus.EXPIRED,
       },
@@ -70,41 +72,44 @@ export class PaymentRepository
     });
   }
 
-  async findAllPaginated(page: number, limit: number, status?: PaymentStatus, plan?: UserPlanEnum): Promise<[Payments[], number]>{
+  async findAllPaginated(
+    page: number,
+    limit: number,
+    status?: PaymentStatus,
+    plan?: UserPlanEnum,
+  ): Promise<[Payments[], number]> {
     const skip = (page - 1) * limit;
     const query = this.paymentsRepo.createQueryBuilder('payment');
 
-    if(status){
-        query.andWhere('payment.status = :status', {status});
+    if (status) {
+      query.andWhere('payment.status = :status', { status });
     }
 
-    if(plan){
-        query.andWhere('payment.plan = :plan', {plan})
+    if (plan) {
+      query.andWhere('payment.plan = :plan', { plan });
     }
 
-    query.orderBy('payment.createdAt', 'DESC')
-    .skip(skip)
-    .take(limit)
+    query.orderBy('payment.createdAt', 'DESC').skip(skip).take(limit);
 
     const [payments, total] = await query.getManyAndCount();
 
-    const userIds = payments.map((p)=> p.userId)
+    const userIds = payments.map((p) => p.userId);
     const users = await this.userRepository.findManyByCondition({
-        where: {id: In(userIds)},
-        select: {
-            id: true,
-            email: true,
-            firstName: true,
-            lastName: true
-        }
-    })
+      where: { id: In(userIds) },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+      },
+    });
 
-    const userMap = new Map(users.map((u)=> [u.id, u]))
-    const enrichPayment = payments.map((p)=> ({
-        ...p,
-        user: userMap.get(p.userId) || null
+    const userMap = new Map(users.map((u) => [u.id, u]));
+    const enrichPayment = payments.map((p) => ({
+      ...p,
+      user: userMap.get(p.userId) || null,
     }));
 
-    return [enrichPayment, total]
+    return [enrichPayment, total];
   }
 }

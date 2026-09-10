@@ -1,0 +1,1464 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Group Chat</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        :root {
+            --bg: #f4f6f8;
+            --surface: #ffffff;
+            --surface-soft: #f8fafc;
+            --border: #e7eaf0;
+            --text: #171a21;
+            --muted: #7a8190;
+            --muted-2: #a3a9b4;
+            --primary: #5b5ce2;
+            --primary-2: #4b4dcc;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --sidebar: #15171d;
+            --sidebar-2: #1b1e26;
+            --sidebar-text: #e9ebf0;
+            --sidebar-muted: #858b99;
+            --shadow: 0 20px 55px rgba(20, 24, 35, .12);
+        }
+
+        html,
+        body {
+            min-height: 100%
+        }
+
+        body {
+            font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            background:
+                radial-gradient(circle at 15% 0%, rgba(91, 92, 226, .08), transparent 30%),
+                var(--bg);
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+            padding: 24px;
+        }
+
+        /* Top navigation */
+        .top-nav {
+            width: 1120px;
+            max-width: 100%;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            padding: 0 4px;
+        }
+
+        .home-link {
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            transition: .18s ease;
+        }
+
+        .home-link:hover {
+            color: var(--text)
+        }
+
+        /* Connection / auth bar */
+        .auth-card {
+            width: 1120px;
+            max-width: 100%;
+            min-height: 70px;
+            background: rgba(255, 255, 255, .88);
+            border: 1px solid rgba(231, 234, 240, .95);
+            border-radius: 16px;
+            padding: 12px 14px;
+            box-shadow: 0 8px 28px rgba(20, 24, 35, .06);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            backdrop-filter: blur(12px);
+        }
+
+        .auth-card::before {
+            content: "Socket connection";
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--muted);
+            padding: 0 8px;
+            white-space: nowrap;
+        }
+
+        .auth-card input {
+            flex: 1;
+            min-width: 0;
+            height: 44px;
+            padding: 0 14px;
+            border: 1px solid var(--border);
+            border-radius: 11px;
+            background: var(--surface-soft);
+            color: var(--text);
+            font-size: 13px;
+            outline: none;
+            transition: .18s ease;
+        }
+
+        .auth-card input::placeholder {
+            color: var(--muted-2)
+        }
+
+        .auth-card input:focus {
+            background: #fff;
+            border-color: rgba(91, 92, 226, .55);
+            box-shadow: 0 0 0 4px rgba(91, 92, 226, .09);
+        }
+
+        .btn {
+            border: 0;
+            border-radius: 10px;
+            min-height: 40px;
+            padding: 0 16px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 700;
+            transition: transform .12s ease, background .18s ease, opacity .18s ease, box-shadow .18s ease;
+        }
+
+        .btn:active {
+            transform: scale(.98)
+        }
+
+        .btn:disabled {
+            opacity: .45;
+            cursor: not-allowed
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+            box-shadow: 0 6px 16px rgba(91, 92, 226, .22);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: var(--primary-2);
+            box-shadow: 0 8px 20px rgba(91, 92, 226, .28);
+        }
+
+        /* Main app */
+        .chat-app {
+            width: 1120px;
+            height: 720px;
+            max-width: 100%;
+            display: flex;
+            overflow: hidden;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            box-shadow: var(--shadow);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 290px;
+            flex: 0 0 290px;
+            background: linear-gradient(180deg, var(--sidebar), var(--sidebar-2));
+            color: var(--sidebar-text);
+            padding: 22px 16px 16px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            padding: 0 6px;
+            margin-bottom: 18px;
+        }
+
+        .brand-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            background: linear-gradient(145deg, #7778f0, #4d4fd0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 800;
+            font-size: 15px;
+            box-shadow: 0 8px 20px rgba(91, 92, 226, .28);
+        }
+
+        .brand h2 {
+            font-size: 16px;
+            letter-spacing: -.02em;
+            font-weight: 750;
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            width: max-content;
+            padding: 7px 10px;
+            margin: 0 6px 22px;
+            border: 1px solid rgba(255, 255, 255, .07);
+            border-radius: 999px;
+            background: rgba(255, 255, 255, .045);
+            color: var(--sidebar-muted);
+            font-size: 11.5px;
+            font-weight: 650;
+        }
+
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #686e7b;
+        }
+
+        .status-pill.connected {
+            color: #a9f0bf;
+            background: rgba(34, 197, 94, .08);
+            border-color: rgba(34, 197, 94, .12);
+        }
+
+        .status-pill.connected .status-dot {
+            background: var(--success);
+            box-shadow: 0 0 0 4px rgba(34, 197, 94, .10), 0 0 8px rgba(34, 197, 94, .65);
+        }
+
+        .status-pill.error {
+            color: #fecaca;
+            background: rgba(239, 68, 68, .08);
+        }
+
+        .status-pill.error .status-dot {
+            background: var(--danger)
+        }
+
+        .rooms-title {
+            margin: 0 6px 9px;
+            color: #6f7583;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            font-weight: 800;
+        }
+
+        .rooms {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            max-height: 170px;
+            overflow-y: auto;
+        }
+
+        .room {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            min-height: 42px;
+            padding: 0 11px;
+            border-radius: 10px;
+            cursor: pointer;
+            color: #c8ccd5;
+            font-size: 13px;
+            font-weight: 600;
+            transition: .16s ease;
+        }
+
+        .room:hover {
+            background: rgba(255, 255, 255, .055);
+            color: #fff
+        }
+
+        .room.active {
+            background: linear-gradient(90deg, rgba(91, 92, 226, .9), rgba(91, 92, 226, .72));
+            color: #fff;
+            box-shadow: 0 7px 18px rgba(0, 0, 0, .16);
+        }
+
+        .room .hash {
+            opacity: .5;
+            font-weight: 800;
+        }
+
+        .room.active .hash {
+            opacity: .85
+        }
+
+        .pending-list {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            overflow-y: auto;
+            max-height: 150px;
+        }
+
+        .pending-item {
+            background: rgba(255, 255, 255, .045);
+            border: 1px solid rgba(255, 255, 255, .055);
+            border-radius: 11px;
+            padding: 10px;
+            font-size: 11.5px;
+        }
+
+        .pending-item .req-text {
+            color: #c8ccd5;
+            margin-bottom: 9px;
+            line-height: 1.45;
+        }
+
+        .pending-item .req-text strong {
+            color: #fff
+        }
+
+        .pending-item .req-actions {
+            display: flex;
+            gap: 6px
+        }
+
+        .pending-item button {
+            flex: 1;
+            min-height: 27px;
+            padding: 0 8px;
+            border: 0;
+            border-radius: 7px;
+            cursor: pointer;
+            font-size: 10.5px;
+            font-weight: 750;
+            transition: .16s ease;
+        }
+
+        .btn-approve {
+            background: rgba(34, 197, 94, .9);
+            color: #fff
+        }
+
+        .btn-approve:hover:not(:disabled) {
+            background: #16a34a
+        }
+
+        .btn-reject {
+            background: rgba(239, 68, 68, .9);
+            color: #fff
+        }
+
+        .btn-reject:hover:not(:disabled) {
+            background: #dc2626
+        }
+
+        .pending-item button:disabled {
+            opacity: .45;
+            cursor: not-allowed
+        }
+
+        .online-list {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            overflow-y: auto;
+            min-height: 0;
+        }
+
+        .online-list .empty-hint,
+        .pending-list .empty-hint {
+            font-size: 11.5px;
+            color: #656b78;
+            padding: 5px 6px;
+        }
+
+        .participant {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            min-height: 34px;
+            padding: 0 8px;
+            border-radius: 8px;
+            color: #bfc4ce;
+            font-size: 12px;
+        }
+
+        .participant:hover {
+            background: rgba(255, 255, 255, .035)
+        }
+
+        .participant .p-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #4c515d;
+        }
+
+        .participant.online .p-dot {
+            background: var(--success);
+            box-shadow: 0 0 0 4px rgba(34, 197, 94, .08);
+        }
+
+        /* Chat */
+        .chat {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            background: #fff;
+        }
+
+        .chat-header {
+            min-height: 76px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 26px;
+            flex-shrink: 0;
+            background: rgba(255, 255, 255, .96);
+        }
+
+        .chat-header h3 {
+            color: var(--text);
+            font-size: 17px;
+            line-height: 1.2;
+            font-weight: 800;
+            letter-spacing: -.02em;
+        }
+
+        .chat-header .sub {
+            margin-top: 4px;
+            color: var(--muted);
+            font-size: 11.5px;
+            font-weight: 550;
+        }
+
+        .room-actions {
+            display: flex;
+            gap: 7px
+        }
+
+        .btn-ghost {
+            background: #f5f6f8;
+            color: #454b57;
+            border: 1px solid #eceef2;
+        }
+
+        .btn-ghost:hover:not(:disabled) {
+            background: #ececf1;
+            color: #1f232b
+        }
+
+        .btn-sm {
+            min-height: 35px;
+            padding: 0 13px;
+            font-size: 12px
+        }
+
+        .typing-indicator {
+            height: 22px;
+            padding: 0 24px;
+            font-size: 12px;
+            color: var(--text-muted);
+            font-style: italic;
+            display: flex;
+            align-items: center;
+        }
+
+        .typing-indicator:empty {
+            display: none;
+        }
+
+        /* Messages */
+        .messages {
+            flex: 1;
+            min-height: 0;
+            padding: 24px 28px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 13px;
+            background:
+                radial-gradient(circle at 50% 0%, rgba(91, 92, 226, .035), transparent 38%),
+                #fafbfc;
+        }
+
+        .messages::-webkit-scrollbar,
+        .rooms::-webkit-scrollbar,
+        .pending-list::-webkit-scrollbar,
+        .online-list::-webkit-scrollbar {
+            width: 5px
+        }
+
+        .messages::-webkit-scrollbar-thumb,
+        .rooms::-webkit-scrollbar-thumb,
+        .pending-list::-webkit-scrollbar-thumb,
+        .online-list::-webkit-scrollbar-thumb {
+            background: #d7dbe3;
+            border-radius: 99px;
+        }
+
+        .msg-row {
+            display: flex;
+            gap: 9px;
+            max-width: 68%;
+            align-self: flex-start;
+        }
+
+        .msg-row.own {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        .msg-row.own .avatar {
+            display: none
+        }
+
+        .avatar {
+            width: 30px;
+            height: 30px;
+            flex: 0 0 30px;
+            margin-top: 2px;
+            border-radius: 10px;
+            background: #e8e9ff;
+            color: #5354c9;
+            font-size: 11px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .bubble-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            max-width: 100%;
+        }
+
+        .msg-row.own .bubble-wrap {
+            align-items: flex-end
+        }
+
+        .sender-name {
+            padding: 0 5px;
+            color: #6269d8;
+            font-size: 10.5px;
+            font-weight: 800;
+        }
+
+        .msg-row.own .sender-name {
+            display: none
+        }
+
+        .bubble {
+            padding: 9px 13px;
+            border: 1px solid #eceef2;
+            border-radius: 15px 15px 15px 5px;
+            background: #fff;
+            color: #262a33;
+            font-size: 13.5px;
+            line-height: 1.5;
+            word-break: break-word;
+            box-shadow: 0 2px 7px rgba(20, 24, 35, .045);
+        }
+
+        .msg-row.own .bubble {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: #fff;
+            border-radius: 15px 15px 5px 15px;
+            box-shadow: 0 5px 13px rgba(91, 92, 226, .18);
+        }
+
+        .msg-time {
+            padding: 0 5px;
+            color: #a1a7b2;
+            font-size: 9.5px;
+        }
+
+        .msg-row.own .msg-time {
+            text-align: right
+        }
+
+        .system-message {
+            align-self: center;
+            max-width: 80%;
+            padding: 6px 11px;
+            border: 1px solid #e9ebef;
+            border-radius: 999px;
+            background: #f1f3f6;
+            color: #818793;
+            font-size: 10.5px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .system-message.error {
+            color: #b42318;
+            background: #fff1f0;
+            border-color: #ffd6d2;
+            font-weight: 700;
+        }
+
+        /* Composer */
+        .message-form {
+            min-height: 82px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 15px 20px;
+            flex-shrink: 0;
+            background: #fff;
+        }
+
+        .message-input {
+            flex: 1;
+            min-width: 0;
+            height: 46px;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 0 16px;
+            background: #f8fafb;
+            color: var(--text);
+            outline: none;
+            font-size: 13px;
+            transition: .18s ease;
+        }
+
+        .message-input::placeholder {
+            color: #a4aab5
+        }
+
+        .message-input:focus {
+            background: #fff;
+            border-color: rgba(91, 92, 226, .55);
+            box-shadow: 0 0 0 4px rgba(91, 92, 226, .08);
+        }
+
+        .message-input:disabled {
+            background: #f5f6f7;
+            color: #a3a8b1
+        }
+
+        .send-btn {
+            width: 46px;
+            height: 46px;
+            flex: 0 0 46px;
+            border: 0;
+            border-radius: 14px;
+            background: var(--primary);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            font-size: 17px;
+            cursor: pointer;
+            box-shadow: 0 7px 16px rgba(91, 92, 226, .2);
+            transition: .18s ease;
+        }
+
+        .send-btn:hover:not(:disabled) {
+            background: var(--primary-2);
+            transform: translateY(-1px);
+        }
+
+        .send-btn:disabled {
+            opacity: .4;
+            cursor: not-allowed;
+            box-shadow: none
+        }
+
+        /* Responsive */
+        @media(max-width:1000px) {
+            body {
+                padding: 0
+            }
+
+            .top-nav {
+                width: 100%;
+                padding: 0 16px
+            }
+
+            .auth-card {
+                width: 100%;
+                border-radius: 0;
+                border-left: 0;
+                border-right: 0;
+                box-shadow: none;
+            }
+
+            .auth-card::before {
+                display: none
+            }
+
+            .chat-app {
+                width: 100%;
+                height: calc(100vh - 116px);
+                min-height: 560px;
+                border-radius: 0;
+                border-left: 0;
+                border-right: 0;
+                box-shadow: none;
+            }
+
+            .sidebar {
+                width: 220px;
+                flex-basis: 220px
+            }
+
+            .msg-row {
+                max-width: 82%
+            }
+        }
+
+        @media(max-width:700px) {
+            .auth-card {
+                padding: 10px
+            }
+
+            .chat-app {
+                height: calc(100vh - 100px)
+            }
+
+            .sidebar {
+                width: 190px;
+                flex-basis: 190px;
+                padding: 16px 10px
+            }
+
+            .brand {
+                padding: 0 4px
+            }
+
+            .brand h2 {
+                font-size: 14px
+            }
+
+            .chat-header {
+                padding: 0 16px
+            }
+
+            .messages {
+                padding: 18px 14px
+            }
+
+            .message-form {
+                padding: 12px
+            }
+
+            .msg-row {
+                max-width: 90%
+            }
+        }
+    </style>
+</head>
+<script src="auth.js"></script>
+
+<body>
+    <div class="top-nav">
+        <a href="index.html" class="home-link">← Back to NewsHub</a>
+    </div>
+
+    <div class="auth-card">
+        <input type="text" id="tokenInput" placeholder="Paste your JWT access token">
+        <button id="connectButton" class="btn btn-primary" type="button">Connect</button>
+    </div>
+
+    <div class="chat-app">
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-icon">C</div>
+                <h2>Group Chat</h2>
+            </div>
+
+            <div id="connectionStatus" class="status-pill">
+                <span class="status-dot"></span>
+                <span class="status-text">Disconnected</span>
+            </div>
+
+            <div class="rooms-title">Your rooms</div>
+            <div id="rooms" class="rooms">
+            </div>
+
+            <div class="rooms-title" style="margin-top: 22px;">Join requests</div>
+            <div id="pendingRequests" class="pending-list">
+                <div class="empty-hint">No pending requests</div>
+            </div>
+
+            <div class="rooms-title" style="margin-top: 22px;">Online now</div>
+            <div id="onlineUsers" class="online-list">
+                <div class="empty-hint">No one else online yet</div>
+            </div>
+        </aside>
+
+        <main class="chat">
+            <header class="chat-header">
+                <div>
+                    <h3>#<span id="currentRoom">general</span></h3>
+                    <div class="sub" id="roomSub">Not joined</div>
+                </div>
+                <div class="room-actions">
+                    <button id="joinButton" class="btn btn-ghost btn-sm" type="button">Join</button>
+                    <button id="leaveButton" class="btn btn-ghost btn-sm" type="button">Leave</button>
+                </div>
+            </header>
+
+            <section id="messages" class="messages">
+                <div class="system-message">Paste a token and click Connect to start.</div>
+            </section>
+
+            <div id="typingIndicator" class="typing-indicator"></div>
+            <form id="messageForm" class="message-form">
+                <input type="text" id="messageInput" class="message-input" placeholder="Write a message..."
+                    autocomplete="off" disabled>
+                <button type="submit" id="sendButton" class="send-btn" disabled>➤</button>
+            </form>
+        </main>
+    </div>
+
+    <script src="http://localhost:3100/socket.io/socket.io.js"></script>
+    <script>
+        requireAuth();
+
+        let socket = null;
+        let currentUserId = null;
+        let currentRoomId = null;      // was: currentRoom (now holds a real UUID, not a slug)
+        let currentRoomName = null;    // new: separate display name, since currentRoomId is now a UUID
+        let isJoined = false;
+        let pendingRoomId = null;      // was: pendingRoom
+        let pendingRoomName = null;    // new: needed since we display names, not IDs
+        let onlineUsersMap = {};
+        let pendingRequestsMap = {};
+        let typingTimeout = null;
+        let isCurrentlyTyping = false;
+        let typingUsersMap = {};
+        let isHandlingTokenExpiry = false;
+
+        const connectionStatus = document.getElementById("connectionStatus");
+        const statusText = connectionStatus.querySelector(".status-text");
+        const currentRoomElement = document.getElementById("currentRoom");
+        const roomSub = document.getElementById("roomSub");
+        const messagesContainer = document.getElementById("messages");
+        const messageInput = document.getElementById("messageInput");
+        const joinButton = document.getElementById("joinButton");
+        const leaveButton = document.getElementById("leaveButton");
+        const sendButton = document.getElementById("sendButton");
+        const messageForm = document.getElementById("messageForm");
+        const typingIndicator = document.getElementById("typingIndicator");
+        const SOCKET_PORT = new URLSearchParams(window.location.search).get('port') || '3100';
+
+        messageInput.addEventListener("input", () => {
+            if (!socket || !isJoined) return;
+
+            if (!isCurrentlyTyping) {
+                isCurrentlyTyping = true;
+                socket.emit("typing_start", { roomId: currentRoomId });
+            }
+
+            clearTimeout(typingTimeout);
+            typingTimeout = setTimeout(() => {
+                isCurrentlyTyping = false;
+                socket.emit("typing_stop", { roomId: currentRoomId });
+            }, 3000);
+        });
+
+        function renderTypingIndicator() {
+            const names = Object.values(typingUsersMap);
+
+            if (names.length === 0) {
+                typingIndicator.textContent = "";
+            } else if (names.length === 1) {
+                typingIndicator.textContent = `${names[0]} is typing...`;
+            } else if (names.length === 2) {
+                typingIndicator.textContent = `${names[0]} and ${names[1]} are typing...`;
+            } else {
+                typingIndicator.textContent = `${names[0]}, ${names[1]} and ${names.length - 2} others are typing...`;
+            }
+        }
+        // ---- Connection lifecycle ----
+
+        function decodeJwtPayload(token) {
+            try {
+                const base64Url = token.split(".")[1];
+                const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+                const json = decodeURIComponent(
+                    atob(base64)
+                        .split("")
+                        .map(c => "%" + c.charCodeAt(0).toString(16).padStart(2, "0"))
+                        .join("")
+                );
+                return JSON.parse(json);
+            } catch {
+                return null;
+            }
+        }
+
+        function connectSocket() {
+            const token = getToken();
+            const payload = decodeJwtPayload(token);
+
+            if (!payload || !payload.id) {
+                addSystemMessage("Could not read a valid user id from your session. Please sign in again.", true);
+                return;
+            }
+
+            currentUserId = payload.id; // FIXED: was payload.sub (your JWT payload's real key is "id")
+
+
+
+            socket = io(`http://localhost:${SOCKET_PORT}`, {
+                auth: { token },
+            });
+
+            wireSocketEvents();
+        }
+
+        function setStatus(text, mode) {
+            statusText.textContent = text;
+            connectionStatus.className = "status-pill" + (mode ? " " + mode : "");
+        }
+
+        function wireSocketEvents() {
+            socket.on("connect", () => {
+                setStatus("Connected", "connected");
+                addSystemMessage("Connected to server.");
+                socket.emit("register_presence");
+                loadRooms();
+                loadMyPendingRequests();
+            });
+
+            socket.on("auth_error", (data) => {
+                setStatus("Auth failed", "error");
+                addSystemMessage(`Authentication failed: ${data.message}`, true);
+            });
+
+            socket.on("connect_error", (err) => {
+                setStatus("Connection error", "error");
+                addSystemMessage(`Connection error: ${err.message}`, true);
+            });
+
+            socket.on("disconnect", () => {
+                isJoined = false;
+                pendingRoomId = null;
+                pendingRoomName = null;
+                setStatus("Disconnected");
+                roomSub.textContent = "Not joined";
+                addSystemMessage("Disconnected.");
+                updateButtons();
+                onlineUsersMap = {};
+                renderOnlineUsers();
+
+                typingUsersMap = {};
+                renderTypingIndicator();
+            });
+
+            socket.on("room_joined", (data) => {
+                isJoined = true;
+                currentRoomId = data.roomId;
+                // currentRoomName was already set in handleRoomClick before emitting join_room —
+                // don't overwrite it with the raw ID here.
+                currentRoomElement.textContent = currentRoomName || currentRoomId;
+                roomSub.textContent = "Joined";
+                updateActiveRoom();
+                clearMessages();
+                addSystemMessage(`You joined #${currentRoomName || currentRoomId}`);
+                updateButtons();
+
+                typingUsersMap = {};
+                renderTypingIndicator();
+
+                socket.emit("get_history", { roomId: data.roomId });
+            });
+
+            socket.on("room_left", (data) => {
+                isJoined = false;
+                roomSub.textContent = "Not joined";
+                addSystemMessage(`You left #${currentRoomName || data.roomId}`);
+                updateButtons();
+
+                if (pendingRoomId) {
+                    currentRoomId = pendingRoomId;
+                    currentRoomName = pendingRoomName;
+                    pendingRoomId = null;
+                    pendingRoomName = null;
+                    currentRoomElement.textContent = currentRoomName;
+                    updateActiveRoom();
+                    clearMessages();
+                    joinCurrentRoom();
+                }
+            });
+
+            socket.on("new_message", (data) => {
+                if (data.roomId !== currentRoomId) return;
+                addMessage(data);
+            });
+
+            socket.on("online_users", (data) => {
+                data.users.forEach(({ userId, name }) => {
+                    onlineUsersMap[userId] = name;
+                });
+                renderOnlineUsers();
+            });
+
+            socket.on("user_online", (data) => {
+                onlineUsersMap[data.userId] = data.name;
+                renderOnlineUsers();
+            });
+
+            socket.on("user_offline", (data) => {
+                delete onlineUsersMap[data.userId];
+                renderOnlineUsers();
+            });
+
+            socket.on("token_expired", () => {
+                handleTokenExpired();
+            });
+
+            socket.on("join_request_submitted", (data) => {
+                addSystemMessage(data.message);
+                loadRooms(); // refresh badges — this room now shows "(pending)"
+            });
+
+            socket.on("join_request_pending", (data) => {
+                pendingRequestsMap[data.requestId] = {
+                    roomId: data.roomId,
+                    roomName: data.roomName,
+                    requesterName: data.requesterName,
+                };
+                renderPendingRequests();
+                addSystemMessage(`${data.requesterName} wants to join a room you admin.`);
+            });
+
+            socket.on("join_request_approved", (data) => {
+                addSystemMessage(`Your request to join was approved! Joining now...`);
+                loadRooms(); // refresh badges — this room now shows as a real member
+                socket.emit("join_room", { roomId: data.roomId });
+            });
+
+            socket.on("join_request_rejected", (data) => {
+                addSystemMessage(`Your request to join was rejected.`, true);
+                loadRooms();
+            });
+
+            socket.on("message_history", (data) => {
+                if (data.roomId !== currentRoomId) return;
+                data.messages.forEach(msg => addMessage(msg));
+            });
+
+            socket.on("get_history_error", (data) => {
+                addSystemMessage(`Could not load message history: ${data.message}`, true);
+            });
+
+            socket.on("user_typing", (data) => {
+                typingUsersMap[data.userId] = data.userName;
+                renderTypingIndicator();
+            });
+
+            socket.on("user_stopped_typing", (data) => {
+                delete typingUsersMap[data.userId];
+                renderTypingIndicator();
+            });
+        }
+
+        function joinCurrentRoom() {
+            if (!socket || !socket.connected || isJoined || !currentRoomId) return;
+            socket.emit("join_room", { roomId: currentRoomId });
+        }
+
+        // ---- Dynamic room list (from the database) ----
+
+        async function loadRooms() {
+            try {
+                const res = await fetch('http://localhost:3100/rooms/discover', {
+                    method: 'GET',
+                    credentials: 'include',
+                    // sends the accessToken cookie automatically, matching AuthGuard
+                });
+
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}));
+                    addSystemMessage('Could not load rooms: ' + (err.message || res.statusText), true);
+                    return null;
+                }
+
+                const rooms = await res.json();
+                renderRoomList(rooms);
+            } catch (err) {
+                addSystemMessage('Could not load rooms: ' + err.message, true);
+            }
+        }
+
+        function renderRoomList(rooms) {
+            const container = document.getElementById('rooms');
+            container.innerHTML = '';
+
+            rooms.forEach(room => {
+                const el = document.createElement('div');
+                el.classList.add('room');
+                el.dataset.roomId = room.id;
+
+                if (room.id === currentRoomId) el.classList.add('active');
+
+                let statusBadge = '';
+                if (room.membershipStatus === 'pending') {
+                    statusBadge = ' <span style="opacity:.6;font-size:11px;">(pending)</span>';
+                } else if (room.membershipStatus === 'none') {
+                    statusBadge = ' <span style="opacity:.6;font-size:11px;">(join)</span>';
+                }
+
+                el.innerHTML = `<span class="hash">#</span>${room.name}${statusBadge}`;
+
+                el.addEventListener('click', () => handleRoomClick(room));
+                container.appendChild(el);
+            });
+        }
+
+        function handleRoomClick(room) {
+            if (!socket || !socket.connected) return;
+
+            if (room.membershipStatus === 'pending') {
+                addSystemMessage(`Your request to join #${room.name} is still pending approval.`);
+                return;
+            }
+
+            if (isJoined && room.id !== currentRoomId) {
+                pendingRoomId = room.id;
+                pendingRoomName = room.name;
+                socket.emit("leave_room", { roomId: currentRoomId });
+                return;
+            }
+
+            currentRoomId = room.id;
+            currentRoomName = room.name;
+            currentRoomElement.textContent = room.name;
+            clearMessages();
+            joinCurrentRoom();
+        }
+
+        async function loadMyPendingRequests() {
+            try {
+                const roomsRes = await fetch('http://localhost:3100/rooms/discover', {
+                    credentials: 'include',
+                });
+                const rooms = await roomsRes.json();
+
+                for (const room of rooms) {
+                    if (room.role !== 'admin') continue; // adjust field name to whatever your discover endpoint actually returns
+
+                    const reqRes = await fetch(`http://localhost:3100/rooms/${room.id}/pending-request`, {
+                        credentials: 'include',
+                    });
+
+                    if (!reqRes.ok) continue;
+
+                    const requests = await reqRes.json();
+                    requests.forEach(req => {
+                        pendingRequestsMap[req.id] = {
+                            roomId: room.id,
+                            roomName: room.name,
+                            requesterName: req.user?.firstName || 'Someone',
+                        };
+                    });
+                }
+
+                renderPendingRequests();
+            } catch (err) {
+                console.error('Could not load pending requests:', err);
+            }
+        }
+
+        function renderPendingRequests() {
+            const container = document.getElementById('pendingRequests');
+            const entries = Object.entries(pendingRequestsMap);
+
+            if (entries.length === 0) {
+                container.innerHTML = `<div class="empty-hint">No pending requests</div>`;
+                return;
+            }
+
+            container.innerHTML = '';
+            entries.forEach(([requestId, req]) => {
+                const item = document.createElement('div');
+                item.classList.add('pending-item');
+                item.innerHTML = `
+                    <div class="req-text"><strong>${req.requesterName}</strong> wants to join <strong>#${req.roomName}</strong></div>
+                    <div class="req-actions">
+                        <button class="btn-approve" data-action="approve-request" data-request-id="${requestId}">Approve</button>
+                        <button class="btn-reject" data-action="reject-request" data-request-id="${requestId}">Reject</button>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+
+            // Wire up the buttons just created
+            container.querySelectorAll('button[data-action]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const requestId = btn.dataset.requestId;
+                    const action = btn.dataset.action;
+                    const roomId = pendingRequestsMap[requestId]?.roomId;
+                    reviewRequest(roomId, requestId, action, btn);
+                });
+            });
+        }
+
+        async function reviewRequest(roomId, requestId, action, buttonEl) {
+            // Disable both buttons in this item while the request is in flight
+            const item = buttonEl.closest('.pending-item');
+            item.querySelectorAll('button').forEach(b => b.disabled = true);
+
+            try {
+                const res = await fetch(
+                    `http://localhost:3100/rooms/${roomId}/join-request/${requestId}/${action}`,
+                    {
+                        method: 'POST',
+                        credentials: 'include',
+                    }
+                );
+
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}));
+                    addSystemMessage(`Could not ${action} request: ${err.message || res.statusText}`, true);
+                    item.querySelectorAll('button').forEach(b => b.disabled = false);
+                    return;
+                }
+
+                addSystemMessage(`Request ${action}d.`);
+                delete pendingRequestsMap[requestId];
+                renderPendingRequests();
+            } catch (err) {
+                addSystemMessage(`Could not ${action} request: ${err.message}`, true);
+                item.querySelectorAll('button').forEach(b => b.disabled = false);
+            }
+        }
+
+        joinButton.addEventListener("click", () => {
+            joinCurrentRoom();
+        });
+
+        leaveButton.addEventListener("click", () => {
+            if (!socket || !isJoined) return;
+            socket.emit("leave_room", { roomId: currentRoomId });
+        });
+
+        function updateActiveRoom() {
+            document.querySelectorAll(".room").forEach(room => {
+                room.classList.remove("active");
+            });
+
+            // FIXED: was matching data-room, elements now use data-room-id
+            const activeRoom = document.querySelector(`.room[data-room-id="${currentRoomId}"]`);
+
+            if (activeRoom) {
+                activeRoom.classList.add("active");
+            }
+        }
+
+        // ---- Token refresh ----
+
+        async function refreshAccessToken() {
+            try {
+                const res = await fetch('http://localhost:3100/auth/refresh', {
+                    method: 'GET',
+                    credentials: 'include',
+                });
+
+                if (!res.ok) {
+                    return null;
+                }
+
+                const data = await res.json();
+                const newToken = data.accessToken;
+                setToken(newToken, getUserName());
+                return newToken;
+            } catch {
+                return null;
+            }
+        }
+
+        async function handleTokenExpired() {
+            if (isHandlingTokenExpiry) return;
+            isHandlingTokenExpiry = true;
+            addSystemMessage("Session refreshing...", false);
+
+            if (socket) {
+                socket.removeAllListeners();
+                socket.disconnect();
+            }
+
+            const newToken = await refreshAccessToken();
+
+            if (!newToken) {
+                addSystemMessage("Session expired. Please sign in again.", true);
+                isHandlingTokenExpiry = false;
+                setTimeout(() => signOut(), 1500);
+                return;
+            }
+
+            currentUserId = decodeJwtPayload(newToken)?.id;
+
+            socket = io(`http://localhost:${SOCKET_PORT}`, {
+                auth: { token: newToken },
+            });
+
+            wireSocketEvents();
+            isHandlingTokenExpiry = false;
+        }
+
+        // ---- Online users ----
+
+        function renderOnlineUsers() {
+            const container = document.getElementById('onlineUsers');
+            const entries = Object.entries(onlineUsersMap).filter(([id]) => id !== currentUserId);
+
+            if (entries.length === 0) {
+                container.innerHTML = `<div class="empty-hint">No one else online yet</div>`;
+                return;
+            }
+            container.innerHTML = '';
+            entries.forEach(([userId, name]) => {
+                const row = document.createElement('div');
+                row.classList.add("participant", "online");
+                row.innerHTML = `<span class="p-dot"></span><span>${name || userId}</span>`;
+                container.appendChild(row);
+            });
+        }
+
+        // ---- Messages ----
+
+        messageForm.addEventListener("submit", (event) => {
+            event.preventDefault();
+            sendMessage();
+        });
+
+        function sendMessage() {
+            if (!socket) return;
+
+            const message = messageInput.value.trim();
+
+            if (!message) return;
+
+            if (!isJoined) {
+                addSystemMessage("You must join the room first.", true);
+                return;
+            }
+
+            socket.emit("send_message", {
+                roomId: currentRoomId,
+                message: message
+            });
+
+            messageInput.value = "";
+            messageInput.focus();
+        }
+
+        function initial(name) {
+            return (name || "?").trim().charAt(0).toUpperCase();
+        }
+
+        function formatTime() {
+            return new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+        }
+
+        function sendMessage() {
+            if (!socket) return;
+
+            const message = messageInput.value.trim();
+
+            if (!message) return;
+
+            if (!isJoined) {
+                addSystemMessage("You must join the room first.", true);
+                return;
+            }
+
+            // Immediately clear typing state on send, don't wait for the 3s timeout
+            if (isCurrentlyTyping) {
+                isCurrentlyTyping = false;
+                clearTimeout(typingTimeout);
+                socket.emit("typing_stop", { roomId: currentRoomId });
+            }
+
+            socket.emit("send_message", {
+                roomId: currentRoomId,
+                message: message
+            });
+
+            messageInput.value = "";
+            messageInput.focus();
+        }
+
+        function addMessage(data) {
+
+            const isOwn = data.senderId === currentUserId;
+            const displayName = data.senderName || data.senderId;
+
+            const row = document.createElement("div");
+            row.classList.add("msg-row");
+            if (isOwn) row.classList.add("own");
+
+            const avatar = document.createElement("div");
+            avatar.classList.add("avatar");
+            avatar.textContent = initial(displayName);
+
+            const wrap = document.createElement("div");
+            wrap.classList.add("bubble-wrap");
+
+            const sender = document.createElement("div");
+            sender.classList.add("sender-name");
+            sender.textContent = displayName;
+
+            const bubble = document.createElement("div");
+            bubble.classList.add("bubble");
+            bubble.textContent = data.message;
+
+            const time = document.createElement("div");
+            time.classList.add("msg-time");
+            time.textContent = formatTime();
+
+            wrap.appendChild(sender);
+            wrap.appendChild(bubble);
+            wrap.appendChild(time);
+            row.appendChild(avatar);
+            row.appendChild(wrap);
+            messagesContainer.appendChild(row);
+
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function addSystemMessage(message, isError) {
+            const element = document.createElement("div");
+            element.classList.add("system-message");
+            if (isError) element.classList.add("error");
+            element.textContent = message;
+            messagesContainer.appendChild(element);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function clearMessages() {
+            messagesContainer.innerHTML = "";
+        }
+
+        function updateButtons() {
+            const connected = !!(socket && socket.connected);
+            joinButton.disabled = isJoined || !connected;
+            leaveButton.disabled = !isJoined;
+            messageInput.disabled = !isJoined;
+            sendButton.disabled = !isJoined;
+        }
+
+        updateButtons();
+        connectSocket();
+    </script>
+</body>
+
+</html>

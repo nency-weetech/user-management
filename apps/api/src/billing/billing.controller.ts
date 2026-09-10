@@ -13,6 +13,7 @@ import { StripeService } from './stripe.service';
 import {
   PaymentRepository,
   PaymentStatus,
+  PLAN_CONFIG,
   User,
   UserPlanEnum,
   UserPlanRepository,
@@ -50,23 +51,35 @@ export class BillingController {
       return { message: 'You already have the upgraded version.' };
     }
 
-    const session = await this.stripeService.createCheckoutSession(
+    const config = PLAN_CONFIG[plan];
+    if (!config) {
+      throw new BadRequestException('Invalid plan');
+    }
+
+    const amountInPaise = config.price * 100;
+
+    const paymentIntent = await this.stripeService.createPaymentIntent(
+      amountInPaise,
+      'inr',
       user.id,
-      user.email,
       plan,
     );
     await this.paymentRepository.createPayment(
       user.id,
       plan,
-      session.id,
-      session.amount_total,
-      session.currency,
+      paymentIntent.id,
+      amountInPaise,
+      'inr',
     );
-    return { checkoutUrl: session.url };
+    return {
+      clientSecret: paymentIntent.client_secret,
+      paymentIntentId: paymentIntent.id,
+    };
   }
 
   @Post('webhook')
   async webhook(@Req() request: RawBodyRequest<Request>) {
+      console.log('=== WEBHOOK HIT ===');
     const signature = request.headers['stripe-signature'] as string;
     let event: any;
 
@@ -78,11 +91,11 @@ export class BillingController {
       );
     }
 
-    if (event.type === 'checkout.session.expired') {
-      const session = event.data.object as any;
-      const sessionId = session.id;
+    if (event.type === 'payment_intent.payment_failed') {
+      const paymentIntent = event.data.object as any;
+      const paymentIntentId = paymentIntent.id;
 
-      await this.billingQueueService.queuePaymentUpdate('expired', sessionId);
+      await this.billingQueueService.queuePaymentUpdate('failed', paymentIntentId);
       // const payment = await this.paymentRepository.findBySessionId(sessionId);
       // if (!payment) {
       //   return { received: true };
@@ -95,29 +108,28 @@ export class BillingController {
       // await this.paymentRepository.markExpired(sessionId);
     }
 
-    if (event.type === 'checkout.session.completed') {
-      const session = event.data.object as any;
-      const sessionId = session.id;
-      const userId = session.metadata.userId;
-      const plan = session.metadata.plan;
-      const paymentIntentId = session.payment_intent;
+    if (event.type === 'payment_intent.succeeded') {
+      console.log('Event type received:', event.type);
+      const paymentIntent = event.data.object as any;
+      const paymentIntentId = paymentIntent.id;
+      const userId = paymentIntent.metadata.userId;
+      const plan = paymentIntent.metadata.plan;
 
-      const { hostedInvoiceUrl, invoicePDF } =
-        await this.stripeService.getInvoiceUrl(session.invoice);
+      //const { hostedInvoiceUrl, invoicePDF } = await this.stripeService.getInvoiceUrl(session.invoice);
       await this.billingQueueService.queuePaymentUpdate(
         'completed',
-        sessionId,
         userId,
-        plan,
         paymentIntentId,
+        plan,
       );
+      
 
-      const user = await this.userRepository.findOneById(userId);
-      await this.mailService.sendInvoice(
-        user.email,
-        hostedInvoiceUrl,
-        invoicePDF,
-      );
+      //const user = await this.userRepository.findOneById(userId);
+      // await this.mailService.sendInvoice(
+      //   user.email,
+      //   hostedInvoiceUrl,
+      //   invoicePDF,
+      // );
       // const payment = await this.paymentRepository.findBySessionId(sessionId);
       // if (!payment) {
       //   return { received: true };
@@ -153,14 +165,26 @@ export class BillingController {
       plan,
     );
 
-    return { 
+    return {
       data: payments,
       meta: {
         total,
         page: Number(page),
         limit: Number(limit),
-        totalPages : Math.ceil(total / Number(limit))
-      }
-    }
+        totalPages: Math.ceil(total / Number(limit)),
+      },
+    };
+  }
+
+  @Get('test')
+  async testroute() {
+    const intent = await this.stripeService.createPaymentIntent(
+      9900,
+      'inr',
+      'test-user-id',
+      UserPlanEnum.PRO,
+    );
+    console.log('clinet_seceret:', intent.client_secret);
+    console.log('payment intent:', intent.id);
   }
 }

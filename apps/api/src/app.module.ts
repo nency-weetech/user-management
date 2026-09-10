@@ -30,6 +30,9 @@ import { LoggingInterceptor } from './interceptors/logging.interceptor';
 import { AllExceptionFilter } from './filters/all-exceptions.filter';
 import path from 'path';
 import { BillingModule } from './billing/billing.module';
+import { ChatModule } from './chat/chat.module';
+import { RoomsModule } from './rooms/rooms.module';
+import {EventEmitterModule} from '@nestjs/event-emitter'
 const disableThrottler =
   process.env.NODE_ENV === 'test' && process.env.DISABLE_THROTTLER !== 'false';
 
@@ -75,6 +78,9 @@ const disableThrottler =
         expiresIn: '1h',
       },
     }),
+
+    EventEmitterModule.forRoot(),
+    ChatModule,
     BillingModule,
     LoggerModule,
     UsersModule,
@@ -85,6 +91,7 @@ const disableThrottler =
     ActivityLogModule,
     SoftDeleteModule,
     NewsModule,
+    RoomsModule,
   ],
   controllers: [AppController],
   providers: [
