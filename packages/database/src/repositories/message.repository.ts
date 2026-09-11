@@ -19,11 +19,17 @@ export class MessageRepository
     senderId: string,
     roomId: string,
     content: string,
+    filekey?: string,
+    filename?: string,
+    filetype?: string,
   ): Promise<Message> {
     const message = this.messageRepo.create({
       sender_id: senderId,
       room_id: roomId,
       content,
+      file_key: filekey,
+      file_name: filename,
+      file_type : filetype,
     });
     return this.messageRepo.save(message);
   }

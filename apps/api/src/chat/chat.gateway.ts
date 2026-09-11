@@ -23,6 +23,7 @@ import { RoomsService } from '../rooms/rooms.service';
 import { OnEvent } from '@nestjs/event-emitter';
 import { ChatService } from './chat.service';
 import Redis from 'ioredis';
+import { MinioService } from '../minio/minio.service';
 
 @WebSocketGateway({
   cors: {
@@ -40,6 +41,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private readonly chatService: ChatService,
     private readonly roomRepository: RoomRepository,
     private readonly roomsService: RoomsService,
+    private readonly minioService: MinioService,
     @Inject('REDIS_CLIENT') private readonly redis: Redis,
   ) {}
   private readonly logger = new Logger(ChatGateway.name);
@@ -163,7 +165,14 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('send_message')
   async handleMessage(
-    @MessageBody() data: { roomId: string; message: string },
+    @MessageBody()
+    data: {
+      roomId: string;
+      message?: string;
+      fileKey?: string;
+      fileName?: string;
+      fileType?: string;
+    },
     @ConnectedSocket() client: Socket,
   ) {
     try {
@@ -171,21 +180,30 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         client.data.userId,
         data.roomId,
         data.message,
+        data.fileKey,
+        data.fileName,
+        data.fileType,
       );
+
+      let fileUrl = null;
+      if (saved.file_key) {
+        fileUrl = await this.minioService.getDownloadUrl(saved.file_key);
+      }
+
       const messageData = {
         id: saved.id,
         senderId: saved.sender_id,
         senderName: client.data.firstName,
         roomId: saved.room_id,
         message: saved.content,
+        fileUrl,
+        fileName: saved.file_name,
+        fileType: saved.file_type,
         created_at: saved.created_at,
       };
 
       this.server.to(data.roomId).emit('new_message', messageData);
     } catch (error) {
-      this.logger.warn(
-        `send_message failed for user ${client.data.userId}: ${error.message}`,
-      );
       client.emit('send_message_error', {
         roomId: data.roomId,
         message: error.message,
@@ -207,15 +225,21 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       );
       client.emit('message_history', {
         roomId: data.roomId,
-        messages: messages.map((m) => ({
-          id: m.id,
-          senderId: m.sender_id,
-          senderName: m.sender?.firstName ?? 'Unkonwn',
-          roomId: m.room_id,
-          room: m.room,
-          message: m.content,
-          createdAt: m.created_at,
-        })),
+        messages: await Promise.all(
+          messages.map(async (m) => ({
+            id: m.id,
+            senderId: m.sender_id,
+            senderName: m.sender?.firstName ?? 'Unknown',
+            roomId: m.room_id,
+            message: m.content,
+            fileUrl: m.file_key
+              ? await this.minioService.getDownloadUrl(m.file_key)
+              : null,
+            fileName: m.file_name,
+            fileType: m.file_type,
+            createdAt: m.created_at,
+          })),
+        ),
       });
     } catch (error) {
       console.log(error);
@@ -245,6 +269,34 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     client.to(data.roomId).emit('user_stopped_typing', {
       userId: client.data.userId,
     });
+  }
+
+  @SubscribeMessage('request_upload_url')
+  async handleRequestUploadUrl(
+    @MessageBody() data: { roomId: string; filename: string },
+    @ConnectedSocket() client: Socket,
+  ) {
+    try {
+      const userId = client.data.userId;
+      // reuse the same membership check pattern as send_message
+      const membership = await this.roomMembersRepository.findByUserAndRoom(
+        userId,
+        data.roomId,
+      );
+      if (!membership) {
+        throw new Error('You are not a member of this room');
+      }
+
+      const fileKey = await this.minioService.generateFileKey(
+        data.roomId,
+        data.filename,
+      );
+      const uploadUrl = await this.minioService.getUplaodUrl(fileKey);
+
+      client.emit('upload_url_ready', { fileKey, uploadUrl });
+    } catch (error) {
+      client.emit('upload_url_error', { message: error.message });
+    }
   }
 
   @OnEvent('room.join_request.created')

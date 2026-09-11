@@ -35,6 +35,15 @@ export class Message {
   @JoinColumn({ name: 'room_id' })
   room!: Room;
 
+  @Column({type: 'varchar', nullable: true})
+  file_key!: string;
+
+  @Column({type: 'varchar', nullable: true})
+  file_name!: string;
+
+  @Column({type: 'varchar', nullable: true})
+  file_type!: string;
+
   @CreateDateColumn({
     type: 'timestamp',
   })

@@ -366,6 +366,7 @@
                 });
 
                 const data = await res.json();
+                console.log(data)
 
                 if (!res.ok) {
                     errorEl.textContent = data.message || 'Login failed.';
@@ -373,11 +374,12 @@
                 }
 
                 // Adjust these keys to match your actual login response shape.
-                const token = data.token || data.accessToken;
-                const payload = decodeJwtPayload(token);
+                const accessToken = data.accessToken;
+                const refreshToken = data.refreshToken
+                const payload = decodeJwtPayload(accessToken);
                 const userName = data.firstName || payload?.firstName || '';
 
-                setToken(token, userName);
+                setToken(accessToken, refreshToken, userName);
                 render();
             } catch (err) {
                 errorEl.textContent = 'Something went wrong: ' + err.message;

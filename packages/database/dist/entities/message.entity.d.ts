@@ -7,5 +7,8 @@ export declare class Message {
     sender: User;
     room_id: string;
     room: Room;
+    file_key: string;
+    file_name: string;
+    file_type: string;
     created_at: Date;
 }

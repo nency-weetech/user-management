@@ -20,6 +20,9 @@ let Message = class Message {
     sender;
     room_id;
     room;
+    file_key;
+    file_name;
+    file_type;
     created_at;
 };
 exports.Message = Message;
@@ -49,6 +52,18 @@ __decorate([
     (0, typeorm_1.JoinColumn)({ name: 'room_id' }),
     __metadata("design:type", room_entity_1.Room)
 ], Message.prototype, "room", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'varchar', nullable: true }),
+    __metadata("design:type", String)
+], Message.prototype, "file_key", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'varchar', nullable: true }),
+    __metadata("design:type", String)
+], Message.prototype, "file_name", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'varchar', nullable: true }),
+    __metadata("design:type", String)
+], Message.prototype, "file_type", void 0);
 __decorate([
     (0, typeorm_1.CreateDateColumn)({
         type: 'timestamp',

@@ -5,6 +5,6 @@ import { IMessageRepo } from '../interfaces/message.interface';
 export declare class MessageRepository extends BaseAbstractRepostitory<Message> implements IMessageRepo {
     private readonly messageRepo;
     constructor(messageRepo: Repository<Message>);
-    createMessage(senderId: string, roomId: string, content: string): Promise<Message>;
+    createMessage(senderId: string, roomId: string, content: string, filekey?: string, filename?: string, filetype?: string): Promise<Message>;
     findByRoom(roomId: string, limit?: number, before?: Date, after?: Date): Promise<Message[]>;
 }

@@ -476,6 +476,30 @@
             display: none;
         }
 
+        .chat-image {
+            max-width: 240px;
+            max-height: 240px;
+            border-radius: 12px;
+            display: block;
+            margin-bottom: 2px;
+            cursor: pointer;
+        }
+
+        .chat-file-link {
+            display: inline-block;
+            background: #f0f0f2;
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 13px;
+            color: var(--text-dark);
+            text-decoration: none;
+            margin-bottom: 2px;
+        }
+
+        .chat-file-link:hover {
+            background: #e4e4e7;
+        }
+
         /* Messages */
         .messages {
             flex: 1;
@@ -519,6 +543,49 @@
 
         .msg-row.own .avatar {
             display: none
+        }
+
+        .emoji-picker-wrap {
+            position: relative;
+        }
+
+        .emoji-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            padding: 0;
+            transition: background .15s, color .15s;
+        }
+
+        .emoji-btn:hover:not(:disabled) {
+            background: #f0f0f2;
+            color: var(--accent);
+        }
+
+        .emoji-btn:disabled {
+            opacity: .4;
+            cursor: not-allowed;
+        }
+
+        emoji-picker.emoji-picker-popup {
+            display: none;
+            position: absolute;
+            bottom: 48px;
+            left: 0;
+            z-index: 20;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, .12);
+            border-radius: 12px;
+        }
+
+        emoji-picker.emoji-picker-popup.open {
+            display: block;
         }
 
         .avatar {
@@ -763,6 +830,7 @@
     </style>
 </head>
 <script src="auth.js"></script>
+<script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@1/index.js"></script>
 
 <body>
     <div class="top-nav">
@@ -819,7 +887,28 @@
 
             <div id="typingIndicator" class="typing-indicator"></div>
             <form id="messageForm" class="message-form">
-                <input type="text" id="messageInput" class="message-input" placeholder="Write a message..."
+                <div class="emoji-picker-wrap">
+                    <button type="button" id="emojiButton" class="emoji-btn" aria-label="Add emoji">
+                        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor"
+                            stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="9" />
+                            <path d="M8.5 14.5c.8 1.2 2 2 3.5 2s2.7-.8 3.5-2" />
+                            <circle cx="8.7" cy="9.5" r="0.9" fill="currentColor" stroke="none" />
+                            <circle cx="15.3" cy="9.5" r="0.9" fill="currentColor" stroke="none" />
+                        </svg>
+                    </button>
+                    <emoji-picker id="emojiPicker" class="emoji-picker-popup"></emoji-picker>
+                </div>
+
+                <button type="button" id="attachButton" class="emoji-btn" aria-label="Attach file">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path
+                            d="M21 12.5l-8.5 8.5a4.5 4.5 0 01-6.36-6.36l9.19-9.19a3 3 0 014.24 4.24L10.4 18.36a1.5 1.5 0 01-2.12-2.12l8.49-8.49" />
+                    </svg>
+                </button>
+                <input type="file" id="fileInput" style="display: none;" accept="image/*,.pdf,.doc,.docx">
+                <input type="text" id="messageInput" class="message-input" placeholder="Type a message..."
                     autocomplete="off" disabled>
                 <button type="submit" id="sendButton" class="send-btn" disabled>➤</button>
             </form>
@@ -855,6 +944,10 @@
         const sendButton = document.getElementById("sendButton");
         const messageForm = document.getElementById("messageForm");
         const typingIndicator = document.getElementById("typingIndicator");
+
+        const emojiButton = document.getElementById("emojiButton");
+        const emojiPicker = document.getElementById("emojiPicker");
+
         const SOCKET_PORT = new URLSearchParams(window.location.search).get('port') || '3100';
 
         messageInput.addEventListener("input", () => {
@@ -913,8 +1006,6 @@
             }
 
             currentUserId = payload.id; // FIXED: was payload.sub (your JWT payload's real key is "id")
-
-
 
             socket = io(`http://localhost:${SOCKET_PORT}`, {
                 auth: { token },
@@ -1068,6 +1159,9 @@
                 delete typingUsersMap[data.userId];
                 renderTypingIndicator();
             });
+            socket.on("upload_url_error", (data) => {
+                addSystemMessage("Could not get upload permission: " + data.message, true);
+            });
         }
 
         function joinCurrentRoom() {
@@ -1077,12 +1171,34 @@
 
         // ---- Dynamic room list (from the database) ----
 
+        async function fetchWithAuth(url, options = {}) {
+            const res = await fetch(url, { ...options, credentials: 'include' });
+
+            if (res.status !== 401) {
+                return res;
+            }
+
+            const refreshRes = await fetch('http://localhost:3100/auth/refresh', {
+                method: 'GET',
+                credentials: 'include',
+            });
+
+            if (!refreshRes.ok) {
+                // Refresh token itself is invalid/expired too — genuinely logged out
+                addSystemMessage('Session expired. Please sign in again.', true);
+                setTimeout(() => signOut(), 1500);
+                throw new Error('Session expired');
+            }
+
+            // Refresh succeeded — the backend already re-set the accessToken cookie,
+            // so just retry the original request; the browser sends the new cookie automatically
+            return fetch(url, { ...options, credentials: 'include' });
+        }
+
         async function loadRooms() {
             try {
-                const res = await fetch('http://localhost:3100/rooms/discover', {
+                const res = await fetchWithAuth('http://localhost:3100/rooms/discover', {
                     method: 'GET',
-                    credentials: 'include',
-                    // sends the accessToken cookie automatically, matching AuthGuard
                 });
 
                 if (!res.ok) {
@@ -1147,8 +1263,8 @@
 
         async function loadMyPendingRequests() {
             try {
-                const roomsRes = await fetch('http://localhost:3100/rooms/discover', {
-                    credentials: 'include',
+                const roomsRes = await fetchWithAuth('http://localhost:3100/rooms/discover', {
+                    method: 'GET'
                 });
                 const rooms = await roomsRes.json();
 
@@ -1398,7 +1514,6 @@
         }
 
         function addMessage(data) {
-
             const isOwn = data.senderId === currentUserId;
             const displayName = data.senderName || data.senderId;
 
@@ -1416,22 +1531,41 @@
             const sender = document.createElement("div");
             sender.classList.add("sender-name");
             sender.textContent = displayName;
+            wrap.appendChild(sender);
 
-            const bubble = document.createElement("div");
-            bubble.classList.add("bubble");
-            bubble.textContent = data.message;
+            if (data.fileUrl) {
+                if (data.fileType && data.fileType.startsWith("image/")) {
+                    const img = document.createElement("img");
+                    img.src = data.fileUrl;
+                    img.classList.add("chat-image");
+                    img.alt = data.fileName || "attachment";
+                    wrap.appendChild(img);
+                } else {
+                    const link = document.createElement("a");
+                    link.href = data.fileUrl;
+                    link.target = "_blank";
+                    link.classList.add("chat-file-link");
+                    link.textContent = `📎 ${data.fileName || "Download file"}`;
+                    wrap.appendChild(link);
+                }
+            }
+
+            if (data.message) {
+                const bubble = document.createElement("div");
+                bubble.classList.add("bubble");
+                bubble.textContent = data.message;
+                bubble.addEventListener("click", () => showEmojiPicker(data.id));
+                wrap.appendChild(bubble);
+            }
 
             const time = document.createElement("div");
             time.classList.add("msg-time");
             time.textContent = formatTime();
-
-            wrap.appendChild(sender);
-            wrap.appendChild(bubble);
             wrap.appendChild(time);
+
             row.appendChild(avatar);
             row.appendChild(wrap);
             messagesContainer.appendChild(row);
-
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
 
@@ -1454,6 +1588,104 @@
             leaveButton.disabled = !isJoined;
             messageInput.disabled = !isJoined;
             sendButton.disabled = !isJoined;
+            attachButton.disabled = messageInput.disabled;
+        }
+
+        function insertEmoji(emoji) {
+            const start = messageInput.selectionStart;
+            const end = messageInput.selectionEnd;
+            const currentValue = messageInput.value;
+
+            messageInput.value = currentValue.slice(0, start) + emoji + currentValue.slice(end);
+
+            const newCursorPos = start + emoji.length;
+            messageInput.focus();
+            messageInput.setSelectionRange(newCursorPos, newCursorPos);
+        }
+
+        emojiButton.addEventListener("click", (event) => {
+            event.stopPropagation();
+            emojiPicker.classList.toggle("open");
+        });
+
+        // The component fires this custom event whenever the user picks an emoji
+        emojiPicker.addEventListener("emoji-click", (event) => {
+            insertEmoji(event.detail.unicode);
+        });
+
+        document.addEventListener("click", (event) => {
+            if (!emojiPicker.contains(event.target) && event.target !== emojiButton) {
+                emojiPicker.classList.remove("open");
+            }
+        });
+
+        const attachButton = document.getElementById("attachButton");
+        const fileInput = document.getElementById("fileInput");
+
+        attachButton.addEventListener("click", () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener("change", async () => {
+            const file = fileInput.files[0];
+            if (!file) return;
+
+            fileInput.value = ""; // reset so selecting the same file again still fires 'change'
+
+            if (!isJoined) {
+                addSystemMessage("You must join the room first.", true);
+                return;
+            }
+
+            await uploadAndSendFile(file);
+        });
+
+        async function uploadAndSendFile(file) {
+
+            // Step 1: ask the server for a signed upload URL
+            const uploadUrlPromise = waitForSocketEvent(socket, "upload_url_ready");
+            socket.emit("request_upload_url", { roomId: currentRoomId, filename: file.name });
+
+            let uploadInfo;
+            try {
+                uploadInfo = await Promise.race([
+                    uploadUrlPromise,
+                   // new Promise((_, reject) => setTimeout(() => reject(new Error("timed out")), 8000)),
+                ]);
+            } catch (err) {
+                addSystemMessage("Could not start upload: " + err.message, true);
+                return;
+            }
+
+            // Step 2: upload the actual file bytes DIRECTLY to MinIO — your backend never touches this
+            try {
+                const putRes = await fetch(uploadInfo.uploadUrl, {
+                    method: "PUT",
+                    body: file,
+                });
+                if (!putRes.ok) throw new Error("Upload failed: " + putRes.status);
+            } catch (err) {
+                addSystemMessage("File upload failed: " + err.message, true);
+                return;
+            }
+
+            // Step 3: tell the server the upload is done, so it can save a Message row referencing it
+            socket.emit("send_message", {
+                roomId: currentRoomId,
+                message: "", // no caption for now — could add a prompt() or input for this later
+                fileKey: uploadInfo.fileKey,
+                fileName: file.name,
+                fileType: file.type,
+            });
+        }
+
+        // Small one-off event waiter, same pattern as your test suite's waitForEvent —
+        // needed here since the emoji picker etc. use plain .addEventListener, but this
+        // needs a single Promise-based wait for one specific response.
+        function waitForSocketEvent(socketInstance, eventName) {
+            return new Promise((resolve) => {
+                socketInstance.once(eventName, resolve);
+            });
         }
 
         updateButtons();
