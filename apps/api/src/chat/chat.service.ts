@@ -35,15 +35,42 @@ export class ChatService {
     }
   }
 
-  async sendMessage(senderId: string, roomId: string, content: string) {
+  async sendMessage(
+    senderId: string,
+    roomId: string,
+    content?: string,
+    fileKey?: string,
+    fileName?: string,
+    fileType?: string,
+  ) {
     await this.assertIsMember(senderId, roomId);
-    return this.messageRepo.createMessage(senderId, roomId, content);
+
+    if (!content && !fileKey) {
+      throw new Error('Message must have text or an attachment');
+    }
+
+    return this.messageRepo.createMessage(
+      senderId,
+      roomId,
+      content,
+      fileKey,
+      fileName,
+      fileType,
+    );
   }
 
   async getHistory(userId: string, roomId: string, before?: Date) {
     await this.assertIsMember(userId, roomId);
-    const membership = await this.roomMemberRepo.findByUserAndRoom(userId, roomId)
-    const messages = await this.messageRepo.findByRoom(roomId, 50, before, membership.joined_at);
+    const membership = await this.roomMemberRepo.findByUserAndRoom(
+      userId,
+      roomId,
+    );
+    const messages = await this.messageRepo.findByRoom(
+      roomId,
+      50,
+      before,
+      membership.joined_at,
+    );
     return messages.reverse();
   }
 }

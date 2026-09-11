@@ -17,7 +17,7 @@ export class AuthGuard implements CanActivate {
     }
 
     if(typeof token === 'object' && token !== null){
-      token = token.token || token.accessToken || Object.values(token)[0]
+      token = token.accessToken || Object.values(token)[0]
     }
 
     if(typeof token !== 'string') {

@@ -5,9 +5,10 @@ import { Message, MessageRepository, RoomMember, RoomMemberRepository, User, Use
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { RoomsModule } from "../rooms/rooms.module";
 import { ChatService } from "./chat.service";
+import { MinioModule } from "../minio/minio.module";
 
 @Module({
-    imports: [TypeOrmModule.forFeature([User, Message]), RoomsModule],
+    imports: [TypeOrmModule.forFeature([User, Message]), RoomsModule, MinioModule],
     providers: [ChatService, ChatGateway,UserRepository, MessageRepository, WsGuard],
     exports: [ChatService]
 })

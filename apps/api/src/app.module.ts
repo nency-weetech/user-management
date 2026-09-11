@@ -33,6 +33,8 @@ import { BillingModule } from './billing/billing.module';
 import { ChatModule } from './chat/chat.module';
 import { RoomsModule } from './rooms/rooms.module';
 import {EventEmitterModule} from '@nestjs/event-emitter'
+import { MinioModule } from './minio/minio.module';
+
 const disableThrottler =
   process.env.NODE_ENV === 'test' && process.env.DISABLE_THROTTLER !== 'false';
 
@@ -92,6 +94,7 @@ const disableThrottler =
     SoftDeleteModule,
     NewsModule,
     RoomsModule,
+    MinioModule,
   ],
   controllers: [AppController],
   providers: [
@@ -103,9 +106,9 @@ const disableThrottler =
     // ? [{ provide: APP_GUARD, useClass: ThrottlerGuard }]
     // : []),
     // { provide: APP_GUARD, useClass: ThrottlerGuard },
-    ...(!disableThrottler
-      ? [{ provide: APP_GUARD, useClass: ThrottlerGuard }]
-      : []),
+    // ...(!disableThrottler
+    //   ? [{ provide: APP_GUARD, useClass: ThrottlerGuard }]
+    //   : []),
     SignUpCountService,
     SoftDeleteService,
     DeletionListenerService,

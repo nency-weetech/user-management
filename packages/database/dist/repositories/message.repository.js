@@ -23,11 +23,14 @@ let MessageRepository = class MessageRepository extends base_repository_1.BaseAb
         super(messageRepo);
         this.messageRepo = messageRepo;
     }
-    async createMessage(senderId, roomId, content) {
+    async createMessage(senderId, roomId, content, filekey, filename, filetype) {
         const message = this.messageRepo.create({
             sender_id: senderId,
             room_id: roomId,
             content,
+            file_key: filekey,
+            file_name: filename,
+            file_type: filetype,
         });
         return this.messageRepo.save(message);
     }
