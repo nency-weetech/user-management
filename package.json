@@ -32,6 +32,7 @@
     "typeorm": "npm run build && npx typeorm -d dist/config/data-source.js",
     "migration:generate": "npm run migration:generate --workspace=packages/database --",
     "migration:run": "npm run migration:run --workspace=packages/database",
+    "migration:run:test": "dotenv -e .env.test -- npm run migration:run --workspace=@myapp/database",
     "migration:revert": "npm run migration:revert --workspace=packages/database"
   },
   "dependencies": {

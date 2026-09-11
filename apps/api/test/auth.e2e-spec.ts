@@ -296,7 +296,7 @@ describe('Auth (e2e)', () => {
         .post('/auth/verify-otp')
         .send({ email: 'newuser@test.com', otp: '000000' })
 
-      expect(res.body.message).toMatch(/attempts remaining./);
+      expect(res.body.message.message).toMatch(/attempts remaining./);
     });
 
     it('should invalidate OTP after 3 failed attempts', async () => {
@@ -324,7 +324,7 @@ describe('Auth (e2e)', () => {
         .post('/auth/verify-otp')
         .send({ email: 'newuser@test.com', otp: '000000' })
 
-      expect(res.body.message).toMatch(/Too many failed attempts/);
+      expect(res.body.message.message).toMatch(/Too many failed attempts/);
     });
   });
 
