@@ -1,6 +1,5 @@
 // import * as dotenv from 'dotenv';
 // import { DataSourceOptions } from 'typeorm';
-// import { User } from '';
 
 // dotenv.config({ path: '.env.test' });
 
@@ -11,7 +10,7 @@
 //   username: process.env.DB_USER,
 //   password: process.env.DB_PASSWORD,
 //   database: process.env.DB_NAME,
-//   entities: [User], 
+//   entities: [], 
 //   synchronize: true, 
 //   logging: ['error'],
 // };

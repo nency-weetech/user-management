@@ -19,6 +19,7 @@ export class WsGuard implements CanActivate {
 
     if (!token) {
       this.logger.warn(`No token: ${client.id}`);
+      client.emit('auth_error', { message: 'No token provided' })
       return false;
     }
 

@@ -116,6 +116,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       client.emit('online_users', {
         users: onlineUsersWithNames,
       });
+      return;
     }
 
     try {
