@@ -932,6 +932,7 @@
         let isCurrentlyTyping = false;
         let typingUsersMap = {};
         let isHandlingTokenExpiry = false;
+        let presenceHeartbeat = null;
 
         const connectionStatus = document.getElementById("connectionStatus");
         const statusText = connectionStatus.querySelector(".status-text");
@@ -1026,6 +1027,13 @@
                 socket.emit("register_presence");
                 loadRooms();
                 loadMyPendingRequests();
+
+                if (presenceHeartbeat) clearInterval(presenceHeartbeat);
+                presenceHeartbeat = setInterval(() => {
+                    if (socket && socket.connected) {
+                        socket.emit("register_presence");
+                    }
+                }, 30000);
             });
 
             socket.on("auth_error", (data) => {
@@ -1039,6 +1047,11 @@
             });
 
             socket.on("disconnect", () => {
+                if (presenceHeartbeat) {
+                    clearInterval(presenceHeartbeat);
+                    presenceHeartbeat = null;
+                }
+                
                 isJoined = false;
                 pendingRoomId = null;
                 pendingRoomName = null;
@@ -1650,7 +1663,7 @@
             try {
                 uploadInfo = await Promise.race([
                     uploadUrlPromise,
-                   // new Promise((_, reject) => setTimeout(() => reject(new Error("timed out")), 8000)),
+                    // new Promise((_, reject) => setTimeout(() => reject(new Error("timed out")), 8000)),
                 ]);
             } catch (err) {
                 addSystemMessage("Could not start upload: " + err.message, true);
