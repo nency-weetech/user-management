@@ -57,10 +57,41 @@ export async function createTestRoom(
 ): Promise<{ id: string; name: string }> {
   const roomService = app.get<RoomsService>(RoomsService);
   const room = await roomService.createRoom({ name, description: '' }, ownerId);
-  return { id: room.id, name: room.name }
+  return { id: room.id, name: room.name };
 }
 
-export async function addTestMember(app:INestApplication, userId: string, roomId: string): Promise<void>{
-    const roomMemberRepo = app.get<RoomMemberRepository>(RoomMemberRepository);
-    roomMemberRepo.createAndSave({user_id: userId, room_id: roomId})
+export async function addTestMember(
+  app: INestApplication,
+  userId: string,
+  roomId: string,
+): Promise<void> {
+  const roomMemberRepo = app.get<RoomMemberRepository>(RoomMemberRepository);
+  roomMemberRepo.createAndSave({ user_id: userId, room_id: roomId });
+}
+
+export async function uploadTestFile(
+  socket: Socket,
+  roomId: string,
+  filename: string,
+  content: Buffer,
+): Promise<{ fileKey: string }> {
+  const uploadReadyPromise = waitForEvent<{
+    fileKey: string;
+    uploadUrl: string;
+  }>(socket, 'upload_url_ready');
+
+  socket.emit('request_upload_url', { roomId, filename });
+
+  const { fileKey, uploadUrl } = await uploadReadyPromise;
+
+  const putRes = await fetch(uploadUrl, {
+    method: 'PUT',
+    body: new Uint8Array(content),
+  });
+
+  if (!putRes.ok) {
+    throw new Error(`Test upload PUT failed: ${putRes.status}`);
+  }
+
+  return { fileKey };
 }
