@@ -81,6 +81,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const wasOfflinebefore = (await this.redis.scard(key)) === 0;
 
     await this.redis.sadd(key, client.id);
+    await this.redis.expire(key, 60)
     await this.redis.sadd('online_users', userId);
 
     if (wasOfflinebefore) {
