@@ -35,7 +35,6 @@ export class ViewLimitGuard implements CanActivate {
     }
 
     const dailyLimit = userPlan.plan === UserPlanEnum.PRO ? 100 : 20;
-    console.log(dailyLimit);
     const userUsage = await this.userUsageRepo.findByUserId(user.id);
     if (!userUsage) {
       throw new NotFoundException('User usage not found');

@@ -12,6 +12,7 @@ import {
 import { User } from './user.entity';
 import { Message } from './message.entity';
 import { RoomMember } from './roomMember.entity';
+import { RoomType } from '../enums/room-type-enum';
 
 @Entity('rooms')
 @Index('IDX_ROOMS_OWNER_ID', ['owner_id'])
@@ -49,4 +50,7 @@ export class Room {
 
   @OneToMany(() => RoomMember, (roomMember) => roomMember.room)
   members!: RoomMember[];
+
+  @Column({type: 'enum', enum: RoomType, default: RoomType.DIRECT})
+  type!: RoomType;
 }

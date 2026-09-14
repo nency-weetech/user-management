@@ -9,4 +9,5 @@ export declare class RoomMemberRepository extends BaseAbstractRepostitory<RoomMe
     findByUserAndRoom(userId: string, roomId: string): Promise<RoomMember | null>;
     findByRoomId(roomId: string): Promise<RoomMember[]>;
     findByAdminsForRoom(roomId: string): Promise<RoomMember[]>;
+    findOtherMemberInRoom(roomId: string, excludeUserId: string): Promise<RoomMember | null>;
 }

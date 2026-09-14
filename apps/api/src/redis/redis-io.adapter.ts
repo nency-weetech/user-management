@@ -14,7 +14,10 @@ export class RedisIoAdapter extends IoAdapter {
     const existingClient = this.app.get<Redis>('REDIS_CLIENT');
 
     const pubClient = existingClient.duplicate();
-    const subClient = existingClient.duplicate();
+    const subClient = existingClient.duplicate({
+      enableReadyCheck: false,
+      maxRetriesPerRequest: null
+    });
 
     this.adapterConstructor = createAdapter(pubClient, subClient);
   }

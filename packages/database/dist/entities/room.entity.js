@@ -14,6 +14,7 @@ const typeorm_1 = require("typeorm");
 const user_entity_1 = require("./user.entity");
 const message_entity_1 = require("./message.entity");
 const roomMember_entity_1 = require("./roomMember.entity");
+const room_type_enum_1 = require("../enums/room-type-enum");
 let Room = class Room {
     id;
     name;
@@ -23,6 +24,7 @@ let Room = class Room {
     created_at;
     messages;
     members;
+    type;
 };
 exports.Room = Room;
 __decorate([
@@ -67,6 +69,10 @@ __decorate([
     (0, typeorm_1.OneToMany)(() => roomMember_entity_1.RoomMember, (roomMember) => roomMember.room),
     __metadata("design:type", Array)
 ], Room.prototype, "members", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'enum', enum: room_type_enum_1.RoomType, default: room_type_enum_1.RoomType.DIRECT }),
+    __metadata("design:type", String)
+], Room.prototype, "type", void 0);
 exports.Room = Room = __decorate([
     (0, typeorm_1.Entity)('rooms'),
     (0, typeorm_1.Index)('IDX_ROOMS_OWNER_ID', ['owner_id'])
