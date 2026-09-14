@@ -863,6 +863,11 @@
                 <div class="empty-hint">No pending requests</div>
             </div>
 
+            <div class="rooms-title" style="margin-top: 22px;">Direct Messages</div>
+            <div id="directMessages" class="rooms">
+                <div class="empty-hint">No conversations yet</div>
+            </div>
+
             <div class="rooms-title" style="margin-top: 22px;">Online now</div>
             <div id="onlineUsers" class="online-list">
                 <div class="empty-hint">No one else online yet</div>
@@ -933,6 +938,8 @@
         let typingUsersMap = {};
         let isHandlingTokenExpiry = false;
         let presenceHeartbeat = null;
+        let myDirectMessages = {};
+        let currentRoomType = 'GROUP';
 
         const connectionStatus = document.getElementById("connectionStatus");
         const statusText = connectionStatus.querySelector(".status-text");
@@ -950,6 +957,60 @@
         const emojiPicker = document.getElementById("emojiPicker");
 
         const SOCKET_PORT = new URLSearchParams(window.location.search).get('port') || '3100';
+
+        async function loadDirectMessages() {
+            try {
+                const res = await fetchWithAuth('http://localhost:3100/rooms/direct-messages');
+                if (!res.ok) return;
+
+                const dms = await res.json();
+                myDirectMessages = {};
+                dms.forEach(dm => {
+                    myDirectMessages[dm.roomId] = dm.otherUserName;
+                });
+                renderDirectMessages(dms);
+            } catch (err) {
+                console.error('Could not load direct messages:', err);
+            }
+        }
+
+        function renderDirectMessages(dms) {
+            const container = document.getElementById('directMessages');
+
+            if (dms.length === 0) {
+                container.innerHTML = `<div class="empty-hint">No conversations yet</div>`;
+                return;
+            }
+
+            container.innerHTML = '';
+            dms.forEach(dm => {
+                const el = document.createElement('div');
+                el.classList.add('room');
+                el.dataset.roomId = dm.roomId;
+                if (dm.roomId === currentRoomId) el.classList.add('active');
+                el.innerHTML = `<span class="hash">@</span>${dm.otherUserName}`;
+                el.addEventListener('click', () => openDirectMessage(dm.roomId, dm.otherUserName));
+                container.appendChild(el);
+            });
+        }
+
+        function openDirectMessage(roomId, otherUserName) {
+            if (!socket || !socket.connected) return;
+
+            if (isJoined && roomId !== currentRoomId) {
+                pendingRoomId = roomId;
+                pendingRoomName = otherUserName;
+                socket.emit("leave_room", { roomId: currentRoomId });
+                return;
+            }
+
+            currentRoomId = roomId;
+            currentRoomName = otherUserName;
+            currentRoomType = 'DIRECT';
+            currentRoomElement.textContent = otherUserName;
+            clearMessages();
+            joinCurrentRoom();
+        }
 
         messageInput.addEventListener("input", () => {
             if (!socket || !isJoined) return;
@@ -1027,6 +1088,7 @@
                 socket.emit("register_presence");
                 loadRooms();
                 loadMyPendingRequests();
+                loadDirectMessages(); 
 
                 if (presenceHeartbeat) clearInterval(presenceHeartbeat);
                 presenceHeartbeat = setInterval(() => {
@@ -1051,7 +1113,7 @@
                     clearInterval(presenceHeartbeat);
                     presenceHeartbeat = null;
                 }
-                
+
                 isJoined = false;
                 pendingRoomId = null;
                 pendingRoomName = null;
@@ -1175,6 +1237,17 @@
             socket.on("upload_url_error", (data) => {
                 addSystemMessage("Could not get upload permission: " + data.message, true);
             });
+
+            socket.on("direct_message_ready", (data) => {
+                loadDirectMessages().then(() => {
+                    const otherName = myDirectMessages[data.roomId] || 'Direct Message';
+                    openDirectMessage(data.roomId, otherName);
+                });
+            });
+
+            socket.on("direct_message_error", (data) => {
+                addSystemMessage("Could not start conversation: " + data.message, true);
+            });
         }
 
         function joinCurrentRoom() {
@@ -1269,6 +1342,7 @@
 
             currentRoomId = room.id;
             currentRoomName = room.name;
+            currentRoomType = 'GROUP';
             currentRoomElement.textContent = room.name;
             clearMessages();
             joinCurrentRoom();
@@ -1458,8 +1532,15 @@
                 const row = document.createElement('div');
                 row.classList.add("participant", "online");
                 row.innerHTML = `<span class="p-dot"></span><span>${name || userId}</span>`;
+                row.style.cursor = "pointer";
+                row.addEventListener("click", () => startDirectMessage(userId));
                 container.appendChild(row);
             });
+        }
+
+        function startDirectMessage(otherUserId) {
+            if (!socket || !socket.connected) return;
+            socket.emit("start_direct_message", { otherUserId });
         }
 
         // ---- Messages ----

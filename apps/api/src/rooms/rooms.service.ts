@@ -7,6 +7,7 @@ import {
   RoomMemberRepository,
   RoomMemberRole,
   RoomRepository,
+  UserRepository,
 } from '@myapp/database';
 import {
   BadRequestException,
@@ -18,6 +19,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CreateRoomDto } from './dtos/create-room-dto';
 import { DataSource } from 'typeorm';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { RoomType } from '@myapp/database/dist/enums/room-type-enum';
 
 @Injectable()
 export class RoomsService {
@@ -27,6 +29,7 @@ export class RoomsService {
     private readonly roomRepository: RoomRepository,
     private readonly roomMemberRepository: RoomMemberRepository,
     private readonly roomJoinRequestRepo: JoinRequestRepository,
+    private readonly userRepository : UserRepository,
   ) {}
 
   private async assertIsRoomAdmin(userId: string, roomId): Promise<void> {
@@ -79,15 +82,17 @@ export class RoomsService {
     return this.roomRepository.findByUserId(userId);
   }
 
-  // RoomsService
   async getDiscoverableRooms(userId: string) {
-    const allRooms = await this.roomRepository.findAll();
-    const myMemberships =
-      await this.roomMemberRepository.findAll({where: {user_id : userId}});
+    const allRooms = await this.roomRepository.findAllByType(RoomType.GROUP);
+    const myMemberships = await this.roomMemberRepository.findAll({
+      where: { user_id: userId },
+    });
     const myPendingRequests =
       await this.roomJoinRequestRepo.findAllPendingForUser(userId);
 
-    const membershipByRoomId = new Map(myMemberships.map((m) => [m.room_id, m]));
+    const membershipByRoomId = new Map(
+      myMemberships.map((m) => [m.room_id, m]),
+    );
     const pendingRoomIds = new Set(myPendingRequests.map((r) => r.roomId));
 
     return allRooms.map((room) => {
@@ -99,9 +104,46 @@ export class RoomsService {
           : pendingRoomIds.has(room.id)
             ? 'pending'
             : 'none',
-        role: membership?.role ?? null, // NEW — 'ADMIN' | 'MEMBER' | null
+        role: membership?.role ?? null,
       };
     });
+  }
+
+
+  async getMyDirectMessages(userId: string) {
+    const rooms = await this.datasource
+      .createQueryBuilder(Room, 'room')
+      .innerJoin(
+        'room_members',
+        'myMembership',
+        'myMembership.room_id = room.id AND myMembership.user_id = :userId',
+        { userId },
+      )
+      .where('room.type = :type', { type: RoomType.DIRECT })
+      .getMany();
+
+    const results = await Promise.all(
+      rooms.map(async (room) => {
+        const otherMembership =
+          await this.roomMemberRepository.findOtherMemberInRoom(
+            room.id,
+            userId,
+          );
+        const otherUser = otherMembership
+          ? await this.userRepository.findOne({
+              where: { id: otherMembership.user_id },
+            })
+          : null;
+
+        return {
+          roomId: room.id,
+          otherUserId: otherUser?.id ?? null,
+          otherUserName: otherUser?.firstName ?? 'Unknown',
+        };
+      }),
+    );
+
+    return results;
   }
 
   async requestToJoin(userId: string, roomId: string) {
@@ -199,6 +241,57 @@ export class RoomsService {
       requesterId: request.userId,
       roomId: request.roomId,
       status: JoinRequestStatus.REJECTED,
+    });
+  }
+
+  async findExistingDirectRoom(
+    userAId: string,
+    userBId: string,
+  ): Promise<Room | null> {
+    const room = await this.datasource
+      .createQueryBuilder(Room, 'room')
+      .innerJoin(
+        'room_members',
+        'rm1',
+        'rm1.room_id = room.id and rm1.user_id = :userAId',
+        { userAId },
+      )
+      .innerJoin(
+        'room_members',
+        'rm2',
+        'rm2.room_id = room.id and rm2.user_id = :userBId',
+        { userBId },
+      )
+      .where('room.type = :type', { type: RoomType.DIRECT })
+      .getOne();
+
+    return room;
+  }
+
+  async startDirectMessage(userAId: string, userBId: string): Promise<Room> {
+    if (userAId === userBId) {
+      throw new BadRequestException('Cannot start direct message with you');
+    }
+
+    const existing = await this.findExistingDirectRoom(userAId, userBId);
+    if (existing) {
+      return existing;
+    }
+
+    return this.datasource.transaction(async (manager) => {
+      const room = manager.create(Room, {
+        name: 'Direct Message',
+        type: RoomType.DIRECT,
+        owner_id: userAId,
+      });
+      const savedRoom = await manager.save(room);
+
+      await manager.insert(RoomMember, [
+        { user_id: userAId, room_id: room.id, role: RoomMemberRole.MEMBER },
+        { user_id: userBId, room_id: room.id, role: RoomMemberRole.MEMBER },
+      ]);
+
+      return savedRoom;
     });
   }
 }

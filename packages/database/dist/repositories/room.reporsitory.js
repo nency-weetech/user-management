@@ -42,6 +42,9 @@ let RoomRepository = class RoomRepository extends base_repository_1.BaseAbstract
         })
             .getMany();
     }
+    async findAllByType(type) {
+        return this.roomRepository.find({ where: { type }, order: { name: 'ASC' } });
+    }
 };
 exports.RoomRepository = RoomRepository;
 exports.RoomRepository = RoomRepository = __decorate([

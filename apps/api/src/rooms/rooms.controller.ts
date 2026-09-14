@@ -36,6 +36,11 @@ export class RoomsController {
   async discoverRooms(@currentUser() user: { id: string }) {
     return this.roomService.getDiscoverableRooms(user.id);
   }
+  
+  @Get('direct-messages')
+  async getMyDirectMessages(@currentUser() user: { id: string }) {
+    return this.roomService.getMyDirectMessages(user.id);
+  }
 
   @Get(':id')
   async getRoomById(@Param('id') id: string) {

@@ -81,7 +81,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const wasOfflinebefore = (await this.redis.scard(key)) === 0;
 
     await this.redis.sadd(key, client.id);
-    await this.redis.expire(key, 60)
+    await this.redis.expire(key, 60);
     await this.redis.sadd('online_users', userId);
 
     if (wasOfflinebefore) {
@@ -297,6 +297,19 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       client.emit('upload_url_ready', { fileKey, uploadUrl });
     } catch (error) {
       client.emit('upload_url_error', { message: error.message });
+    }
+  }
+
+  @SubscribeMessage('start_direct_message')
+  async handleStartDirectMessage(
+    @MessageBody() data: { otherUserId: string },
+    @ConnectedSocket() client: Socket,
+  ) {
+    try {
+      const room = await this.roomsService.startDirectMessage(client.data.userId, data.otherUserId);
+      client.emit('direct_message_ready', {roomId: room.id})
+    } catch (error) {
+      client.emit('direct_message_error', {message : error.message})
     }
   }
 

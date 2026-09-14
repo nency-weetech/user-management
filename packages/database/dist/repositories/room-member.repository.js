@@ -32,8 +32,8 @@ let RoomMemberRepository = class RoomMemberRepository extends base_repository_1.
         return this.roomMemberRepo.findOne({
             where: {
                 user_id: userId,
-                room_id: roomId
-            }
+                room_id: roomId,
+            },
         });
     }
     async findByRoomId(roomId) {
@@ -41,7 +41,12 @@ let RoomMemberRepository = class RoomMemberRepository extends base_repository_1.
     }
     async findByAdminsForRoom(roomId) {
         return this.roomMemberRepo.find({
-            where: { room_id: roomId, role: room_member_role_enum_1.RoomMemberRole.ADMIN }
+            where: { room_id: roomId, role: room_member_role_enum_1.RoomMemberRole.ADMIN },
+        });
+    }
+    async findOtherMemberInRoom(roomId, excludeUserId) {
+        return this.roomMemberRepo.findOne({
+            where: { room_id: roomId, user_id: (0, typeorm_2.Not)(excludeUserId) },
         });
     }
 };

@@ -3,8 +3,12 @@ import { IRoomRepository } from '../interfaces/room.interface';
 import { Room } from '../entities/room.entity';
 import { Repository } from 'typeorm';
 import { BaseAbstractRepostitory } from '../common/base.repository';
+import { RoomType } from '../enums/room-type-enum';
 
-export class RoomRepository extends BaseAbstractRepostitory<Room> implements IRoomRepository {
+export class RoomRepository
+  extends BaseAbstractRepostitory<Room>
+  implements IRoomRepository
+{
   constructor(
     @InjectRepository(Room) private readonly roomRepository: Repository<Room>,
   ) {
@@ -32,5 +36,9 @@ export class RoomRepository extends BaseAbstractRepostitory<Room> implements IRo
         userId,
       })
       .getMany();
+  }
+
+  async findAllByType(type: RoomType): Promise<Room[]> {
+    return this.roomRepository.find({ where: { type }, order: { name: 'ASC' } });
   }
 }
