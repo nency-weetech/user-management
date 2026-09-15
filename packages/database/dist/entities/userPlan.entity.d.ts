@@ -2,10 +2,10 @@ import { UserPlanEnum } from '../enums/user-plan.enum';
 import { User } from './user.entity';
 export declare class UserPlan {
     id: string;
-    userId: string | null;
+    user_id: string | null;
     user: User | null;
     plan: UserPlanEnum;
-    planUpgradedAt: Date;
-    createdAt: Date;
-    updatedAt: Date;
+    plan_upgraded_at: Date;
+    created_at: Date;
+    updated_At: Date;
 }

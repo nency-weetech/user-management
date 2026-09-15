@@ -1,17 +1,17 @@
 export declare class Article {
     id: string;
-    externalId: number;
+    external_id: number;
     title: string | null;
     summary: string | null;
     url: string;
     image: string | null;
-    author: string | null;
+    author_name: string | null;
     language: string | null;
     catagory: string | null;
-    sourceCountry: string | null;
+    source_country: string | null;
     sentiment: number | null;
-    publishDated: Date | null;
-    lastRefreshedAt: Date;
-    createdAt: Date;
-    updatedAt: Date;
+    published_date: Date | null;
+    last_refreshed_at: Date;
+    created_at: Date;
+    updated_at: Date;
 }

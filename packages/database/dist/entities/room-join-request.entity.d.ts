@@ -3,13 +3,13 @@ import { User } from './user.entity';
 import { JoinRequestStatus } from '../enums/join-request-status.dto';
 export declare class RoomJoinRequest {
     id: string;
-    userId: string;
+    user_id: string;
     user: User;
-    roomId: string;
+    room_id: string;
     room: Room;
     status: JoinRequestStatus;
-    requestedAt: Date;
-    reviewedById: string;
-    reviewedBy: User;
-    reviewedAt: Date;
+    requested_at: Date;
+    reviewed_by_id: string;
+    reviewed_by: User;
+    reviewed_at: Date;
 }

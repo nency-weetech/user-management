@@ -16,16 +16,16 @@ const payment_status_enum_1 = require("../enums/payment-status.enum");
 const user_plan_enum_1 = require("../enums/user-plan.enum");
 let Payments = class Payments {
     id;
-    userId;
+    user_id;
     user;
-    stripeCheckoutSessionId;
-    stripePaymentIntentId;
+    stripe_checkout_session_id;
+    stripe_payment_intent_id;
     plan;
     amount;
     currency;
     status;
-    createdAt;
-    updatedAt;
+    created_at;
+    updated_at;
 };
 exports.Payments = Payments;
 __decorate([
@@ -35,7 +35,7 @@ __decorate([
 __decorate([
     (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)
-], Payments.prototype, "userId", void 0);
+], Payments.prototype, "user_id", void 0);
 __decorate([
     (0, typeorm_1.ManyToMany)(() => user_entity_1.User, { nullable: true, onDelete: 'SET NULL' }),
     (0, typeorm_1.JoinColumn)({ name: 'userId' }),
@@ -44,11 +44,11 @@ __decorate([
 __decorate([
     (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)
-], Payments.prototype, "stripeCheckoutSessionId", void 0);
+], Payments.prototype, "stripe_checkout_session_id", void 0);
 __decorate([
     (0, typeorm_1.Column)({ unique: true }),
     __metadata("design:type", String)
-], Payments.prototype, "stripePaymentIntentId", void 0);
+], Payments.prototype, "stripe_payment_intent_id", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: 'enum', enum: user_plan_enum_1.UserPlanEnum }),
     __metadata("design:type", String)
@@ -68,11 +68,11 @@ __decorate([
 __decorate([
     (0, typeorm_1.CreateDateColumn)({ type: 'timestamp with time zone' }),
     __metadata("design:type", Date)
-], Payments.prototype, "createdAt", void 0);
+], Payments.prototype, "created_at", void 0);
 __decorate([
     (0, typeorm_1.UpdateDateColumn)({ type: 'timestamp with time zone' }),
     __metadata("design:type", Date)
-], Payments.prototype, "updatedAt", void 0);
+], Payments.prototype, "updated_at", void 0);
 exports.Payments = Payments = __decorate([
-    (0, typeorm_1.Entity)('Payments')
+    (0, typeorm_1.Entity)('payments')
 ], Payments);

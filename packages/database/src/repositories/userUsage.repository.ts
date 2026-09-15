@@ -15,20 +15,20 @@ export class UserUsageRepository extends BaseAbstractRepostitory<UserUsage> impl
 
   createUsage(userId: string) : Promise<UserUsage>{
     const userUsage = this.userUsageRepository.create({
-      userId: userId,
-      dailyArticleViewCount: 0,
-      dailyArticleViewResetAt: null,
+      user_id: userId,
+      daily_article_view_count: 0,
+      daily_article_view_reset_at: null,
     });
     return this.userUsageRepository.save(userUsage);
   }
 
   findByUserId(userId: string): Promise<UserUsage | null> {
-    return this.userUsageRepository.findOneBy({ userId: userId });
+    return this.userUsageRepository.findOneBy({ user_id: userId });
   }
 
   async incrementViewCount(userId: string, by: number): Promise<void> {
     await this.userUsageRepository.increment(
-      { userId },
+      { user_id : userId },
       'dailyArticleViewCount',
       by,
     );
@@ -36,10 +36,10 @@ export class UserUsageRepository extends BaseAbstractRepostitory<UserUsage> impl
 
   async resetDailyCount(userId: string, resetDate: Date): Promise<void> {
     await this.userUsageRepository.update(
-      { userId },
+      { user_id: userId },
       {
-        dailyArticleViewCount: 0,
-        dailyArticleViewResetAt: resetDate,
+        daily_article_view_count: 0,
+        daily_article_view_reset_at: resetDate,
       },
     );
   }

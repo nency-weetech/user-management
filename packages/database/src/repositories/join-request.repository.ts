@@ -14,22 +14,22 @@ export class JoinRequestRepository implements JoinRequestInterface {
     userId: string,
     roomId: string,
   ): Promise<RoomJoinRequest> {
-    const request = this.joinRequestRepo.create({ userId, roomId });
+    const request = this.joinRequestRepo.create({ user_id: userId, room_id: roomId });
     return this.joinRequestRepo.save(request);
   }
 
   async hasPending(userId: string, roomId: string): Promise<boolean>{
     const count = await this.joinRequestRepo.count({
-        where: {userId, roomId, status: JoinRequestStatus.PENDING}
+        where: {user_id: userId, room_id : roomId, status: JoinRequestStatus.PENDING}
     })
     return count > 0;
   }
 
   async findPendingRequestsForRoom(roomId: string): Promise<RoomJoinRequest[]> {
     return this.joinRequestRepo.find({
-      where: { roomId, status: JoinRequestStatus.PENDING },
+      where: { room_id: roomId, status: JoinRequestStatus.PENDING },
       relations: {user : true},
-      order: { requestedAt: 'ASC' },
+      order: { requested_at: 'ASC' },
     });
   }
 
@@ -47,14 +47,14 @@ export class JoinRequestRepository implements JoinRequestInterface {
   ): Promise<void> {
     await this.joinRequestRepo.update(requestId, {
       status,
-      reviewedById,
-      reviewedAt: new Date(),
+      reviewed_by_id: reviewedById,
+      reviewed_at: new Date(),
     });
   }
 
   async findAllPendingForUser(userId: string): Promise<RoomJoinRequest[]> {
   return this.joinRequestRepo.find({
-    where: { userId, status: JoinRequestStatus.PENDING },
+    where: { user_id : userId, status: JoinRequestStatus.PENDING },
   });
 }
 }

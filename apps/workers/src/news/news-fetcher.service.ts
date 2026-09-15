@@ -22,7 +22,7 @@ export class NewsFetcherService {
     triggeredByUserId: string | null = null,
   ): Promise<{ fetched: number }> {
     const startTime = Date.now();
-    const triggeredBy = triggeredByUserId
+    const triggeredType = triggeredByUserId
       ? fetchTrigger.ADMIN
       : fetchTrigger.CORN;
 
@@ -43,30 +43,30 @@ export class NewsFetcherService {
       for (const article of articles) {
         if (!article.id || !article.title || !article.url) continue;
         await this.articalRepository.upsertArticle({
-          externalId: article.id,
+          external_id: article.id,
           title : article.title,
           summary: article.summary,
           url: article.url,
           image: article.image,
-          author: article.author,
+          author_name: article.author,
           language: article.language,
           catagory: article.category,
-          sourceCountry: article.source_country,
+          source_country: article.source_country,
           sentiment: article.sentiment,
-          publishDated: new Date(article.publish_date),
-          lastRefreshedAt: new Date(),
+          published_date: new Date(article.publish_date),
+          last_refreshed_at: new Date(),
         });
         storedCount++;
       }
 
       const log = this.newFetchLogRepository.create({
         query,
-        articlesFetched: storedCount,
-        triggeredBy,
-        triggeredByUserId,
+        articles_fetched: storedCount,
+        trigger_type: triggeredType,
+        triggered_by_user_id : triggeredByUserId,
         success: true,
-        errorMessage: null,
-        durationMs: Date.now() - startTime,
+        error_message: null,
+        duration_ms: Date.now() - startTime,
       });
       await this.newFetchLogRepository.save(log);
 
@@ -77,12 +77,12 @@ export class NewsFetcherService {
 
       const log = this.newFetchLogRepository.create({
         query,
-        articlesFetched: 0,
-        triggeredBy,
-        triggeredByUserId,
+        articles_fetched: 0,
+        trigger_type: triggeredType,
+        triggered_by_user_id : triggeredByUserId,
         success: false,
-        errorMessage: errorMessage,
-        durationMs: Date.now() - startTime,
+        error_message: errorMessage,
+        duration_ms: Date.now() - startTime,
       });
       await this.newFetchLogRepository.save(log);
       if (errorMessage.includes('401') || errorMessage.includes('403')) {

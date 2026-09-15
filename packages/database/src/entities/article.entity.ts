@@ -12,7 +12,7 @@ export class Article {
   id!: string;
 
   @Column({ type: 'int', unique: true })
-  externalId!: number;
+  external_id!: number;
 
   @Column({ type: 'varchar', nullable: true })
   title!: string | null;
@@ -27,7 +27,7 @@ export class Article {
   image!: string | null;
 
   @Column({ type: 'varchar', nullable: true })
-  author!: string | null;
+  author_name!: string | null;
 
   @Column({ type: 'varchar', nullable: true })
   language!: string | null;
@@ -36,20 +36,20 @@ export class Article {
   catagory!: string | null;
 
   @Column({ type: 'varchar', nullable: true })
-  sourceCountry!: string | null;
+  source_country!: string | null;
 
   @Column('decimal', { precision: 5, scale: 3, nullable: true })
   sentiment!: number | null;
 
   @Column({ type: 'timestamptz' })
-  publishDated!: Date | null;
+  published_date!: Date | null;
 
   @Column({ type: 'timestamptz' })
-  lastRefreshedAt!: Date;
+  last_refreshed_at!: Date;
 
   @CreateDateColumn({ type: 'timestamp with time zone' })
-  createdAt!: Date;
+  created_at!: Date;
 
   @UpdateDateColumn({ type: 'timestamp with time zone' })
-  updatedAt!: Date;
+  updated_at!: Date;
 }

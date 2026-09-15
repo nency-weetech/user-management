@@ -146,7 +146,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       where: { id: In(userIds) },
     });
 
-    return users.map((u) => ({ userId: u.id, name: u.firstName }));
+    return users.map((u) => ({ userId: u.id, name: u.first_name }));
   }
 
   @SubscribeMessage('leave_room')
@@ -230,7 +230,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
           messages.map(async (m) => ({
             id: m.id,
             senderId: m.sender_id,
-            senderName: m.sender?.firstName ?? 'Unknown',
+            senderName: m.sender?.first_name ?? 'Unknown',
             roomId: m.room_id,
             message: m.content,
             fileUrl: m.file_key
@@ -338,7 +338,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
           roomId: payload.roomId,
           roomName: room?.name ?? 'a room',
           requesterId: payload.requesterId,
-          requesterName: requester?.firstName ?? 'Someone',
+          requesterName: requester?.first_name ?? 'Someone',
         });
       }
     }

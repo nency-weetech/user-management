@@ -13,20 +13,20 @@ exports.Article = void 0;
 const typeorm_1 = require("typeorm");
 let Article = class Article {
     id;
-    externalId;
+    external_id;
     title;
     summary;
     url;
     image;
-    author;
+    author_name;
     language;
     catagory;
-    sourceCountry;
+    source_country;
     sentiment;
-    publishDated;
-    lastRefreshedAt;
-    createdAt;
-    updatedAt;
+    published_date;
+    last_refreshed_at;
+    created_at;
+    updated_at;
 };
 exports.Article = Article;
 __decorate([
@@ -36,7 +36,7 @@ __decorate([
 __decorate([
     (0, typeorm_1.Column)({ type: 'int', unique: true }),
     __metadata("design:type", Number)
-], Article.prototype, "externalId", void 0);
+], Article.prototype, "external_id", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: 'varchar', nullable: true }),
     __metadata("design:type", String)
@@ -56,7 +56,7 @@ __decorate([
 __decorate([
     (0, typeorm_1.Column)({ type: 'varchar', nullable: true }),
     __metadata("design:type", String)
-], Article.prototype, "author", void 0);
+], Article.prototype, "author_name", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: 'varchar', nullable: true }),
     __metadata("design:type", String)
@@ -68,7 +68,7 @@ __decorate([
 __decorate([
     (0, typeorm_1.Column)({ type: 'varchar', nullable: true }),
     __metadata("design:type", String)
-], Article.prototype, "sourceCountry", void 0);
+], Article.prototype, "source_country", void 0);
 __decorate([
     (0, typeorm_1.Column)('decimal', { precision: 5, scale: 3, nullable: true }),
     __metadata("design:type", Number)
@@ -76,19 +76,19 @@ __decorate([
 __decorate([
     (0, typeorm_1.Column)({ type: 'timestamptz' }),
     __metadata("design:type", Date)
-], Article.prototype, "publishDated", void 0);
+], Article.prototype, "published_date", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: 'timestamptz' }),
     __metadata("design:type", Date)
-], Article.prototype, "lastRefreshedAt", void 0);
+], Article.prototype, "last_refreshed_at", void 0);
 __decorate([
     (0, typeorm_1.CreateDateColumn)({ type: 'timestamp with time zone' }),
     __metadata("design:type", Date)
-], Article.prototype, "createdAt", void 0);
+], Article.prototype, "created_at", void 0);
 __decorate([
     (0, typeorm_1.UpdateDateColumn)({ type: 'timestamp with time zone' }),
     __metadata("design:type", Date)
-], Article.prototype, "updatedAt", void 0);
+], Article.prototype, "updated_at", void 0);
 exports.Article = Article = __decorate([
     (0, typeorm_1.Entity)('articles')
 ], Article);

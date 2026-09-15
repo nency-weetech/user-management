@@ -36,10 +36,10 @@ export class User {
   password!: string;
 
   @Column({ type: 'varchar', length: 100 })
-  firstName!: string;
+  first_name!: string;
 
   @Column({ type: 'varchar', length: 100 })
-  lastName!: string;
+  last_name!: string;
 
   @Column({
     type: 'enum',
@@ -52,13 +52,13 @@ export class User {
     type: 'boolean',
     default: true,
   })
-  isActive!: boolean;
+  is_active!: boolean;
 
   @Column({
     type: 'boolean',
     default: false,
   })
-  isEmailVerified!: boolean;
+  is_email_verified!: boolean;
 
   @OneToMany(() => RoomMember, (roomMember) => roomMember.user)
   room_memberships!: RoomMember[];
@@ -70,19 +70,19 @@ export class User {
   owned_rooms!: Room[];
 
   @Column({ type: 'varchar', nullable: true })
-  emailVerificationOtp?: string | null;
+  email_verification_otp?: string | null;
 
   @Column({ type: 'timestamp', nullable: true })
-  emailVerificationExpires?: Date | null;
+  email_verification_expires?: Date | null;
 
   @Column({ type: 'varchar', nullable: true })
-  passwordResetOtp?: string | null;
+  password_reset_otp?: string | null;
 
   @Column({ type: 'timestamp', nullable: true })
-  resetOtpExpires?: Date | null;
+  reset_otp_expires?: Date | null;
 
   @Column({ type: 'int', default: 0 })
-  otpAttempts!: number;
+  otp_attempts!: number;
 
   @Column({ type: 'varchar', nullable: true })
   refreshToken?: string | null;
@@ -91,18 +91,18 @@ export class User {
   lastLoginAt!: Date | null;
 
   @CreateDateColumn({ type: 'timestamp with time zone' })
-  createdAt!: Date;
+  created_at!: Date;
 
   @UpdateDateColumn({ type: 'timestamp with time zone' })
-  updatedAt!: Date;
+  updated_at!: Date;
 
   @Column({ default: false })
-  isPendingDeletion!: boolean;
+  is_pending_deletion!: boolean;
 
   @Column({ type: 'timestamp', nullable: true })
-  deletionRequestedAt!: Date | null;
+  deletion_requested_at!: Date | null;
 
   @DeleteDateColumn({ type: 'timestamp with time zone', nullable: true })
   @Exclude()
-  deletedAt!: Date | null;
+  deleted_at!: Date | null;
 }

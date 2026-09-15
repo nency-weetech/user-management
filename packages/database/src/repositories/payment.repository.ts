@@ -28,8 +28,8 @@ export class PaymentRepository
     currency: string,
   ): Promise<Payments> {
     const userPayment = this.paymentsRepo.create({
-      userId,
-      stripePaymentIntentId: paymentIntentId,
+      user_id : userId,
+      stripe_payment_intent_id: paymentIntentId,
       plan,
       amount,
       currency,
@@ -39,18 +39,18 @@ export class PaymentRepository
   }
 
   findBySessionId(sessionId: string): Promise<Payments | null> {
-    return this.paymentsRepo.findOneBy({ stripeCheckoutSessionId: sessionId });
+    return this.paymentsRepo.findOneBy({ stripe_checkout_session_id: sessionId });
   }
 
   findByPaymentIntentId(paymentIntentId: string): Promise<Payments | null> {
-    return this.paymentsRepo.findOneBy({ stripePaymentIntentId: paymentIntentId });
+    return this.paymentsRepo.findOneBy({ stripe_payment_intent_id: paymentIntentId });
   }
 
   async markSucceeded(
     paymentIntentId: string,
   ): Promise<void> {
     await this.paymentsRepo.update(
-      {  stripePaymentIntentId: paymentIntentId },
+      {  stripe_payment_intent_id: paymentIntentId },
       {
         status: PaymentStatus.SUCCEEDED,
       },
@@ -59,7 +59,7 @@ export class PaymentRepository
 
   async markExpired(paymentIntentId: string,): Promise<void> {
     await this.paymentsRepo.update(
-      {  stripePaymentIntentId: paymentIntentId },
+      {  stripe_payment_intent_id: paymentIntentId },
       {
         status: PaymentStatus.EXPIRED,
       },
@@ -68,7 +68,7 @@ export class PaymentRepository
 
   async findStalePending(cutoff: Date): Promise<Payments[]> {
     return this.paymentsRepo.find({
-      where: { status: PaymentStatus.PENDING, createdAt: LessThan(cutoff) },
+      where: { status: PaymentStatus.PENDING, created_at: LessThan(cutoff) },
     });
   }
 
@@ -93,21 +93,21 @@ export class PaymentRepository
 
     const [payments, total] = await query.getManyAndCount();
 
-    const userIds = payments.map((p) => p.userId);
+    const userIds = payments.map((p) => p.user_id);
     const users = await this.userRepository.findManyByCondition({
       where: { id: In(userIds) },
       select: {
         id: true,
         email: true,
-        firstName: true,
-        lastName: true,
+        first_name: true,
+        last_name: true,
       },
     });
 
     const userMap = new Map(users.map((u) => [u.id, u]));
     const enrichPayment = payments.map((p) => ({
       ...p,
-      user: userMap.get(p.userId) || null,
+      user: userMap.get(p.user_id) || null,
     }));
 
     return [enrichPayment, total];

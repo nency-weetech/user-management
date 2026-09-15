@@ -67,8 +67,8 @@ let UserRepository = class UserRepository extends base_repository_1.BaseAbstract
     }
     async updateName(id, firstName, lastName) {
         await this.userRepository.update(id, {
-            ...(firstName && { firstName }),
-            ...(lastName && { lastName }),
+            ...(firstName && { first_name: firstName }),
+            ...(lastName && { last_name: lastName }),
         });
         return this.userRepository.findOneBy({ id });
     }
@@ -77,16 +77,16 @@ let UserRepository = class UserRepository extends base_repository_1.BaseAbstract
     }
     async markEmailAsValid(userId) {
         await this.userRepository.update(userId, {
-            isEmailVerified: true,
-            emailVerificationOtp: null,
-            emailVerificationExpires: null,
+            is_email_verified: true,
+            email_verification_otp: null,
+            email_verification_expires: null,
         });
     }
     async saveOtp(userId, otpHash, expires) {
         await this.userRepository.update(userId, {
-            passwordResetOtp: otpHash,
-            resetOtpExpires: expires,
-            otpAttempts: 0,
+            password_reset_otp: otpHash,
+            reset_otp_expires: expires,
+            otp_attempts: 0,
         });
     }
     async incrementOtpAttempt(userId) {
@@ -94,17 +94,17 @@ let UserRepository = class UserRepository extends base_repository_1.BaseAbstract
     }
     async clearOtp(userId) {
         await this.userRepository.update(userId, {
-            passwordResetOtp: null,
-            resetOtpExpires: null,
-            otpAttempts: 0,
+            password_reset_otp: null,
+            reset_otp_expires: null,
+            otp_attempts: 0,
         });
     }
     async updatePasswordAndRevokeSession(userId, newPass) {
         await this.userRepository.update(userId, {
             password: newPass,
-            passwordResetOtp: null,
-            resetOtpExpires: null,
-            otpAttempts: 0,
+            password_reset_otp: null,
+            reset_otp_expires: null,
+            otp_attempts: 0,
             refreshToken: null,
         });
     }
@@ -113,7 +113,7 @@ let UserRepository = class UserRepository extends base_repository_1.BaseAbstract
         if (!user) {
             throw new common_1.NotFoundException('User not found');
         }
-        user.isActive = isActive;
+        user.is_active = isActive;
         if (!isActive) {
             user.refreshToken = null;
         }
@@ -121,39 +121,39 @@ let UserRepository = class UserRepository extends base_repository_1.BaseAbstract
     }
     async countSignupsSince(date) {
         return await this.userRepository.count({
-            where: { createdAt: (0, typeorm_2.MoreThan)(date) },
+            where: { created_at: (0, typeorm_2.MoreThan)(date) },
         });
     }
     async getSignupUsersSince(date) {
         return await this.userRepository.find({
-            where: { createdAt: (0, typeorm_2.MoreThan)(date) },
-            select: { email: true, createdAt: true },
+            where: { created_at: (0, typeorm_2.MoreThan)(date) },
+            select: { email: true, created_at: true },
         });
     }
     async markPendingDeletion(userId) {
         await this.userRepository.update(userId, {
-            isPendingDeletion: true,
-            isActive: false,
-            deletionRequestedAt: new Date(),
+            is_pending_deletion: true,
+            is_active: false,
+            deletion_requested_at: new Date(),
         });
     }
     async cancelPendingDeletion(userId) {
         await this.userRepository.update(userId, {
-            isPendingDeletion: false,
-            isActive: true,
-            deletionRequestedAt: null,
+            is_pending_deletion: false,
+            is_active: true,
+            deletion_requested_at: null,
         });
     }
     async findStaleDeletionRequests(cutoffDate) {
         return this.userRepository.find({
             where: {
-                isPendingDeletion: true,
-                deletionRequestedAt: (0, typeorm_2.LessThan)(cutoffDate),
+                is_pending_deletion: true,
+                deletion_requested_at: (0, typeorm_2.LessThan)(cutoffDate),
             },
         });
     }
     async updateCreatedAtForTest(userId, date) {
-        await this.userRepository.update(userId, { createdAt: date });
+        await this.userRepository.update(userId, { created_at: date });
     }
 };
 exports.UserRepository = UserRepository;

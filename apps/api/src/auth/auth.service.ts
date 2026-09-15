@@ -52,9 +52,9 @@ export class AuthService {
     const newUser = await this.userService.create({
       ...createUserDto,
       password,
-      isEmailVerified: false,
-      emailVerificationOtp: hashedOtp,
-      emailVerificationExpires: otpExpires,
+      is_email_verified: false,
+      email_verification_otp: hashedOtp,
+      email_verification_expires: otpExpires,
     });
 
     await this.mailService.sendVerificationOtpEmail(newUser.email, otp);
@@ -66,19 +66,19 @@ export class AuthService {
     const user = await this.userService.findByEmail(dto.email);
 
     if (!user) throw new NotFoundException('User Not found');
-    if (user.isEmailVerified) {
+    if (user.is_email_verified) {
       throw new BadRequestException('Email is already verified');
     }
 
-    if (!user.emailVerificationOtp || !user.emailVerificationExpires) {
+    if (!user.email_verification_otp || !user.email_verification_expires) {
       throw new BadRequestException('No OTP found');
     }
 
-    if (user.emailVerificationExpires < new Date()) {
+    if (user.email_verification_expires < new Date()) {
       throw new BadRequestException('OTP expired');
     }
 
-    const isValidOtp = await bcrypt.compare(dto.otp, user.emailVerificationOtp);
+    const isValidOtp = await bcrypt.compare(dto.otp, user.email_verification_otp);
 
     if (!isValidOtp) {
       throw new BadRequestException('Invalid OTP');
@@ -102,7 +102,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credantial');
     }
 
-    if (!user.isEmailVerified) {
+    if (!user.is_email_verified) {
       throw new UnauthorizedException(
         'Please verify your email address before logging in.',
       );
@@ -111,7 +111,7 @@ export class AuthService {
       user.id,
     );
 
-    if (!user.isActive && !isPendingDeletion) {
+    if (!user.is_active && !isPendingDeletion) {
       throw new UnauthorizedException(
         'Your account has been deactivated/banned. Contact admin.',
       );
@@ -226,26 +226,26 @@ export class AuthService {
   async verifyOtp(dto: VerifyEmailDto) {
     const user = await this.userService.findByEmail(dto.email);
 
-    if (!user || !user.passwordResetOtp || !user.resetOtpExpires) {
+    if (!user || !user.password_reset_otp || !user.reset_otp_expires) {
       throw new BadRequestException('Invalid or expires OTP');
     }
 
-    if (user.resetOtpExpires < new Date()) {
+    if (user.reset_otp_expires < new Date()) {
       throw new BadRequestException('OTP expired');
     }
 
-    if (user.otpAttempts >= 3) {
+    if (user.otp_attempts >= 3) {
       await this.userService.clearOtp(user.id);
       throw new BadRequestException(
         'Too many failed attempts. OTP invalidated.',
       );
     }
 
-    const isValidOtp = await bcrypt.compare(dto.otp, user.passwordResetOtp);
+    const isValidOtp = await bcrypt.compare(dto.otp, user.password_reset_otp);
 
     if (!isValidOtp) {
       await this.userService.incrementOtpAttemp(user.id);
-      const updatedAttempts = user.otpAttempts + 1;
+      const updatedAttempts = user.otp_attempts + 1;
       const remainingAttempts = 3 - updatedAttempts;
       throw new BadRequestException(
         `Invalid OTP. ${remainingAttempts > 0 ? remainingAttempts + ' attempts remaining.' : 'OTP invalidated.'}`,

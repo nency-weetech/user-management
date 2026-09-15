@@ -1,10 +1,10 @@
 import { User } from "./user.entity";
 export declare class UserUsage {
     id: string;
-    userId: string | null;
+    user_id: string | null;
     user: User | null;
-    dailyArticleViewCount: Number;
-    dailyArticleViewResetAt: Date;
-    createdAt: Date;
-    updatedAt: Date;
+    daily_article_view_count: Number;
+    daily_article_view_reset_at: Date;
+    created_at: Date;
+    updated_at: Date;
 }

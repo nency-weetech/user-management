@@ -24,11 +24,11 @@ let ArticleRepository = class ArticleRepository extends base_repository_1.BaseAb
         this.articleRepository = articleRepository;
     }
     findByExternalId(externalId) {
-        return this.articleRepository.findOne({ where: { externalId } });
+        return this.articleRepository.findOne({ where: { external_id: externalId } });
     }
     async upsertArticle(data) {
         await this.articleRepository.upsert(data, ['externalId']);
-        return this.findByExternalId(data.externalId);
+        return this.findByExternalId(data.external_id);
     }
     async findAllPaginated(page, limit, category) {
         const skip = (page - 1) * limit;

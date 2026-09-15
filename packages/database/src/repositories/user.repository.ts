@@ -74,8 +74,8 @@ export class UserRepository
 
   async updateName(id: string, firstName?: string, lastName?: string): Promise<User | null> {
     await this.userRepository.update(id, {
-      ...(firstName && { firstName }),
-      ...(lastName && { lastName }),
+      ...(firstName && { first_name : firstName}),
+      ...(lastName && { last_name: lastName }),
     });
     return this.userRepository.findOneBy({ id });
   }
@@ -89,17 +89,17 @@ export class UserRepository
 
   async markEmailAsValid(userId: string): Promise<void> {
     await this.userRepository.update(userId, {
-      isEmailVerified: true,
-      emailVerificationOtp: null,
-      emailVerificationExpires: null,
+      is_email_verified: true,
+      email_verification_otp: null,
+      email_verification_expires: null,
     });
   }
 
   async saveOtp(userId: string, otpHash: string, expires: Date): Promise<void> {
     await this.userRepository.update(userId, {
-      passwordResetOtp: otpHash,
-      resetOtpExpires: expires,
-      otpAttempts: 0,
+      password_reset_otp: otpHash,
+      reset_otp_expires: expires,
+      otp_attempts: 0,
     });
   }
 
@@ -109,9 +109,9 @@ export class UserRepository
 
   async clearOtp(userId: string): Promise<void> {
     await this.userRepository.update(userId, {
-      passwordResetOtp: null,
-      resetOtpExpires: null,
-      otpAttempts: 0,
+      password_reset_otp: null,
+      reset_otp_expires: null,
+      otp_attempts: 0,
     });
   }
 
@@ -121,9 +121,9 @@ export class UserRepository
   ): Promise<void> {
     await this.userRepository.update(userId, {
       password: newPass,
-      passwordResetOtp: null,
-      resetOtpExpires: null,
-      otpAttempts: 0,
+      password_reset_otp: null,
+      reset_otp_expires: null,
+      otp_attempts: 0,
       refreshToken: null,
     });
   }
@@ -138,7 +138,7 @@ export class UserRepository
       throw new NotFoundException('User not found');
     }
 
-    user.isActive = isActive;
+    user.is_active = isActive;
 
     if (!isActive) {
       user.refreshToken = null;
@@ -149,45 +149,45 @@ export class UserRepository
 
   async countSignupsSince(date: Date): Promise<number> {
     return await this.userRepository.count({
-      where: { createdAt: MoreThan(date) },
+      where: { created_at: MoreThan(date) },
     });
   }
   
   async getSignupUsersSince(
     date: Date,
-  ): Promise<Pick<User, 'id' | 'email' | 'createdAt'>[]> {
+  ): Promise<Pick<User, 'id' | 'email' | 'created_at'>[]> {
     return await this.userRepository.find({
-      where: { createdAt: MoreThan(date) },
-      select: { email: true, createdAt: true },
+      where: { created_at: MoreThan(date) },
+      select: { email: true, created_at: true },
     });
   }
 
   async markPendingDeletion(userId: string): Promise<void> {
     await this.userRepository.update(userId, {
-      isPendingDeletion: true,
-      isActive: false,
-      deletionRequestedAt: new Date(),
+      is_pending_deletion: true,
+      is_active: false,
+      deletion_requested_at: new Date(),
     });
   }
 
   async cancelPendingDeletion(userId: string): Promise<void> {
     await this.userRepository.update(userId, {
-      isPendingDeletion: false,
-      isActive: true,
-      deletionRequestedAt: null,
+      is_pending_deletion: false,
+      is_active: true,
+      deletion_requested_at: null,
     });
   }
 
   async findStaleDeletionRequests(cutoffDate: Date): Promise<User[]> {
     return this.userRepository.find({
       where: {
-        isPendingDeletion: true,
-        deletionRequestedAt: LessThan(cutoffDate),
+        is_pending_deletion: true,
+        deletion_requested_at: LessThan(cutoffDate),
       },
     });
   }
 
   async updateCreatedAtForTest(userId: string, date: Date): Promise<void> {
-    await this.userRepository.update(userId, {createdAt: date})
+    await this.userRepository.update(userId, {created_at: date})
   }
 }

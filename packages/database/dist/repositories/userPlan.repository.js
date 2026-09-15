@@ -25,17 +25,17 @@ let UserPlanRepository = class UserPlanRepository extends base_repository_1.Base
     }
     async createPlan(userId, plan) {
         const userPlan = this.userPlanRepository.create({
-            userId: userId,
+            user_id: userId,
             plan,
-            planUpgradedAt: null,
+            plan_upgraded_at: null,
         });
         return this.userPlanRepository.save(userPlan);
     }
     findByUserId(userId) {
-        return this.userPlanRepository.findOne({ where: { userId: userId } });
+        return this.userPlanRepository.findOne({ where: { user_id: userId } });
     }
     async upgradeToPaid(userId, plan) {
-        await this.userPlanRepository.update({ userId }, { plan: plan, planUpgradedAt: new Date() });
+        await this.userPlanRepository.update({ user_id: userId }, { plan: plan, plan_upgraded_at: new Date() });
     }
 };
 exports.UserPlanRepository = UserPlanRepository;

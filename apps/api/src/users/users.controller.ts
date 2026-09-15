@@ -91,9 +91,9 @@ export class UsersController {
   ) {
     const updatedUser = await this.usersService.updateUserStatus(userId, dto);
     return {
-      message: `User account has been ${updatedUser.isActive ? 'activated' : 'deactivated'} successfully.`,
+      message: `User account has been ${updatedUser.is_active ? 'activated' : 'deactivated'} successfully.`,
       userId: updatedUser.id,
-      isActice: updatedUser.isActive,
+      isActice: updatedUser.is_active,
     };
   }
 }

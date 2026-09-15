@@ -25,22 +25,22 @@ let UserUsageRepository = class UserUsageRepository extends base_repository_1.Ba
     }
     createUsage(userId) {
         const userUsage = this.userUsageRepository.create({
-            userId: userId,
-            dailyArticleViewCount: 0,
-            dailyArticleViewResetAt: null,
+            user_id: userId,
+            daily_article_view_count: 0,
+            daily_article_view_reset_at: null,
         });
         return this.userUsageRepository.save(userUsage);
     }
     findByUserId(userId) {
-        return this.userUsageRepository.findOneBy({ userId: userId });
+        return this.userUsageRepository.findOneBy({ user_id: userId });
     }
     async incrementViewCount(userId, by) {
-        await this.userUsageRepository.increment({ userId }, 'dailyArticleViewCount', by);
+        await this.userUsageRepository.increment({ user_id: userId }, 'dailyArticleViewCount', by);
     }
     async resetDailyCount(userId, resetDate) {
-        await this.userUsageRepository.update({ userId }, {
-            dailyArticleViewCount: 0,
-            dailyArticleViewResetAt: resetDate,
+        await this.userUsageRepository.update({ user_id: userId }, {
+            daily_article_view_count: 0,
+            daily_article_view_reset_at: resetDate,
         });
     }
 };

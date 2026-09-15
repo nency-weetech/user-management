@@ -93,7 +93,7 @@ export class RoomsService {
     const membershipByRoomId = new Map(
       myMemberships.map((m) => [m.room_id, m]),
     );
-    const pendingRoomIds = new Set(myPendingRequests.map((r) => r.roomId));
+    const pendingRoomIds = new Set(myPendingRequests.map((r) => r.room_id));
 
     return allRooms.map((room) => {
       const membership = membershipByRoomId.get(room.id);
@@ -138,7 +138,7 @@ export class RoomsService {
         return {
           roomId: room.id,
           otherUserId: otherUser?.id ?? null,
-          otherUserName: otherUser?.firstName ?? 'Unknown',
+          otherUserName: otherUser?.first_name ?? 'Unknown',
         };
       }),
     );
@@ -202,23 +202,23 @@ export class RoomsService {
       throw new BadRequestException('This request has already been reviewed');
     }
 
-    await this.assertIsRoomAdmin(adminUserId, request.roomId);
+    await this.assertIsRoomAdmin(adminUserId, request.room_id);
     await this.datasource.transaction(async (manager) => {
       await manager.update(RoomJoinRequest, requestId, {
         status: JoinRequestStatus.APPROVED,
-        reviewedById: adminUserId,
-        reviewedAt: new Date(),
+        reviewed_by_id: adminUserId,
+        reviewed_at: new Date(),
       });
 
       await manager.insert(RoomMember, {
-        user_id: request.userId,
-        room_id: request.roomId,
+        user_id: request.user_id,
+        room_id: request.room_id,
         role: RoomMemberRole.MEMBER,
       });
     });
     this.eventEmitter.emit('room.join_request.reviewed', {
-      requesterId: request.userId,
-      roomId: request.roomId,
+      requesterId: request.user_id,
+      roomId: request.room_id,
       status: JoinRequestStatus.APPROVED,
     });
   }
@@ -231,15 +231,15 @@ export class RoomsService {
     if (request.status !== JoinRequestStatus.PENDING) {
       throw new BadRequestException('This request has already been reviewed');
     }
-    await this.assertIsRoomAdmin(adminUserId, request.roomId);
+    await this.assertIsRoomAdmin(adminUserId, request.room_id);
     await this.roomJoinRequestRepo.updateRequestStatus(
       requestId,
       JoinRequestStatus.REJECTED,
       adminUserId,
     );
     this.eventEmitter.emit('room.join_request.reviewed', {
-      requesterId: request.userId,
-      roomId: request.roomId,
+      requesterId: request.user_id,
+      roomId: request.room_id,
       status: JoinRequestStatus.REJECTED,
     });
   }

@@ -12,7 +12,7 @@ import { User } from './user.entity';
 import { JoinRequestStatus } from '../enums/join-request-status.dto';
 
 @Entity('room_join_requests')
-@Index('UQ_pending_request_per_user_room', ['userId', 'roomId'], {
+@Index('UQ_pending_request_per_user_room', ['user_id', 'room_id'], {
   unique: true,
   where: `"status" = 'PENDING'`, 
 })
@@ -21,14 +21,14 @@ export class RoomJoinRequest {
   id: string;
 
   @Column({ type: 'uuid' })
-  userId: string;
+  user_id: string;
 
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'userId' })
   user: User;
 
   @Column({ type: 'uuid' })
-  roomId: string;
+  room_id: string;
 
   @ManyToOne(() => Room, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'roomId' })
@@ -42,15 +42,15 @@ export class RoomJoinRequest {
   status: JoinRequestStatus;
 
   @CreateDateColumn({ type: 'timestamptz' })
-  requestedAt: Date;
+  requested_at: Date;
 
   @Column({ type: 'uuid', nullable: true })
-  reviewedById: string;
+  reviewed_by_id: string;
 
   @ManyToOne(() => User, { onDelete: 'SET NULL', nullable: true })
   @JoinColumn({ name: 'reviewedById' })
-  reviewedBy: User;
+  reviewed_by: User;
 
   @Column({ type: 'timestamptz', nullable: true })
-  reviewedAt: Date;
+  reviewed_at: Date;
 }
