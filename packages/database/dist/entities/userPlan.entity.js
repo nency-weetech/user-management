@@ -15,12 +15,12 @@ const user_plan_enum_1 = require("../enums/user-plan.enum");
 const user_entity_1 = require("./user.entity");
 let UserPlan = class UserPlan {
     id;
-    userId;
+    user_id;
     user;
     plan;
-    planUpgradedAt;
-    createdAt;
-    updatedAt;
+    plan_upgraded_at;
+    created_at;
+    updated_At;
 };
 exports.UserPlan = UserPlan;
 __decorate([
@@ -30,7 +30,7 @@ __decorate([
 __decorate([
     (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)
-], UserPlan.prototype, "userId", void 0);
+], UserPlan.prototype, "user_id", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => user_entity_1.User, { nullable: true, onDelete: 'SET NULL' }),
     (0, typeorm_1.JoinColumn)({ name: 'userId' }),
@@ -43,15 +43,15 @@ __decorate([
 __decorate([
     (0, typeorm_1.Column)({ type: 'timestamp with time zone', nullable: true }),
     __metadata("design:type", Date)
-], UserPlan.prototype, "planUpgradedAt", void 0);
+], UserPlan.prototype, "plan_upgraded_at", void 0);
 __decorate([
     (0, typeorm_1.CreateDateColumn)({ type: 'timestamp with time zone' }),
     __metadata("design:type", Date)
-], UserPlan.prototype, "createdAt", void 0);
+], UserPlan.prototype, "created_at", void 0);
 __decorate([
     (0, typeorm_1.UpdateDateColumn)({ type: 'timestamp with time zone' }),
     __metadata("design:type", Date)
-], UserPlan.prototype, "updatedAt", void 0);
+], UserPlan.prototype, "updated_At", void 0);
 exports.UserPlan = UserPlan = __decorate([
-    (0, typeorm_1.Entity)('UserPlan')
+    (0, typeorm_1.Entity)('user_plans')
 ], UserPlan);

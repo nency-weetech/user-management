@@ -29,8 +29,8 @@ let PaymentRepository = class PaymentRepository extends base_repository_1.BaseAb
     }
     createPayment(userId, plan, paymentIntentId, amount, currency) {
         const userPayment = this.paymentsRepo.create({
-            userId,
-            stripePaymentIntentId: paymentIntentId,
+            user_id: userId,
+            stripe_payment_intent_id: paymentIntentId,
             plan,
             amount,
             currency,
@@ -39,24 +39,24 @@ let PaymentRepository = class PaymentRepository extends base_repository_1.BaseAb
         return this.paymentsRepo.save(userPayment);
     }
     findBySessionId(sessionId) {
-        return this.paymentsRepo.findOneBy({ stripeCheckoutSessionId: sessionId });
+        return this.paymentsRepo.findOneBy({ stripe_checkout_session_id: sessionId });
     }
     findByPaymentIntentId(paymentIntentId) {
-        return this.paymentsRepo.findOneBy({ stripePaymentIntentId: paymentIntentId });
+        return this.paymentsRepo.findOneBy({ stripe_payment_intent_id: paymentIntentId });
     }
     async markSucceeded(paymentIntentId) {
-        await this.paymentsRepo.update({ stripePaymentIntentId: paymentIntentId }, {
+        await this.paymentsRepo.update({ stripe_payment_intent_id: paymentIntentId }, {
             status: payment_status_enum_1.PaymentStatus.SUCCEEDED,
         });
     }
     async markExpired(paymentIntentId) {
-        await this.paymentsRepo.update({ stripePaymentIntentId: paymentIntentId }, {
+        await this.paymentsRepo.update({ stripe_payment_intent_id: paymentIntentId }, {
             status: payment_status_enum_1.PaymentStatus.EXPIRED,
         });
     }
     async findStalePending(cutoff) {
         return this.paymentsRepo.find({
-            where: { status: payment_status_enum_1.PaymentStatus.PENDING, createdAt: (0, typeorm_2.LessThan)(cutoff) },
+            where: { status: payment_status_enum_1.PaymentStatus.PENDING, created_at: (0, typeorm_2.LessThan)(cutoff) },
         });
     }
     async findAllPaginated(page, limit, status, plan) {
@@ -70,20 +70,20 @@ let PaymentRepository = class PaymentRepository extends base_repository_1.BaseAb
         }
         query.orderBy('payment.createdAt', 'DESC').skip(skip).take(limit);
         const [payments, total] = await query.getManyAndCount();
-        const userIds = payments.map((p) => p.userId);
+        const userIds = payments.map((p) => p.user_id);
         const users = await this.userRepository.findManyByCondition({
             where: { id: (0, typeorm_2.In)(userIds) },
             select: {
                 id: true,
                 email: true,
-                firstName: true,
-                lastName: true,
+                first_name: true,
+                last_name: true,
             },
         });
         const userMap = new Map(users.map((u) => [u.id, u]));
         const enrichPayment = payments.map((p) => ({
             ...p,
-            user: userMap.get(p.userId) || null,
+            user: userMap.get(p.user_id) || null,
         }));
         return [enrichPayment, total];
     }

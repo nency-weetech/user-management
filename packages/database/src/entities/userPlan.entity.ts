@@ -10,13 +10,13 @@ import {
 import { UserPlanEnum } from '../enums/user-plan.enum';
 import { User } from './user.entity';
 
-@Entity('UserPlan')
+@Entity('user_plans')
 export class UserPlan {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
   @Column({nullable: true})
-  userId!: string|null;
+  user_id!: string|null;
 
   @ManyToOne(()=> User, {nullable: true, onDelete: 'SET NULL'})
   @JoinColumn({name: 'userId'})
@@ -26,11 +26,11 @@ export class UserPlan {
   plan!: UserPlanEnum;
 
   @Column({ type: 'timestamp with time zone', nullable: true })
-  planUpgradedAt!: Date;
+  plan_upgraded_at!: Date;
 
   @CreateDateColumn({type: 'timestamp with time zone'})
-  createdAt!: Date;
+  created_at!: Date;
 
   @UpdateDateColumn({type: 'timestamp with time zone'})
-  updatedAt!: Date;
+  updated_At!: Date;
 }

@@ -14,7 +14,7 @@ export enum fetchTrigger {
   ADMIN = 'admin',
 }
 
-@Entity('news-fetch-log')
+@Entity('news_fetch_logs')
 export class NewsFetchLog {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
@@ -23,30 +23,30 @@ export class NewsFetchLog {
   query!: string;
 
   @Column({ default: 0 })
-  articlesFetched!: number;
+  articles_fetched!: number;
 
   @Column({ type: 'enum', enum: fetchTrigger })
-  triggeredBy!: fetchTrigger;
+  trigger_type!: fetchTrigger;
 
   @Column({ nullable: true })
-  triggeredByUserId!: string | null;
+  triggered_by_user_id!: string | null;
 
   @ManyToOne(() => User, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'triggeredByUserId' })
-  triggeredByUser!: User | null;
+  triggered_by_user!: User | null;
 
   @Column({ default: true })
   success!: boolean;
 
   @Column({ type: 'text', nullable: true })
-  errorMessage!: string | null;
+  error_message!: string | null;
 
   @Column({ type: 'int', default: 0 })
-  durationMs!: number;
+  duration_ms!: number;
 
   @CreateDateColumn({ type: 'timestamp with time zone' })
-  createdAt!: Date;
+  created_at!: Date;
 
   @UpdateDateColumn({ type: 'timestamp with time zone' })
-  updatedAt!: Date;
+  updated_at!: Date;
 }

@@ -43,8 +43,8 @@ export class ViewLimitGuard implements CanActivate {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const resetAt = userUsage.dailyArticleViewResetAt
-      ? new Date(userUsage.dailyArticleViewResetAt)
+    const resetAt = userUsage.daily_article_view_reset_at
+      ? new Date(userUsage.daily_article_view_reset_at)
       : null;
 
     const sameDay =
@@ -59,7 +59,7 @@ export class ViewLimitGuard implements CanActivate {
       await this.userUsageRepo.resetDailyCount(user.id, today);
       currentCount = 0;
     } else {
-      currentCount = userUsage.dailyArticleViewCount;
+      currentCount = userUsage.daily_article_view_count;
     }
 
     if (currentCount >= dailyLimit) {

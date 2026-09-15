@@ -3,14 +3,14 @@ import { PaymentStatus } from '../enums/payment-status.enum';
 import { UserPlanEnum } from '../enums/user-plan.enum';
 export declare class Payments {
     id: string;
-    userId: string | null;
+    user_id: string | null;
     user: User | null;
-    stripeCheckoutSessionId: string | null;
-    stripePaymentIntentId: string;
+    stripe_checkout_session_id: string | null;
+    stripe_payment_intent_id: string;
     plan: UserPlanEnum;
     amount: Number;
     currency: string;
     status: PaymentStatus;
-    createdAt: Date;
-    updatedAt: Date;
+    created_at: Date;
+    updated_at: Date;
 }

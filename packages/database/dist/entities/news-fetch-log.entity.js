@@ -20,15 +20,15 @@ var fetchTrigger;
 let NewsFetchLog = class NewsFetchLog {
     id;
     query;
-    articlesFetched;
-    triggeredBy;
-    triggeredByUserId;
-    triggeredByUser;
+    articles_fetched;
+    trigger_type;
+    triggered_by_user_id;
+    triggered_by_user;
     success;
-    errorMessage;
-    durationMs;
-    createdAt;
-    updatedAt;
+    error_message;
+    duration_ms;
+    created_at;
+    updated_at;
 };
 exports.NewsFetchLog = NewsFetchLog;
 __decorate([
@@ -42,20 +42,20 @@ __decorate([
 __decorate([
     (0, typeorm_1.Column)({ default: 0 }),
     __metadata("design:type", Number)
-], NewsFetchLog.prototype, "articlesFetched", void 0);
+], NewsFetchLog.prototype, "articles_fetched", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: 'enum', enum: fetchTrigger }),
     __metadata("design:type", String)
-], NewsFetchLog.prototype, "triggeredBy", void 0);
+], NewsFetchLog.prototype, "trigger_type", void 0);
 __decorate([
     (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)
-], NewsFetchLog.prototype, "triggeredByUserId", void 0);
+], NewsFetchLog.prototype, "triggered_by_user_id", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => user_entity_1.User, { nullable: true, onDelete: 'SET NULL' }),
     (0, typeorm_1.JoinColumn)({ name: 'triggeredByUserId' }),
     __metadata("design:type", user_entity_1.User)
-], NewsFetchLog.prototype, "triggeredByUser", void 0);
+], NewsFetchLog.prototype, "triggered_by_user", void 0);
 __decorate([
     (0, typeorm_1.Column)({ default: true }),
     __metadata("design:type", Boolean)
@@ -63,19 +63,19 @@ __decorate([
 __decorate([
     (0, typeorm_1.Column)({ type: 'text', nullable: true }),
     __metadata("design:type", String)
-], NewsFetchLog.prototype, "errorMessage", void 0);
+], NewsFetchLog.prototype, "error_message", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: 'int', default: 0 }),
     __metadata("design:type", Number)
-], NewsFetchLog.prototype, "durationMs", void 0);
+], NewsFetchLog.prototype, "duration_ms", void 0);
 __decorate([
     (0, typeorm_1.CreateDateColumn)({ type: 'timestamp with time zone' }),
     __metadata("design:type", Date)
-], NewsFetchLog.prototype, "createdAt", void 0);
+], NewsFetchLog.prototype, "created_at", void 0);
 __decorate([
     (0, typeorm_1.UpdateDateColumn)({ type: 'timestamp with time zone' }),
     __metadata("design:type", Date)
-], NewsFetchLog.prototype, "updatedAt", void 0);
+], NewsFetchLog.prototype, "updated_at", void 0);
 exports.NewsFetchLog = NewsFetchLog = __decorate([
-    (0, typeorm_1.Entity)('news-fetch-log')
+    (0, typeorm_1.Entity)('news_fetch_logs')
 ], NewsFetchLog);

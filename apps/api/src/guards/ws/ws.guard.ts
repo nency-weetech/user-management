@@ -31,7 +31,7 @@ export class WsGuard implements CanActivate {
           where: { id: payload.id },
         });
         client.data.userId = payload.id;
-        client.data.firstName = user?.firstName ?? 'Unknown';
+        client.data.firstName = user?.first_name ?? 'Unknown';
       }
       return true;
     } catch(error) {

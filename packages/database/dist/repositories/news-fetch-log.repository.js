@@ -25,7 +25,7 @@ let NewsFetchLogRepository = class NewsFetchLogRepository extends base_repositor
     }
     async findRecent(limit) {
         const log = await this.newsFetchLogRepository.find({
-            order: { createdAt: 'DESC' },
+            order: { created_at: 'DESC' },
             take: limit,
             //relations: {triggeredByUser : true}, -- for all detail of Admin-user
         });
@@ -33,12 +33,12 @@ let NewsFetchLogRepository = class NewsFetchLogRepository extends base_repositor
     }
     async countFailuersSince(date) {
         return this.newsFetchLogRepository.count({
-            where: { success: false, createdAt: (0, typeorm_2.MoreThan)(date) },
+            where: { success: false, created_at: (0, typeorm_2.MoreThan)(date) },
         });
     }
     async getStats(sinceDate) {
         const total = await this.newsFetchLogRepository.count({
-            where: { createdAt: (0, typeorm_2.MoreThan)(sinceDate) },
+            where: { created_at: (0, typeorm_2.MoreThan)(sinceDate) },
         });
         const failauer = await this.countFailuersSince(sinceDate);
         const avgDuration = await this.newsFetchLogRepository

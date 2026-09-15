@@ -161,7 +161,7 @@ export class UsersService {
 
   async getSignupUsersSince(
     date: Date,
-  ): Promise<Pick<User, 'id' | 'email' | 'createdAt'>[]> {
+  ): Promise<Pick<User, 'id' | 'email' | 'created_at'>[]> {
     return await this.repo.getSignupUsersSince(date);
   }
 

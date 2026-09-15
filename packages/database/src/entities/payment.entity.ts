@@ -11,23 +11,23 @@ import { User } from './user.entity';
 import { PaymentStatus } from '../enums/payment-status.enum';
 import { UserPlanEnum } from '../enums/user-plan.enum';
 
-@Entity('Payments')
+@Entity('payments')
 export class Payments {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
   @Column({ nullable: true })
-  userId!: string | null;
+  user_id!: string | null;
 
   @ManyToMany(() => User, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'userId' })
   user!: User | null;
 
   @Column({ nullable: true })
-  stripeCheckoutSessionId!: string|null;
+  stripe_checkout_session_id!: string|null;
 
   @Column({ unique: true })
-  stripePaymentIntentId!: string;
+  stripe_payment_intent_id!: string;
 
   @Column({type: 'enum', enum: UserPlanEnum})
   plan!:UserPlanEnum;
@@ -42,8 +42,8 @@ export class Payments {
   status!: PaymentStatus;
 
   @CreateDateColumn({type: 'timestamp with time zone'})
-  createdAt!: Date;
+  created_at!: Date;
 
   @UpdateDateColumn({type: 'timestamp with time zone'})
-  updatedAt!: Date;
+  updated_at!: Date;
 }

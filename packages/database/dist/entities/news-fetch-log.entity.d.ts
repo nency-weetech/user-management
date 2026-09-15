@@ -6,13 +6,13 @@ export declare enum fetchTrigger {
 export declare class NewsFetchLog {
     id: string;
     query: string;
-    articlesFetched: number;
-    triggeredBy: fetchTrigger;
-    triggeredByUserId: string | null;
-    triggeredByUser: User | null;
+    articles_fetched: number;
+    trigger_type: fetchTrigger;
+    triggered_by_user_id: string | null;
+    triggered_by_user: User | null;
     success: boolean;
-    errorMessage: string | null;
-    durationMs: number;
-    createdAt: Date;
-    updatedAt: Date;
+    error_message: string | null;
+    duration_ms: number;
+    created_at: Date;
+    updated_at: Date;
 }

@@ -14,12 +14,12 @@ const typeorm_1 = require("typeorm");
 const user_entity_1 = require("./user.entity");
 let UserUsage = class UserUsage {
     id;
-    userId;
+    user_id;
     user;
-    dailyArticleViewCount;
-    dailyArticleViewResetAt;
-    createdAt;
-    updatedAt;
+    daily_article_view_count;
+    daily_article_view_reset_at;
+    created_at;
+    updated_at;
 };
 exports.UserUsage = UserUsage;
 __decorate([
@@ -29,7 +29,7 @@ __decorate([
 __decorate([
     (0, typeorm_1.Column)({ nullable: true, unique: true }),
     __metadata("design:type", String)
-], UserUsage.prototype, "userId", void 0);
+], UserUsage.prototype, "user_id", void 0);
 __decorate([
     (0, typeorm_1.ManyToMany)(() => user_entity_1.User, { nullable: true, onDelete: 'SET NULL' }),
     (0, typeorm_1.JoinColumn)({ name: 'userId' }),
@@ -38,19 +38,19 @@ __decorate([
 __decorate([
     (0, typeorm_1.Column)({ type: 'int', default: 0 }),
     __metadata("design:type", Number)
-], UserUsage.prototype, "dailyArticleViewCount", void 0);
+], UserUsage.prototype, "daily_article_view_count", void 0);
 __decorate([
     (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", Date)
-], UserUsage.prototype, "dailyArticleViewResetAt", void 0);
+], UserUsage.prototype, "daily_article_view_reset_at", void 0);
 __decorate([
     (0, typeorm_1.CreateDateColumn)({ type: 'timestamp with time zone' }),
     __metadata("design:type", Date)
-], UserUsage.prototype, "createdAt", void 0);
+], UserUsage.prototype, "created_at", void 0);
 __decorate([
     (0, typeorm_1.UpdateDateColumn)({ type: 'timestamp with time zone' }),
     __metadata("design:type", Date)
-], UserUsage.prototype, "updatedAt", void 0);
+], UserUsage.prototype, "updated_at", void 0);
 exports.UserUsage = UserUsage = __decorate([
-    (0, typeorm_1.Entity)('UserUsage')
+    (0, typeorm_1.Entity)('user_usages')
 ], UserUsage);

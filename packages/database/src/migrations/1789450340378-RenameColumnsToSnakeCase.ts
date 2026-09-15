@@ -1,0 +1,120 @@
+import { MigrationInterface, QueryRunner } from "typeorm";
+
+export class RenameColumnsToSnakeCase1789450340378 implements MigrationInterface {
+
+    public async up(queryRunner: QueryRunner): Promise<void> {
+        await queryRunner.query(`ALTER TABLE users RENAME COLUMN "firstName" TO first_name`);
+        await queryRunner.query(`ALTER TABLE users RENAME COLUMN "lastName" TO last_name`);
+        await queryRunner.query(`ALTER TABLE users RENAME COLUMN "isActive" TO is_active`);
+        await queryRunner.query(`ALTER TABLE users RENAME COLUMN "isEmailVerified" TO is_email_verified`);
+        await queryRunner.query(`ALTER TABLE users RENAME COLUMN "emailVerificationOtp" TO email_verification_otp`);
+        await queryRunner.query(`ALTER TABLE users RENAME COLUMN "emailVerificationExpires" TO email_verification_expires`);
+        await queryRunner.query(`ALTER TABLE users RENAME COLUMN "passwordResetOtp" TO password_reset_otp`);
+        await queryRunner.query(`ALTER TABLE users RENAME COLUMN "resetOtpExpires" TO reset_otp_expires`);
+        await queryRunner.query(`ALTER TABLE users RENAME COLUMN "otpAttempts" TO otp_attempts`);
+        await queryRunner.query(`ALTER TABLE users RENAME COLUMN "createdAt" TO created_at`);
+        await queryRunner.query(`ALTER TABLE users RENAME COLUMN "updatedAt" TO updated_at`);
+        await queryRunner.query(`ALTER TABLE users RENAME COLUMN "isPendingDeletion" TO is_pending_deletion`);
+        await queryRunner.query(`ALTER TABLE users RENAME COLUMN "deletionRequestedAt" TO deletion_requested_at`);
+        await queryRunner.query(`ALTER TABLE users RENAME COLUMN "deletedAt" TO deleted_at`);
+
+        await queryRunner.query(`ALTER TABLE articles RENAME COLUMN "externalId" TO external_id`)
+        await queryRunner.query(`ALTER TABLE articles RENAME COLUMN author TO author_name`);
+        await queryRunner.query(`ALTER TABLE articles RENAME COLUMN "sourceCountry" TO source_country`);
+        await queryRunner.query(`ALTER TABLE articles RENAME COLUMN "publishDated" TO published_date`);
+        await queryRunner.query(`ALTER TABLE articles RENAME COLUMN "lastRefreshedAt" TO last_refreshed_at`);
+        await queryRunner.query(`ALTER TABLE articles RENAME COLUMN "createdAt" TO created_at`);
+
+        await queryRunner.query(`ALTER TABLE news_fetch_logs RENAME COLUMN "articlesFetched" TO articles_fetched`)
+        await queryRunner.query(`ALTER TABLE news_fetch_logs RENAME COLUMN "triggeredBy" TO trigger_type`);
+        await queryRunner.query(`ALTER TABLE news_fetch_logs RENAME COLUMN "triggeredByUserId" TO triggered_by_user_id`);
+        await queryRunner.query(`ALTER TABLE news_fetch_logs RENAME COLUMN "errorMessage" TO error_message`);
+        await queryRunner.query(`ALTER TABLE news_fetch_logs RENAME COLUMN "durationMs" TO duration_ms`);
+        await queryRunner.query(`ALTER TABLE news_fetch_logs RENAME COLUMN "createdAt" TO created_at`);
+        await queryRunner.query(`ALTER TABLE news_fetch_logs RENAME COLUMN "updatedAt" TO updated_at`);
+
+        await queryRunner.query(`ALTER TABLE payments RENAME COLUMN "userId" TO user_id`);
+        await queryRunner.query(`ALTER TABLE payments RENAME COLUMN "stripeCheckoutSessionId" TO stripe_checkout_session_id`);
+        await queryRunner.query(`ALTER TABLE payments RENAME COLUMN "stripePaymentIntentId" TO stripe_payment_intent_id`);
+        await queryRunner.query(`ALTER TABLE payments RENAME COLUMN "createdAt" TO created_at`);
+        await queryRunner.query(`ALTER TABLE payments RENAME COLUMN "updatedAt" TO updated_at`);
+
+        await queryRunner.query(`ALTER TABLE user_plans RENAME COLUMN "userId" TO user_id`);
+        await queryRunner.query(`ALTER TABLE user_plans RENAME COLUMN "planUpgradedAt" TO plan_upgraded_at`);
+        await queryRunner.query(`ALTER TABLE user_plans RENAME COLUMN "createdAt" TO created_at`);
+        await queryRunner.query(`ALTER TABLE user_plans RENAME COLUMN "updatedAt" TO updated_at`);
+
+        await queryRunner.query(`ALTER TABLE user_usages RENAME COLUMN "userId" TO user_id`);
+        await queryRunner.query(`ALTER TABLE user_usages RENAME COLUMN "dailyArticleViewCount" TO daily_article_view_count`);
+        await queryRunner.query(`ALTER TABLE user_usages RENAME COLUMN "dailyArticleViewResetAt" TO daily_article_view_reset_at`);
+        await queryRunner.query(`ALTER TABLE user_usages RENAME COLUMN "createdAt" TO created_at`);
+        await queryRunner.query(`ALTER TABLE user_usages RENAME COLUMN "updatedAt" TO updated_at`);
+
+        await queryRunner.query(`ALTER TABLE room_join_requests RENAME COLUMN "userId" TO user_id`);
+        await queryRunner.query(`ALTER TABLE room_join_requests RENAME COLUMN "roomId" TO room_id`);
+        await queryRunner.query(`ALTER TABLE room_join_requests RENAME COLUMN "requestedAt" TO requested_at;`);
+        await queryRunner.query(`ALTER TABLE room_join_requests RENAME COLUMN "reviewedById" TO reviewed_by_id;`);
+        await queryRunner.query(`ALTER TABLE room_join_requests RENAME COLUMN "reviewedAt" TO reviewed_at;`);
+        await queryRunner.query(`DROP INDEX IF EXISTS "UQ_pending_request_per_user_room"`);
+        await queryRunner.query(`CREATE UNIQUE INDEX "UQ_pending_request_per_user_room" ON room_join_requests (user_id, room_id) WHERE status = 'PENDING'`);
+}
+
+    public async down(queryRunner: QueryRunner): Promise<void> {
+        await queryRunner.query(`DROP INDEX IF EXISTS "UQ_pending_request_per_user_room"`);
+        await queryRunner.query(`CREATE UNIQUE INDEX "UQ_pending_request_per_user_room" ON "room_join_requests" ("userId", "roomId") WHERE "status" = 'PENDING'`);
+        await queryRunner.query(`ALTER TABLE room_join_requests RENAME COLUMN reviewed_at TO "reviewedAt"`);
+        await queryRunner.query(`ALTER TABLE room_join_requests RENAME COLUMN reviewed_by_id TO "reviewedById"`);
+        await queryRunner.query(`ALTER TABLE room_join_requests RENAME COLUMN requested_at TO "requestedAt"`);
+        await queryRunner.query(`ALTER TABLE room_join_requests RENAME COLUMN "room_id" TO roomId`);
+        await queryRunner.query(`ALTER TABLE room_join_requests RENAME COLUMN "user_id" TO userId`);
+
+        await queryRunner.query(`ALTER TABLE user_usages RENAME COLUMN updated_at TO "updatedAt"`);
+        await queryRunner.query(`ALTER TABLE user_usages RENAME COLUMN created_at TO "createdAt"`);
+        await queryRunner.query(`ALTER TABLE user_usages RENAME COLUMN daily_article_view_reset_at TO "dailyArticleViewResetAt"`);
+        await queryRunner.query(`ALTER TABLE user_usages RENAME COLUMN daily_article_view_count TO "dailyArticleViewCount"`);
+        await queryRunner.query(`ALTER TABLE user_usages RENAME COLUMN user_id TO "userId"`);
+
+        await queryRunner.query(`ALTER TABLE user_plans RENAME COLUMN updated_at TO "updatedAt"`);
+        await queryRunner.query(`ALTER TABLE user_plans RENAME COLUMN created_at TO "createdAt"`);
+        await queryRunner.query(`ALTER TABLE user_plans RENAME COLUMN plan_upgraded_at TO "planUpgradedAt"`);
+        await queryRunner.query(`ALTER TABLE user_plans RENAME COLUMN user_id TO "userId"`);
+
+        await queryRunner.query(`ALTER TABLE payments RENAME COLUMN updated_at TO "updatedAt"`);
+        await queryRunner.query(`ALTER TABLE payments RENAME COLUMN created_at TO "createdAt"`);
+        await queryRunner.query(`ALTER TABLE payments RENAME COLUMN stripe_payment_intent_id TO "stripePaymentIntentId"`);
+        await queryRunner.query(`ALTER TABLE payments RENAME COLUMN stripe_checkout_session_id TO "stripeCheckoutSessionId"`);
+        await queryRunner.query(`ALTER TABLE payments RENAME COLUMN user_id TO "userId"`);
+
+        await queryRunner.query(`ALTER TABLE news_fetch_logs RENAME COLUMN updated_at TO "updatedAt"`);
+        await queryRunner.query(`ALTER TABLE news_fetch_logs RENAME COLUMN created_at TO "createdAt"`);
+        await queryRunner.query(`ALTER TABLE news_fetch_logs RENAME COLUMN duration_ms TO "durationMs"`);
+        await queryRunner.query(`ALTER TABLE news_fetch_logs RENAME COLUMN error_message TO "errorMessage"`);
+        await queryRunner.query(`ALTER TABLE news_fetch_logs RENAME COLUMN triggered_by_user_id TO "triggeredByUserId"`);
+        await queryRunner.query(`ALTER TABLE news_fetch_logs RENAME COLUMN trigger_type TO "triggeredBy"`);
+        await queryRunner.query(`ALTER TABLE news_fetch_logs RENAME COLUMN articles_fetched TO "articlesFetched"`);
+
+        await queryRunner.query(`ALTER TABLE articles RENAME COLUMN updated_at TO "updatedAt"`);
+        await queryRunner.query(`ALTER TABLE articles RENAME COLUMN created_at TO "createdAt"`);
+        await queryRunner.query(`ALTER TABLE articles RENAME COLUMN last_refreshed_at TO "lastRefreshedAt"`);
+        await queryRunner.query(`ALTER TABLE articles RENAME COLUMN published_date TO "publishDated"`);
+        await queryRunner.query(`ALTER TABLE articles RENAME COLUMN source_country TO "sourceCountry"`);
+        await queryRunner.query(`ALTER TABLE articles RENAME COLUMN author_name TO author`);
+        await queryRunner.query(`ALTER TABLE articles RENAME COLUMN external_id TO "externalId"`);
+
+        await queryRunner.query(`ALTER TABLE users RENAME COLUMN deleted_at TO "deletedAt"`);
+        await queryRunner.query(`ALTER TABLE users RENAME COLUMN deletion_requested_at TO "deletionRequestedAt"`);
+        await queryRunner.query(`ALTER TABLE users RENAME COLUMN is_pending_deletion TO "isPendingDeletion"`);
+        await queryRunner.query(`ALTER TABLE users RENAME COLUMN updated_at TO "updatedAt"`);
+        await queryRunner.query(`ALTER TABLE users RENAME COLUMN created_at TO "createdAt"`);
+        await queryRunner.query(`ALTER TABLE users RENAME COLUMN otp_attempts TO "otpAttempts"`);
+        await queryRunner.query(`ALTER TABLE users RENAME COLUMN reset_otp_expires TO "resetOtpExpires"`);
+        await queryRunner.query(`ALTER TABLE users RENAME COLUMN password_reset_otp TO "passwordResetOtp"`);
+        await queryRunner.query(`ALTER TABLE users RENAME COLUMN email_verification_expires TO "emailVerificationExpires"`);
+        await queryRunner.query(`ALTER TABLE users RENAME COLUMN email_verification_otp TO "emailVerificationOtp"`);
+        await queryRunner.query(`ALTER TABLE users RENAME COLUMN is_email_verified TO "isEmailVerified"`);
+        await queryRunner.query(`ALTER TABLE users RENAME COLUMN is_active TO "isActive"`);
+        await queryRunner.query(`ALTER TABLE users RENAME COLUMN last_name TO "lastName"`);
+        await queryRunner.query(`ALTER TABLE users RENAME COLUMN first_name TO "firstName"`);
+    }
+
+}

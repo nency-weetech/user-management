@@ -71,7 +71,7 @@ __decorate([
     __metadata("design:type", Date)
 ], Message.prototype, "created_at", void 0);
 exports.Message = Message = __decorate([
-    (0, typeorm_1.Entity)('message'),
+    (0, typeorm_1.Entity)('messages'),
     (0, typeorm_1.Index)('IDX_MESSAGE_ROOM_CREATED_AT', ['room_id', 'created_at']),
     (0, typeorm_1.Index)('IDX_MESSAGE_SENDER_ID', ['sender_id'])
 ], Message);

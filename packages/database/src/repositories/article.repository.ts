@@ -16,12 +16,12 @@ export class ArticleRepository
   }
 
    findByExternalId(externalId: number): Promise<Article | null>{
-    return this.articleRepository.findOne({where: {externalId}})
+    return this.articleRepository.findOne({where: {external_id: externalId}})
    }
 
    async upsertArticle(data: Partial<Article>): Promise<Article>{
     await this.articleRepository.upsert(data as any, ['externalId']);
-    return this.findByExternalId(data.externalId!) as Promise<Article>;
+    return this.findByExternalId(data.external_id!) as Promise<Article>;
    }
 
    async findAllPaginated(page: number, limit: number, category?: string): Promise<[Article[], number]> {

@@ -11,7 +11,7 @@ import {
 import { Room } from './room.entity';
 import { User } from './user.entity';
 
-@Entity('message')
+@Entity('messages')
 @Index('IDX_MESSAGE_ROOM_CREATED_AT', ['room_id', 'created_at'])
 @Index('IDX_MESSAGE_SENDER_ID', ['sender_id'])
 export class Message {

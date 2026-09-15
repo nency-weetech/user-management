@@ -16,21 +16,21 @@ export class UserPlanRepository extends BaseAbstractRepostitory<UserPlan> implem
   }
   async createPlan(userId: string, plan: UserPlanEnum): Promise<UserPlan> {
     const userPlan = this.userPlanRepository.create({
-      userId: userId,
+      user_id: userId,
       plan,
-      planUpgradedAt: null,
+      plan_upgraded_at: null,
     });
     return this.userPlanRepository.save(userPlan);
   }
 
   findByUserId(userId: string): Promise<UserPlan | null> {
-    return this.userPlanRepository.findOne({where:{userId: userId}});
+    return this.userPlanRepository.findOne({where:{user_id: userId}});
   }
 
   async upgradeToPaid(userId: string,plan : UserPlanEnum): Promise<void> {
     await this.userPlanRepository.update(
-      { userId },
-      { plan: plan, planUpgradedAt: new Date() },
+      { user_id : userId},
+      { plan: plan, plan_upgraded_at: new Date() },
     );
   }
 }

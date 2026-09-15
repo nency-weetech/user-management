@@ -18,7 +18,7 @@ export declare class UserRepository extends BaseAbstractRepostitory<User> implem
     updatePasswordAndRevokeSession(userId: string, newPass: string): Promise<void>;
     updateUserStatus(userId: string, isActive: boolean): Promise<User | null>;
     countSignupsSince(date: Date): Promise<number>;
-    getSignupUsersSince(date: Date): Promise<Pick<User, 'id' | 'email' | 'createdAt'>[]>;
+    getSignupUsersSince(date: Date): Promise<Pick<User, 'id' | 'email' | 'created_at'>[]>;
     markPendingDeletion(userId: string): Promise<void>;
     cancelPendingDeletion(userId: string): Promise<void>;
     findStaleDeletionRequests(cutoffDate: Date): Promise<User[]>;

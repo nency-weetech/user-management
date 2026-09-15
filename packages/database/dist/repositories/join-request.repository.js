@@ -23,20 +23,20 @@ let JoinRequestRepository = class JoinRequestRepository {
         this.joinRequestRepo = joinRequestRepo;
     }
     async createJoinRequest(userId, roomId) {
-        const request = this.joinRequestRepo.create({ userId, roomId });
+        const request = this.joinRequestRepo.create({ user_id: userId, room_id: roomId });
         return this.joinRequestRepo.save(request);
     }
     async hasPending(userId, roomId) {
         const count = await this.joinRequestRepo.count({
-            where: { userId, roomId, status: join_request_status_dto_1.JoinRequestStatus.PENDING }
+            where: { user_id: userId, room_id: roomId, status: join_request_status_dto_1.JoinRequestStatus.PENDING }
         });
         return count > 0;
     }
     async findPendingRequestsForRoom(roomId) {
         return this.joinRequestRepo.find({
-            where: { roomId, status: join_request_status_dto_1.JoinRequestStatus.PENDING },
+            where: { room_id: roomId, status: join_request_status_dto_1.JoinRequestStatus.PENDING },
             relations: { user: true },
-            order: { requestedAt: 'ASC' },
+            order: { requested_at: 'ASC' },
         });
     }
     async findRequestById(requestId) {
@@ -48,13 +48,13 @@ let JoinRequestRepository = class JoinRequestRepository {
     async updateRequestStatus(requestId, status, reviewedById) {
         await this.joinRequestRepo.update(requestId, {
             status,
-            reviewedById,
-            reviewedAt: new Date(),
+            reviewed_by_id: reviewedById,
+            reviewed_at: new Date(),
         });
     }
     async findAllPendingForUser(userId) {
         return this.joinRequestRepo.find({
-            where: { userId, status: join_request_status_dto_1.JoinRequestStatus.PENDING },
+            where: { user_id: userId, status: join_request_status_dto_1.JoinRequestStatus.PENDING },
         });
     }
 };

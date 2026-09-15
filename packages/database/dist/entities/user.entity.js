@@ -20,26 +20,26 @@ let User = class User {
     id;
     email;
     password;
-    firstName;
-    lastName;
+    first_name;
+    last_name;
     role;
-    isActive;
-    isEmailVerified;
+    is_active;
+    is_email_verified;
     room_memberships;
     messages;
     owned_rooms;
-    emailVerificationOtp;
-    emailVerificationExpires;
-    passwordResetOtp;
-    resetOtpExpires;
-    otpAttempts;
+    email_verification_otp;
+    email_verification_expires;
+    password_reset_otp;
+    reset_otp_expires;
+    otp_attempts;
     refreshToken;
     lastLoginAt;
-    createdAt;
-    updatedAt;
-    isPendingDeletion;
-    deletionRequestedAt;
-    deletedAt;
+    created_at;
+    updated_at;
+    is_pending_deletion;
+    deletion_requested_at;
+    deleted_at;
 };
 exports.User = User;
 __decorate([
@@ -66,11 +66,11 @@ __decorate([
 __decorate([
     (0, typeorm_1.Column)({ type: 'varchar', length: 100 }),
     __metadata("design:type", String)
-], User.prototype, "firstName", void 0);
+], User.prototype, "first_name", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: 'varchar', length: 100 }),
     __metadata("design:type", String)
-], User.prototype, "lastName", void 0);
+], User.prototype, "last_name", void 0);
 __decorate([
     (0, typeorm_1.Column)({
         type: 'enum',
@@ -85,14 +85,14 @@ __decorate([
         default: true,
     }),
     __metadata("design:type", Boolean)
-], User.prototype, "isActive", void 0);
+], User.prototype, "is_active", void 0);
 __decorate([
     (0, typeorm_1.Column)({
         type: 'boolean',
         default: false,
     }),
     __metadata("design:type", Boolean)
-], User.prototype, "isEmailVerified", void 0);
+], User.prototype, "is_email_verified", void 0);
 __decorate([
     (0, typeorm_1.OneToMany)(() => roomMember_entity_1.RoomMember, (roomMember) => roomMember.user),
     __metadata("design:type", Array)
@@ -108,23 +108,23 @@ __decorate([
 __decorate([
     (0, typeorm_1.Column)({ type: 'varchar', nullable: true }),
     __metadata("design:type", String)
-], User.prototype, "emailVerificationOtp", void 0);
+], User.prototype, "email_verification_otp", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: 'timestamp', nullable: true }),
     __metadata("design:type", Date)
-], User.prototype, "emailVerificationExpires", void 0);
+], User.prototype, "email_verification_expires", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: 'varchar', nullable: true }),
     __metadata("design:type", String)
-], User.prototype, "passwordResetOtp", void 0);
+], User.prototype, "password_reset_otp", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: 'timestamp', nullable: true }),
     __metadata("design:type", Date)
-], User.prototype, "resetOtpExpires", void 0);
+], User.prototype, "reset_otp_expires", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: 'int', default: 0 }),
     __metadata("design:type", Number)
-], User.prototype, "otpAttempts", void 0);
+], User.prototype, "otp_attempts", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: 'varchar', nullable: true }),
     __metadata("design:type", String)
@@ -136,24 +136,24 @@ __decorate([
 __decorate([
     (0, typeorm_1.CreateDateColumn)({ type: 'timestamp with time zone' }),
     __metadata("design:type", Date)
-], User.prototype, "createdAt", void 0);
+], User.prototype, "created_at", void 0);
 __decorate([
     (0, typeorm_1.UpdateDateColumn)({ type: 'timestamp with time zone' }),
     __metadata("design:type", Date)
-], User.prototype, "updatedAt", void 0);
+], User.prototype, "updated_at", void 0);
 __decorate([
     (0, typeorm_1.Column)({ default: false }),
     __metadata("design:type", Boolean)
-], User.prototype, "isPendingDeletion", void 0);
+], User.prototype, "is_pending_deletion", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: 'timestamp', nullable: true }),
     __metadata("design:type", Date)
-], User.prototype, "deletionRequestedAt", void 0);
+], User.prototype, "deletion_requested_at", void 0);
 __decorate([
     (0, typeorm_1.DeleteDateColumn)({ type: 'timestamp with time zone', nullable: true }),
     (0, class_transformer_1.Exclude)(),
     __metadata("design:type", Date)
-], User.prototype, "deletedAt", void 0);
+], User.prototype, "deleted_at", void 0);
 exports.User = User = __decorate([
     (0, typeorm_1.Entity)('users')
 ], User);

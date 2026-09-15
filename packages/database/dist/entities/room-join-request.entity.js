@@ -16,15 +16,15 @@ const user_entity_1 = require("./user.entity");
 const join_request_status_dto_1 = require("../enums/join-request-status.dto");
 let RoomJoinRequest = class RoomJoinRequest {
     id;
-    userId;
+    user_id;
     user;
-    roomId;
+    room_id;
     room;
     status;
-    requestedAt;
-    reviewedById;
-    reviewedBy;
-    reviewedAt;
+    requested_at;
+    reviewed_by_id;
+    reviewed_by;
+    reviewed_at;
 };
 exports.RoomJoinRequest = RoomJoinRequest;
 __decorate([
@@ -34,7 +34,7 @@ __decorate([
 __decorate([
     (0, typeorm_1.Column)({ type: 'uuid' }),
     __metadata("design:type", String)
-], RoomJoinRequest.prototype, "userId", void 0);
+], RoomJoinRequest.prototype, "user_id", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => user_entity_1.User, { onDelete: 'CASCADE' }),
     (0, typeorm_1.JoinColumn)({ name: 'userId' }),
@@ -43,7 +43,7 @@ __decorate([
 __decorate([
     (0, typeorm_1.Column)({ type: 'uuid' }),
     __metadata("design:type", String)
-], RoomJoinRequest.prototype, "roomId", void 0);
+], RoomJoinRequest.prototype, "room_id", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => room_entity_1.Room, { onDelete: 'CASCADE' }),
     (0, typeorm_1.JoinColumn)({ name: 'roomId' }),
@@ -60,23 +60,23 @@ __decorate([
 __decorate([
     (0, typeorm_1.CreateDateColumn)({ type: 'timestamptz' }),
     __metadata("design:type", Date)
-], RoomJoinRequest.prototype, "requestedAt", void 0);
+], RoomJoinRequest.prototype, "requested_at", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: 'uuid', nullable: true }),
     __metadata("design:type", String)
-], RoomJoinRequest.prototype, "reviewedById", void 0);
+], RoomJoinRequest.prototype, "reviewed_by_id", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => user_entity_1.User, { onDelete: 'SET NULL', nullable: true }),
     (0, typeorm_1.JoinColumn)({ name: 'reviewedById' }),
     __metadata("design:type", user_entity_1.User)
-], RoomJoinRequest.prototype, "reviewedBy", void 0);
+], RoomJoinRequest.prototype, "reviewed_by", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: 'timestamptz', nullable: true }),
     __metadata("design:type", Date)
-], RoomJoinRequest.prototype, "reviewedAt", void 0);
+], RoomJoinRequest.prototype, "reviewed_at", void 0);
 exports.RoomJoinRequest = RoomJoinRequest = __decorate([
     (0, typeorm_1.Entity)('room_join_requests'),
-    (0, typeorm_1.Index)('UQ_pending_request_per_user_room', ['userId', 'roomId'], {
+    (0, typeorm_1.Index)('UQ_pending_request_per_user_room', ['user_id', 'room_id'], {
         unique: true,
         where: `"status" = 'PENDING'`,
     })
