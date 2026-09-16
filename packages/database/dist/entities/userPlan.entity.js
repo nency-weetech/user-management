@@ -20,7 +20,7 @@ let UserPlan = class UserPlan {
     plan;
     plan_upgraded_at;
     created_at;
-    updated_At;
+    updated_at;
 };
 exports.UserPlan = UserPlan;
 __decorate([
@@ -28,12 +28,12 @@ __decorate([
     __metadata("design:type", String)
 ], UserPlan.prototype, "id", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ nullable: true }),
+    (0, typeorm_1.Column)({ nullable: true, type: 'uuid' }),
     __metadata("design:type", String)
 ], UserPlan.prototype, "user_id", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => user_entity_1.User, { nullable: true, onDelete: 'SET NULL' }),
-    (0, typeorm_1.JoinColumn)({ name: 'userId' }),
+    (0, typeorm_1.JoinColumn)({ name: 'user_id' }),
     __metadata("design:type", user_entity_1.User)
 ], UserPlan.prototype, "user", void 0);
 __decorate([
@@ -51,7 +51,7 @@ __decorate([
 __decorate([
     (0, typeorm_1.UpdateDateColumn)({ type: 'timestamp with time zone' }),
     __metadata("design:type", Date)
-], UserPlan.prototype, "updated_At", void 0);
+], UserPlan.prototype, "updated_at", void 0);
 exports.UserPlan = UserPlan = __decorate([
     (0, typeorm_1.Entity)('user_plans')
 ], UserPlan);

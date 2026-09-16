@@ -15,11 +15,11 @@ export class UserPlan {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column({nullable: true})
+  @Column({nullable: true, type: 'uuid'})
   user_id!: string|null;
 
   @ManyToOne(()=> User, {nullable: true, onDelete: 'SET NULL'})
-  @JoinColumn({name: 'userId'})
+  @JoinColumn({name: 'user_id'})
   user: User|null;
 
   @Column({ type: 'enum', enum: UserPlanEnum, default: UserPlanEnum.FREE })
@@ -32,5 +32,5 @@ export class UserPlan {
   created_at!: Date;
 
   @UpdateDateColumn({type: 'timestamp with time zone'})
-  updated_At!: Date;
+  updated_at!: Date;
 }

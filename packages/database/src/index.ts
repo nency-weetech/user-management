@@ -9,6 +9,8 @@ export * from './entities/room.entity';
 export * from './entities/message.entity';
 export * from './entities/roomMember.entity';
 export * from './entities/room-join-request.entity';
+export * from './entities/profile.entity';
+export * from './entities/bookmark.entity';
 
 export * from './enums/user-role.enum';
 export * from './enums/user-plan.enum';
@@ -32,6 +34,8 @@ export * from './repositories/room.reporsitory';
 export * from './repositories/room-member.repository';
 export * from './repositories/join-request.repository';
 export * from './repositories/message.repository';
+export * from './repositories/profile.repository';
+export * from './repositories/bookmark.repository';
 
 export * from './interfaces/article.interface';
 export * from './interfaces/news-fetch-log.interface.repository';
@@ -43,3 +47,5 @@ export * from './interfaces/room.interface';
 export * from './interfaces/room-member.interface';
 export * from './interfaces/join-request.interface';
 export * from './interfaces/message.interface';
+export * from './interfaces/profile.interface';
+export * from './interfaces/bookmark.interface';

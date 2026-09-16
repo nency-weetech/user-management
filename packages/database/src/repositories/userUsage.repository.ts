@@ -29,7 +29,7 @@ export class UserUsageRepository extends BaseAbstractRepostitory<UserUsage> impl
   async incrementViewCount(userId: string, by: number): Promise<void> {
     await this.userUsageRepository.increment(
       { user_id : userId },
-      'dailyArticleViewCount',
+      'daily_article_view_count',
       by,
     );
   }

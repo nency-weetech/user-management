@@ -1,6 +1,5 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
-export declare class AddPlanInPayment1787201578652 implements MigrationInterface {
-    name: string;
+export declare class UpdateColumnName1789548780458 implements MigrationInterface {
     up(queryRunner: QueryRunner): Promise<void>;
     down(queryRunner: QueryRunner): Promise<void>;
 }

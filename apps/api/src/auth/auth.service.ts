@@ -21,6 +21,9 @@ import { RateLimitService } from '../rate-limit/rate-limit.service';
 import { ActivityLogService } from '../activity-log/activity-log.service';
 import { SignUpCountService } from '../sign-up-count/sign-up-count.service';
 import { SoftDeleteService } from '../soft-delete/soft-delete.service';
+import { DataSource } from 'typeorm';
+import { Profile, User } from '@myapp/database';
+import { ProfileService } from '../profile/profile.service';
 
 @Injectable()
 export class AuthService {
@@ -32,6 +35,8 @@ export class AuthService {
     private activityLogService: ActivityLogService,
     private signUpCountService: SignUpCountService,
     private softDeleteService: SoftDeleteService,
+    private datasource: DataSource,
+    private profileService : ProfileService
   ) {}
 
   async register(createUserDto: CreateUserDto): Promise<any> {
@@ -49,13 +54,31 @@ export class AuthService {
     const hashedOtp = await bcrypt.hash(otp, 10);
     const otpExpires = new Date(Date.now() + 15 * 60 * 1000);
 
-    const newUser = await this.userService.create({
-      ...createUserDto,
-      password,
-      is_email_verified: false,
-      email_verification_otp: hashedOtp,
-      email_verification_expires: otpExpires,
+    const newUser = await this.datasource.transaction(async (manager) => {
+      const user = manager.create(User, {
+        ...createUserDto,
+        password,
+        is_email_verified: false,
+        email_verification_otp: hashedOtp,
+        email_verification_expires: otpExpires,
+      });
+      await manager.save(user);
+      const newProfile = manager.create(Profile, {
+        user_id: user.id,
+        name: 'Default',
+        is_default: true,
+      });
+      await manager.save(newProfile);
+      return user;
     });
+
+    // const newUser = await this.userService.create({
+    //   ...createUserDto,
+    //   password,
+    //   is_email_verified: false,
+    //   email_verification_otp: hashedOtp,
+    //   email_verification_expires: otpExpires,
+    // });
 
     await this.mailService.sendVerificationOtpEmail(newUser.email, otp);
     await this.signUpCountService.incrSignUpCount();
@@ -78,7 +101,10 @@ export class AuthService {
       throw new BadRequestException('OTP expired');
     }
 
-    const isValidOtp = await bcrypt.compare(dto.otp, user.email_verification_otp);
+    const isValidOtp = await bcrypt.compare(
+      dto.otp,
+      user.email_verification_otp,
+    );
 
     if (!isValidOtp) {
       throw new BadRequestException('Invalid OTP');
@@ -124,23 +150,31 @@ export class AuthService {
 
     if (isPendingDeletion) {
       await this.softDeleteService.cancelDeletion(user.id);
-      await this.activityLogService.logActivity(user.id, 'ACCOUNT_DELETE_REQUEST_CANCEL')
+      await this.activityLogService.logActivity(
+        user.id,
+        'ACCOUNT_DELETE_REQUEST_CANCEL',
+      );
     }
 
     await this.userService.updateLastLogin(user.id);
     //await this.rateLimitService.resetAttempts(dto.email);
+
+    const profile = await this.profileService.findDefaultProfile(user.id)
 
     await this.activityLogService.logActivity(user.id, 'LOGIN');
     const payload = {
       id: user.id,
       email: user.email,
       role: user.role,
+      profileId: profile.id
     };
     const tokens = await this.genrateToken(
       payload.id,
       payload.email,
       payload.role,
+      payload.profileId
     );
+    
     await this.updateRefreshTokenHash(payload.id, tokens.refreshToken);
 
     return plainToInstance(
@@ -155,8 +189,13 @@ export class AuthService {
     );
   }
 
-  async genrateToken(userId: string, email: string, role: string) {
-    const payload = { id: userId, email, role };
+  async genrateToken(
+    userId: string,
+    email: string,
+    role: string,
+    profileId?: string,
+  ) {
+    const payload = { id: userId, email, role, profileId };
 
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(payload, {
@@ -176,7 +215,7 @@ export class AuthService {
     await this.userService.updateRefreshToken(userId, hashRefreshToken);
   }
 
-  async refreshTokens(userId: string, refreshToken: string) {
+  async refreshTokens(userId: string, refreshToken: string, profileId: string) {
     const user = await this.userService.findOne(userId);
     if (!user || !user.refreshToken) {
       throw new UnauthorizedException('Access Denied');
@@ -190,7 +229,7 @@ export class AuthService {
       throw new UnauthorizedException('Access Denied - Token Reuse Detected');
     }
 
-    const tokens = await this.genrateToken(user.id, user.email, user.role);
+    const tokens = await this.genrateToken(user.id, user.email, user.role, profileId);
     await this.updateRefreshTokenHash(user.id, tokens.refreshToken);
 
     return tokens;
@@ -298,4 +337,8 @@ export class AuthService {
         'Password has been reset successfully. Please log in with your new password.',
     };
   }
+
+  // signToken(payload: {userId: string, profileId: string}): string{
+  //   return this.jwtService.sign(payload);
+  // }
 }

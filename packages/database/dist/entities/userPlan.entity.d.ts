@@ -7,5 +7,5 @@ export declare class UserPlan {
     plan: UserPlanEnum;
     plan_upgraded_at: Date;
     created_at: Date;
-    updated_At: Date;
+    updated_at: Date;
 }

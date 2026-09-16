@@ -14,6 +14,7 @@ import { UserRole } from '../enums/user-role.enum';
 import { RoomMember } from './roomMember.entity';
 import { Message } from './message.entity';
 import { Room } from './room.entity';
+import { Profile } from './profile.entity';
 
 @Entity('users')
 export class User {
@@ -105,4 +106,7 @@ export class User {
   @DeleteDateColumn({ type: 'timestamp with time zone', nullable: true })
   @Exclude()
   deleted_at!: Date | null;
+
+  @OneToMany(() => Profile, (profile)=> profile.user)
+  profile!: Profile[];
 }

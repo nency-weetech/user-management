@@ -36,7 +36,7 @@ let ArticleRepository = class ArticleRepository extends base_repository_1.BaseAb
         if (category) {
             query.andWhere('articles.catagory = :category', { category });
         }
-        query.orderBy('articles.publishDated', 'DESC').skip(skip).take(limit);
+        query.orderBy('articles.published_date', 'DESC').skip(skip).take(limit);
         return query.getManyAndCount();
     }
     async countBySentimentRange(min, max) {

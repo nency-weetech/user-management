@@ -23,8 +23,13 @@ export class UserPlanRepository extends BaseAbstractRepostitory<UserPlan> implem
     return this.userPlanRepository.save(userPlan);
   }
 
-  findByUserId(userId: string): Promise<UserPlan | null> {
-    return this.userPlanRepository.findOne({where:{user_id: userId}});
+  async findByUserId(userId: string): Promise<UserPlan | null> {
+   try {
+     const userplan = await this.userPlanRepository.findOne({where: {user_id : userId}});
+     return userplan
+   } catch (error) {
+      console.log(error)
+   }
   }
 
   async upgradeToPaid(userId: string,plan : UserPlanEnum): Promise<void> {

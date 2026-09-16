@@ -2,6 +2,7 @@ import { UserRole } from '../enums/user-role.enum';
 import { RoomMember } from './roomMember.entity';
 import { Message } from './message.entity';
 import { Room } from './room.entity';
+import { Profile } from './profile.entity';
 export declare class User {
     id: string;
     email: string;
@@ -26,4 +27,5 @@ export declare class User {
     is_pending_deletion: boolean;
     deletion_requested_at: Date | null;
     deleted_at: Date | null;
+    profile: Profile[];
 }

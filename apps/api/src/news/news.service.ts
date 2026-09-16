@@ -10,7 +10,7 @@ export class NewsService {
   async findAll(userId: string, page: number, limit: number, remainingViewLimit: number | null, category?: string ) {
     const cappedLimit = remainingViewLimit === null ? limit : Math.min(limit, remainingViewLimit)
     const [items, total] = await this.articleRepository.findAllPaginated(
-      page,
+      page, 
       cappedLimit,
       category,
     );
@@ -31,7 +31,7 @@ export class NewsService {
   }
 
   async remove(id: string): Promise<void> {
-    const article = await this.articleRepository.findOneById(id);
+    const article = await this.articleRepository.findOneById(id); 
     if (!article) {
       throw new NotFoundException(`Article with id ${id} not found`);
     }
