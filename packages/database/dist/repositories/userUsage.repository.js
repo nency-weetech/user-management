@@ -35,7 +35,7 @@ let UserUsageRepository = class UserUsageRepository extends base_repository_1.Ba
         return this.userUsageRepository.findOneBy({ user_id: userId });
     }
     async incrementViewCount(userId, by) {
-        await this.userUsageRepository.increment({ user_id: userId }, 'dailyArticleViewCount', by);
+        await this.userUsageRepository.increment({ user_id: userId }, 'daily_article_view_count', by);
     }
     async resetDailyCount(userId, resetDate) {
         await this.userUsageRepository.update({ user_id: userId }, {

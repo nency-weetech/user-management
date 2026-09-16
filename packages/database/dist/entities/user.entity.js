@@ -16,6 +16,7 @@ const user_role_enum_1 = require("../enums/user-role.enum");
 const roomMember_entity_1 = require("./roomMember.entity");
 const message_entity_1 = require("./message.entity");
 const room_entity_1 = require("./room.entity");
+const profile_entity_1 = require("./profile.entity");
 let User = class User {
     id;
     email;
@@ -40,6 +41,7 @@ let User = class User {
     is_pending_deletion;
     deletion_requested_at;
     deleted_at;
+    profile;
 };
 exports.User = User;
 __decorate([
@@ -154,6 +156,10 @@ __decorate([
     (0, class_transformer_1.Exclude)(),
     __metadata("design:type", Date)
 ], User.prototype, "deleted_at", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => profile_entity_1.Profile, (profile) => profile.user),
+    __metadata("design:type", Array)
+], User.prototype, "profile", void 0);
 exports.User = User = __decorate([
     (0, typeorm_1.Entity)('users')
 ], User);

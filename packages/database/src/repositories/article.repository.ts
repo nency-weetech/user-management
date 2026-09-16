@@ -32,7 +32,7 @@ export class ArticleRepository
       query.andWhere('articles.catagory = :category', {category});
      }
 
-     query.orderBy('articles.publishDated', 'DESC').skip(skip).take(limit);
+     query.orderBy('articles.published_date', 'DESC').skip(skip).take(limit);
      return query.getManyAndCount();
    }
 

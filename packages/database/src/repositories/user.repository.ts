@@ -84,7 +84,7 @@ export class UserRepository
     userId: string,
     refreshToken: string | null,
   ): Promise<void> {
-    await this.userRepository.update(userId, { refreshToken });
+    await this.userRepository.update(userId, {refreshToken})
   }
 
   async markEmailAsValid(userId: string): Promise<void> {

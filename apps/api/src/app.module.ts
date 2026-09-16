@@ -34,6 +34,8 @@ import { ChatModule } from './chat/chat.module';
 import { RoomsModule } from './rooms/rooms.module';
 import {EventEmitterModule} from '@nestjs/event-emitter'
 import { MinioModule } from './minio/minio.module';
+import { ProfileModule } from './profile/profile.module';
+import { BookmarkModule } from './bookmark/bookmark.module';
 
 const disableThrottler =
   process.env.NODE_ENV === 'test' && process.env.DISABLE_THROTTLER !== 'false';
@@ -95,6 +97,8 @@ const disableThrottler =
     NewsModule,
     RoomsModule,
     MinioModule,
+    ProfileModule,
+    BookmarkModule,
   ],
   controllers: [AppController],
   providers: [

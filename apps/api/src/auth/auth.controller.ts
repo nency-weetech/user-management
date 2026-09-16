@@ -120,16 +120,18 @@ export class AuthController {
       throw new UnauthorizedException('Refresh token missing from cookies');
     }
 
-    const decoded = this.jwtService.decode(refreshToken) as {
-      id: string;
-    } | null;
+    const decoded = this.jwtService.decode(refreshToken)
+    // const decoded = this.jwtService.decode(refreshToken) as {
+    //   id: string;
+    // } | null;
 
     if (!decoded?.id) {
       throw new UnauthorizedException('Invalid access token');
     }
 
     const userId = decoded.id;
-    const tokens = await this.authService.refreshTokens(userId, refreshToken);
+    const profileId = decoded.profileId;
+    const tokens = await this.authService.refreshTokens(userId, refreshToken, profileId);
 
     res.cookie('accessToken', tokens.accessToken, {
       ...COOKIE_OPTIONS,

@@ -17,12 +17,12 @@ export class CreateUserDto {
     @ApiPropertyOptional({ example: 'John' })
     @IsString()
     @IsNotEmpty()
-    firstName!:string;
+    first_name!:string;
 
     @ApiPropertyOptional({ example: 'Doe' })
     @IsString()
     @IsNotEmpty()
-    lastName!: string;
+    last_name!: string;
 
     @IsEnum(UserRole)
     @IsOptional()
