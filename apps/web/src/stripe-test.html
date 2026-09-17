@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Stripe Isolated Test</title>
+  <script src="https://js.stripe.com/v3/"></script>
+</head>
+<body>
+  <h2>Stripe.js Isolated Test</h2>
+  <p>Open the browser console (F12) before clicking the button below.</p>
+
+  <button id="testBtn">Test Stripe Elements</button>
+
+  <div id="payment-element" style="margin-top: 20px; max-width: 400px; border: 1px solid #ccc; padding: 12px;"></div>
+
+  <p id="status" style="color: red;"></p>
+
+  <script>
+    // Replace with your real publishable key
+    const STRIPE_PUBLISHABLE_KEY = 'pk_test_51Tq3SQGplz2HQtxpOp8wPkvMYpRVQb7NNfP9eR0G2xyst4WaxaiJ5Hvs6FGvfRL68WXaCftPygTnrCgbgtcidaIq0072XqcAvD';
+
+    document.getElementById('testBtn').addEventListener('click', async () => {
+      const status = document.getElementById('status');
+      status.textContent = '';
+
+      try {
+        console.log('Step 1: Initializing Stripe...');
+        const stripe = Stripe(STRIPE_PUBLISHABLE_KEY);
+        console.log('Step 2: Stripe initialized OK', stripe);
+
+        // Using a dummy clientSecret format just to test if elements() itself crashes.
+        // This will NOT actually work for a real payment — it's only to isolate
+        // whether the ArrayBuffer error happens even without hitting your backend.
+        console.log('Step 3: Attempting to create elements with a fake clientSecret (expected to fail gracefully, NOT crash with ArrayBuffer)...');
+
+        const elements = stripe.elements({
+          clientSecret: 'pi_test_fake_secret_1234567890_secret_abcdefghijklmnopqrstuvwxyz',
+        });
+        console.log('Step 4: elements() call completed', elements);
+
+        const paymentElement = elements.create('payment');
+        console.log('Step 5: payment element created', paymentElement);
+
+        paymentElement.mount('#payment-element');
+        console.log('Step 6: mount() called — check if widget appears below');
+
+        status.style.color = 'green';
+        status.textContent = 'No crash — check console for details and whether widget appeared.';
+      } catch (err) {
+        console.error('CRASHED AT:', err);
+        status.textContent = 'Error: ' + err.message;
+      }
+    });
+  </script>
+</body>
+</html>

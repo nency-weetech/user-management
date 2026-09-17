@@ -131,7 +131,7 @@ export class AuthController {
 
     const userId = decoded.id;
     const profileId = decoded.profileId;
-    const tokens = await this.authService.refreshTokens(userId, refreshToken, profileId);
+    const tokens = await this.authService.refreshTokens(refreshToken, profileId);
 
     res.cookie('accessToken', tokens.accessToken, {
       ...COOKIE_OPTIONS,
@@ -159,7 +159,8 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
     @currentUser() currentUser: { id: string },
   ) {
-    await this.authService.logout(currentUser.id);
+    const refreshToken = req.cookies?.refreshToken;
+    await this.authService.logout(currentUser.id, refreshToken);
     res.clearCookie('accessToken');
     res.clearCookie('refreshToken');
 

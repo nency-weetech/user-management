@@ -85,12 +85,6 @@ export class User {
   @Column({ type: 'int', default: 0 })
   otp_attempts!: number;
 
-  @Column({ type: 'varchar', nullable: true })
-  refreshToken?: string | null;
-
-  @CreateDateColumn({ type: 'timestamp with time zone', nullable: true })
-  lastLoginAt!: Date | null;
-
   @CreateDateColumn({ type: 'timestamp with time zone' })
   created_at!: Date;
 

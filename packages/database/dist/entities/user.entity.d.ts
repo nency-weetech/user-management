@@ -20,8 +20,6 @@ export declare class User {
     password_reset_otp?: string | null;
     reset_otp_expires?: Date | null;
     otp_attempts: number;
-    refreshToken?: string | null;
-    lastLoginAt: Date | null;
     created_at: Date;
     updated_at: Date;
     is_pending_deletion: boolean;

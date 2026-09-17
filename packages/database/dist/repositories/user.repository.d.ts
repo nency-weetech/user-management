@@ -8,9 +8,7 @@ export declare class UserRepository extends BaseAbstractRepostitory<User> implem
     findByEmail(email: string): Promise<User | null>;
     findEmailWithPassword(email: string): Promise<User | null>;
     findAllPaginated(page: number, limit: number, search?: string, role?: string, isActive?: boolean): Promise<[User[], number]>;
-    updateLastLogin(userId: string): Promise<void>;
     updateName(id: string, firstName?: string, lastName?: string): Promise<User | null>;
-    updateRefreshToken(userId: string, refreshToken: string | null): Promise<void>;
     markEmailAsValid(userId: string): Promise<void>;
     saveOtp(userId: string, otpHash: string, expires: Date): Promise<void>;
     incrementOtpAttempt(userId: string): Promise<void>;

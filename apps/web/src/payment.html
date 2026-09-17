@@ -525,14 +525,14 @@
         let elements;
         let selectedPlan = null;
        
-        function getToken() {
-            return localStorage.getItem('authToken') || '';
-        }
+        // function getToken() {
+        //     return localStorage.getItem('authToken') || '';
+        // }
 
-        function setToken(token) {
-            localStorage.setItem('authToken', token);
-            updateUserStatus();
-        }
+        // function setToken(token) {
+        //     localStorage.setItem('authToken', token);
+        //     updateUserStatus();
+        // }
 
         function updateUserStatus() {
             const status = document.getElementById('userStatus');
@@ -565,13 +565,15 @@
                 const res = await fetch(API_BASE_URL + '/billing/checkout/' + plan, {
                     method: 'POST',
                     credentials: "include",
-                    headers: {
-                        'Content-Type': 'application/json',
-                        // Authorization: 'Bearer ' + getToken(),
-                    },
+                    // headers: {
+                    //     'Content-Type': 'application/json',
+                    //     // Authorization: 'Bearer ' + getToken(),
+                    // },
                 });
-                const data = await res.json();
 
+                console.log(res)
+                const data = await res.json();
+                
                 if (!data.clientSecret) {
                     document.getElementById('modalMsg').textContent = data.message || 'Could not start checkout.';
                     return;

@@ -62,9 +62,9 @@ let UserRepository = class UserRepository extends base_repository_1.BaseAbstract
             .take(limit);
         return query.getManyAndCount();
     }
-    async updateLastLogin(userId) {
-        await this.userRepository.update(userId, { lastLoginAt: new Date() });
-    }
+    // async updateLastLogin(userId: string): Promise<void> {
+    //   await this.userRepository.update(userId, { lastLoginAt: new Date() });
+    // }
     async updateName(id, firstName, lastName) {
         await this.userRepository.update(id, {
             ...(firstName && { first_name: firstName }),
@@ -72,9 +72,12 @@ let UserRepository = class UserRepository extends base_repository_1.BaseAbstract
         });
         return this.userRepository.findOneBy({ id });
     }
-    async updateRefreshToken(userId, refreshToken) {
-        await this.userRepository.update(userId, { refreshToken });
-    }
+    // async updateRefreshToken(
+    //   userId: string,
+    //   refreshToken: string | null,
+    // ): Promise<void> {
+    //   await this.userRepository.update(userId, {refreshToken})
+    // }
     async markEmailAsValid(userId) {
         await this.userRepository.update(userId, {
             is_email_verified: true,
@@ -105,7 +108,7 @@ let UserRepository = class UserRepository extends base_repository_1.BaseAbstract
             password_reset_otp: null,
             reset_otp_expires: null,
             otp_attempts: 0,
-            refreshToken: null,
+            // refreshToken: null,
         });
     }
     async updateUserStatus(userId, isActive) {
@@ -114,9 +117,9 @@ let UserRepository = class UserRepository extends base_repository_1.BaseAbstract
             throw new common_1.NotFoundException('User not found');
         }
         user.is_active = isActive;
-        if (!isActive) {
-            user.refreshToken = null;
-        }
+        // if (!isActive) {
+        //   user.refreshToken = null;
+        // }
         return this.userRepository.save(user);
     }
     async countSignupsSince(date) {

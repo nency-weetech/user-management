@@ -75,7 +75,9 @@ export class ProfileController {
       req.user.role,
       id,
     );
-    await this.authService.updateRefreshTokenHash(req.user.id, newToken.refreshToken);
+
+    const hashToken = this.authService.hashToken(newToken.refreshToken)
+    await this.authService.saveRefreshToken(req.user.id, hashToken);
     res.cookie('accessToken', newToken.accessToken, {
       ...COOKIE_OPTIONS,
       maxAge: 15 * 60 * 1000,
