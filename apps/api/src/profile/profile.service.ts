@@ -1,20 +1,35 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
-import { Profile, ProfileRepository, User } from '@myapp/database';
+import { PLAN_CONFIG, Profile, ProfileRepository, User, UserPlanRepository } from '@myapp/database';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 
 @Injectable()
 export class ProfileService {
   constructor(
-    @InjectRepository(Profile)
-    private readonly profileRepo: Repository<Profile>,
+    private readonly profileRepo: ProfileRepository,
     private readonly dataSource : DataSource,
+    private readonly userPlanRepo : UserPlanRepository,
   ) {}
 
   async create(createProfileDto: CreateProfileDto, userId: string) : Promise<Profile>{
-    const existing = await this.profileRepo.count({where: {user_id: userId}});
+    const existing = await this.profileRepo.countByUserId(userId);
+    const userPlan = await this.userPlanRepo.findByUserId(userId);
+    if (!userPlan) {
+        throw new NotFoundException('User plan not found');
+    }
+    const config = PLAN_CONFIG[userPlan.plan] 
+
+    if(config.profileLimit !== null){
+      const currentCount = await this.profileRepo.countByUserId(userId)
+
+      if (currentCount >= config.profileLimit) {
+      throw new ForbiddenException(
+        `Profile limit reached (${config.profileLimit}). Upgrade your plan to create more profiles.`,
+      );
+    }
+    }
     const profile = this.profileRepo.create({
       user_id: userId,
       name: createProfileDto.name,
@@ -25,7 +40,7 @@ export class ProfileService {
   }
 
   async findAllProfile(userId: string): Promise<Profile[]> {
-    const profiles = await this.profileRepo.find({where : {user_id: userId}})
+    const profiles = await this.profileRepo.findAllProfile(userId)
     return profiles;
   }
 

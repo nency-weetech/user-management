@@ -6,4 +6,5 @@ export interface IBookmarks extends BaseInterfaceRepository<BookMarks>{
     findByProfileAndArticle(profileId: string, articleId: string) : Promise<BookMarks | null>
     findOneById(bookmarkId: any): Promise<BookMarks> ;
     findAllBookmark(profileId: string) : Promise<BookMarks[]>;
+    countByProfileId(profileId: string) : Promise<Number>;
 }

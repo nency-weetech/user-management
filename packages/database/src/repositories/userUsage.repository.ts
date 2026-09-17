@@ -43,4 +43,22 @@ export class UserUsageRepository extends BaseAbstractRepostitory<UserUsage> impl
       },
     );
   }
+
+  async increamentBookmarkCount(userId: string, by: number): Promise<void>{
+    await this.userUsageRepository.increment(
+      {user_id: userId},
+      'daily_bookmark_count',
+      by,
+    )
+  }
+
+  async resetDailyBookmarkCount(userId: string, resetDate: Date): Promise<void>{
+    await this.userUsageRepository.update(
+      {user_id: userId},
+      {
+        daily_bookmark_count: 0,
+        daily_bookmark_reset_at: resetDate
+      }
+    )
+  }
 }

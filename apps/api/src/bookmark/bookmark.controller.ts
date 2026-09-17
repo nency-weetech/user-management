@@ -21,7 +21,7 @@ export class BookmarkController {
   
   @Post()
   create(@Req() req, @Body() createBookmarkDto: CreateBookmarkDto) {
-    return this.bookmarkService.create(req.user.profileId, createBookmarkDto);
+    return this.bookmarkService.create(req.user.profileId, createBookmarkDto, req.user.id);
   }
 
   @Get()
