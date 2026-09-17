@@ -18,6 +18,8 @@ let UserUsage = class UserUsage {
     user;
     daily_article_view_count;
     daily_article_view_reset_at;
+    daily_bookmark_count;
+    daily_bookmark_reset_at;
     created_at;
     updated_at;
 };
@@ -43,6 +45,14 @@ __decorate([
     (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", Date)
 ], UserUsage.prototype, "daily_article_view_reset_at", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'int', default: 0 }),
+    __metadata("design:type", Number)
+], UserUsage.prototype, "daily_bookmark_count", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'date', nullable: true }),
+    __metadata("design:type", Date)
+], UserUsage.prototype, "daily_bookmark_reset_at", void 0);
 __decorate([
     (0, typeorm_1.CreateDateColumn)({ type: 'timestamp with time zone' }),
     __metadata("design:type", Date)

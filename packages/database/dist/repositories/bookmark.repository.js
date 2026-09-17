@@ -50,6 +50,9 @@ let BookmarkRepository = class BookmarkRepository extends base_repository_1.Base
             }
         });
     }
+    async countByProfileId(profileId) {
+        return this.bookmarkrepo.count({ where: { profile_id: profileId } });
+    }
 };
 exports.BookmarkRepository = BookmarkRepository;
 exports.BookmarkRepository = BookmarkRepository = __decorate([

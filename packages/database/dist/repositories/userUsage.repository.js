@@ -43,6 +43,15 @@ let UserUsageRepository = class UserUsageRepository extends base_repository_1.Ba
             daily_article_view_reset_at: resetDate,
         });
     }
+    async increamentBookmarkCount(userId, by) {
+        await this.userUsageRepository.increment({ user_id: userId }, 'daily_bookmark_count', by);
+    }
+    async resetDailyBookmarkCount(userId, resetDate) {
+        await this.userUsageRepository.update({ user_id: userId }, {
+            daily_bookmark_count: 0,
+            daily_bookmark_reset_at: resetDate
+        });
+    }
 };
 exports.UserUsageRepository = UserUsageRepository;
 exports.UserUsageRepository = UserUsageRepository = __decorate([

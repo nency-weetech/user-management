@@ -9,4 +9,6 @@ export declare class UserUsageRepository extends BaseAbstractRepostitory<UserUsa
     findByUserId(userId: string): Promise<UserUsage | null>;
     incrementViewCount(userId: string, by: number): Promise<void>;
     resetDailyCount(userId: string, resetDate: Date): Promise<void>;
+    increamentBookmarkCount(userId: string, by: number): Promise<void>;
+    resetDailyBookmarkCount(userId: string, resetDate: Date): Promise<void>;
 }

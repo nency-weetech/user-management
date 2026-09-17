@@ -23,6 +23,13 @@ let ProfileRepository = class ProfileRepository extends base_repository_1.BaseAb
         super(profileRepo);
         this.profileRepo = profileRepo;
     }
+    async countByUserId(userId) {
+        const user = this.profileRepo.count({ where: { user_id: userId } });
+        return user;
+    }
+    async findAllProfile(userId) {
+        return await this.profileRepo.find({ where: { user_id: userId } });
+    }
 };
 exports.ProfileRepository = ProfileRepository;
 exports.ProfileRepository = ProfileRepository = __decorate([

@@ -1,27 +1,41 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-import { User } from "./user.entity";
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
+import { User } from './user.entity';
 
 @Entity('user_usages')
-export class UserUsage{
-    @PrimaryGeneratedColumn('uuid')
-    id!: string;
+export class UserUsage {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
 
-    @Column({nullable: true, unique: true})
-    user_id!: string|null;
+  @Column({ nullable: true, unique: true })
+  user_id!: string | null;
 
-    @ManyToMany(()=> User, {nullable: true, onDelete: 'SET NULL'})
-    @JoinColumn({name: 'userId'})
-    user: User|null;
+  @ManyToMany(() => User, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'userId' })
+  user: User | null;
 
-    @Column({type: 'int', default: 0})
-    daily_article_view_count!: Number;
+  @Column({ type: 'int', default: 0 })
+  daily_article_view_count!: Number;
 
-    @Column({nullable: true})
-    daily_article_view_reset_at!: Date;
+  @Column({ nullable: true })
+  daily_article_view_reset_at!: Date;
 
-    @CreateDateColumn({type: 'timestamp with time zone'})
-    created_at!: Date;
+  @Column({ type: 'int', default: 0 })
+  daily_bookmark_count!: number;
 
-    @UpdateDateColumn({type: 'timestamp with time zone'})
-    updated_at!: Date;
+  @Column({ type: 'date', nullable: true })
+  daily_bookmark_reset_at!: Date | null;
+  
+  @CreateDateColumn({ type: 'timestamp with time zone' })
+  created_at!: Date;
+
+  @UpdateDateColumn({ type: 'timestamp with time zone' })
+  updated_at!: Date;
 }

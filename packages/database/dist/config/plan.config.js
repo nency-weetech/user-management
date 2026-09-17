@@ -8,17 +8,23 @@ exports.PLAN_CONFIG = {
         price: 0,
         dailyViewLimit: 20,
         dailyFetchLimit: 30,
+        profileLimit: 3,
+        bookmarkLimit: 10
     },
     [user_plan_enum_1.UserPlanEnum.PRO]: {
         name: 'Pro',
         price: 99,
         dailyViewLimit: 100,
         dailyFetchLimit: 60,
+        profileLimit: 10,
+        bookmarkLimit: 50
     },
     [user_plan_enum_1.UserPlanEnum.MAX]: {
         name: 'Max',
         price: 299,
         dailyViewLimit: null,
         dailyFetchLimit: null,
+        profileLimit: null,
+        bookmarkLimit: null
     },
 };

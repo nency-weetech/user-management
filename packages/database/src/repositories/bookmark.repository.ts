@@ -48,4 +48,8 @@ export class BookmarkRepository
         }
     });
   }
+
+  async countByProfileId(profileId: string) : Promise<Number>{
+    return this.bookmarkrepo.count({where: {profile_id: profileId}})
+  }
 }

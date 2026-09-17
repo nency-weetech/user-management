@@ -5,4 +5,6 @@ import { Repository } from "typeorm";
 export declare class ProfileRepository extends BaseAbstractRepostitory<Profile> implements IProfile {
     private readonly profileRepo;
     constructor(profileRepo: Repository<Profile>);
+    countByUserId(userId: string): Promise<Number>;
+    findAllProfile(userId: string): Promise<Profile[]>;
 }
