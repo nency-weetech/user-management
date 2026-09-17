@@ -7,7 +7,13 @@ import {
 } from '@nestjs/common';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User, UserPlanEnum, UserPlanRepository, UserUsageRepository } from '@myapp/database';
+import {
+  RefreshTokenRepository,
+  User,
+  UserPlanEnum,
+  UserPlanRepository,
+  UserUsageRepository,
+} from '@myapp/database';
 import { LessThan, MoreThan, Repository } from 'typeorm';
 import { UserRole } from '@myapp/database';
 import { UpdateUserStatusDto } from './dto/update-user-state.dto';
@@ -15,13 +21,13 @@ import { GetUserQueryDto } from './dto/get-user-query.dto';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { type Cache } from 'cache-manager';
 import { ActivityLogService } from '../activity-log/activity-log.service';
-import { UserRepository } from '@myapp/database'; 
-
+import { UserRepository } from '@myapp/database';
+import bcrypt from 'bcrypt';
 @Injectable()
 export class UsersService {
   constructor(
     private repo: UserRepository,
-    private userPlanRepo : UserPlanRepository,
+    private userPlanRepo: UserPlanRepository,
     private userUsageRepo: UserUsageRepository,
     private activityLogService: ActivityLogService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
@@ -86,9 +92,9 @@ export class UsersService {
     return this.repo.findEmailWithPassword(email);
   }
 
-  async updateLastLogin(userId: string): Promise<void> {
-    await this.repo.updateLastLogin(userId);
-  }
+  // async updateLastLogin(userId: string): Promise<void> {
+  //   await this.repo.updateLastLogin(userId);
+  // }
 
   async update(id: string, updateUserDto: UpdateUserDto, currentUser: User) {
     const user = await this.repo.findOneById(id);
@@ -106,23 +112,28 @@ export class UsersService {
       throw new ForbiddenException('Only admins can change user roles');
     }
 
-    const updatedUser = await this.repo.updateName(id, updateUserDto.firstName, updateUserDto.lastName);
-    
+    const updatedUser = await this.repo.updateName(
+      id,
+      updateUserDto.firstName,
+      updateUserDto.lastName,
+    );
+
     await this.cacheManager.del(this.userCacheKey(id));
     await this.activityLogService.logActivity(user.id, 'UPDATE_PROFILE');
     return updatedUser;
   }
 
-  async updateRefreshToken(
-    userId: string,
-    refreshTokenparams: string | null | undefined,
-  ): Promise<void> {
-    const user = await this.repo.findOneById(userId);
-    if (!user) {
-      throw new NotFoundException(`User with ID "${userId}" not found`);
-    }
-    return this.repo.updateRefreshToken(userId, refreshTokenparams ?? null);
-  }
+
+  // async updateRefreshToken(
+  //   userId: string,
+  //   refreshTokenparams: string | null | undefined,
+  // ): Promise<void> {
+  //   const user = await this.repo.findOneById(userId);
+  //   if (!user) {
+  //     throw new NotFoundException(`User with ID "${userId}" not found`);
+  //   }
+  //   return this.repo.updateRefreshToken(userId, refreshTokenparams ?? null);
+  // }
 
   async markEmailAsValid(userId: string) {
     await this.repo.markEmailAsValid(userId);
@@ -168,7 +179,7 @@ export class UsersService {
   async markPendingDeletion(userId: string) {
     await this.repo.markPendingDeletion(userId);
     await this.cacheManager.del(this.userCacheKey(userId));
-    await this.activityLogService.logActivity(userId, 'DELETE_REQUEST')
+    await this.activityLogService.logActivity(userId, 'DELETE_REQUEST');
   }
 
   async cancelPandingDeletion(userId: string) {

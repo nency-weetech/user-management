@@ -9,10 +9,12 @@ import { ActivityLogModule } from '../activity-log/activity-log.module';
 import { SignUpCountService } from '../sign-up-count/sign-up-count.service';
 import { SoftDeleteService } from '../soft-delete/soft-delete.service';
 import { ProfileModule } from '../profile/profile.module';
+import { RefreshToken, RefreshTokenRepository } from '@myapp/database';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
-  imports: [UsersModule, MailModule, RateLimitModule, ActivityLogModule, ProfileModule],
-  providers: [AuthService, SignUpCountService, SoftDeleteService],
+  imports: [TypeOrmModule.forFeature([RefreshToken]),UsersModule, MailModule, RateLimitModule, ActivityLogModule, ProfileModule],
+  providers: [AuthService, SignUpCountService, SoftDeleteService, RefreshTokenRepository],
   controllers: [AuthController],
   exports: [AuthService],
 })

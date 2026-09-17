@@ -68,9 +68,9 @@ export class UserRepository
     return query.getManyAndCount();
   }
 
-  async updateLastLogin(userId: string): Promise<void> {
-    await this.userRepository.update(userId, { lastLoginAt: new Date() });
-  }
+  // async updateLastLogin(userId: string): Promise<void> {
+  //   await this.userRepository.update(userId, { lastLoginAt: new Date() });
+  // }
 
   async updateName(id: string, firstName?: string, lastName?: string): Promise<User | null> {
     await this.userRepository.update(id, {
@@ -80,12 +80,12 @@ export class UserRepository
     return this.userRepository.findOneBy({ id });
   }
 
-  async updateRefreshToken(
-    userId: string,
-    refreshToken: string | null,
-  ): Promise<void> {
-    await this.userRepository.update(userId, {refreshToken})
-  }
+  // async updateRefreshToken(
+  //   userId: string,
+  //   refreshToken: string | null,
+  // ): Promise<void> {
+  //   await this.userRepository.update(userId, {refreshToken})
+  // }
 
   async markEmailAsValid(userId: string): Promise<void> {
     await this.userRepository.update(userId, {
@@ -124,7 +124,7 @@ export class UserRepository
       password_reset_otp: null,
       reset_otp_expires: null,
       otp_attempts: 0,
-      refreshToken: null,
+     // refreshToken: null,
     });
   }
 
@@ -140,9 +140,9 @@ export class UserRepository
 
     user.is_active = isActive;
 
-    if (!isActive) {
-      user.refreshToken = null;
-    }
+    // if (!isActive) {
+    //   user.refreshToken = null;
+    // }
 
     return this.userRepository.save(user);
   }

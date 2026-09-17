@@ -22,8 +22,9 @@ import { ActivityLogService } from '../activity-log/activity-log.service';
 import { SignUpCountService } from '../sign-up-count/sign-up-count.service';
 import { SoftDeleteService } from '../soft-delete/soft-delete.service';
 import { DataSource } from 'typeorm';
-import { Profile, User } from '@myapp/database';
+import { Profile, RefreshTokenRepository, User } from '@myapp/database';
 import { ProfileService } from '../profile/profile.service';
+
 
 @Injectable()
 export class AuthService {
@@ -36,7 +37,8 @@ export class AuthService {
     private signUpCountService: SignUpCountService,
     private softDeleteService: SoftDeleteService,
     private datasource: DataSource,
-    private profileService : ProfileService
+    private profileService: ProfileService,
+    private refreshTokenRepo: RefreshTokenRepository,
   ) {}
 
   async register(createUserDto: CreateUserDto): Promise<any> {
@@ -156,26 +158,26 @@ export class AuthService {
       );
     }
 
-    await this.userService.updateLastLogin(user.id);
+    // await this.userService.updateLastLogin(user.id);
     //await this.rateLimitService.resetAttempts(dto.email);
 
-    const profile = await this.profileService.findDefaultProfile(user.id)
+    const profile = await this.profileService.findDefaultProfile(user.id);
 
     await this.activityLogService.logActivity(user.id, 'LOGIN');
     const payload = {
       id: user.id,
       email: user.email,
       role: user.role,
-      profileId: profile.id
+      profileId: profile.id,
     };
     const tokens = await this.genrateToken(
       payload.id,
       payload.email,
       payload.role,
-      payload.profileId
+      payload.profileId,
     );
-    
-    await this.updateRefreshTokenHash(payload.id, tokens.refreshToken);
+
+    await this.saveRefreshToken(payload.id, tokens.refreshToken);
 
     return plainToInstance(
       LoginResponseDto,
@@ -210,33 +212,85 @@ export class AuthService {
     return { accessToken, refreshToken };
   }
 
-  async updateRefreshTokenHash(userId: string, refreshToken: string) {
-    const hashRefreshToken = await bcrypt.hash(refreshToken, 10);
-    await this.userService.updateRefreshToken(userId, hashRefreshToken);
+  // async updateRefreshTokenHash(userId: string, refreshToken: string) {
+  //   const hashRefreshToken = await bcrypt.hash(refreshToken, 10);
+  //   await this.userService.updateRefreshToken(userId, hashRefreshToken);
+  // }
+
+  hashToken(token: string): string {
+    return crypto.createHash('sha256').update(token).digest('hex');
   }
 
-  async refreshTokens(userId: string, refreshToken: string, profileId: string) {
-    const user = await this.userService.findOne(userId);
-    if (!user || !user.refreshToken) {
-      throw new UnauthorizedException('Access Denied');
-    }
-
-    const refreshTokenMatches = await bcrypt.compare(
-      refreshToken,
-      user.refreshToken,
+  async saveRefreshToken(
+    userId: string,
+    refreshToken: string,
+    deviceInfo?: string,
+    ipAddress?: string,
+  ) {
+    const tokenHash = this.hashToken(refreshToken);
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    await this.refreshTokenRepo.createAndSaveToken(
+      userId,
+      tokenHash,
+      expiresAt,
+      deviceInfo,
+      ipAddress,
     );
-    if (!refreshTokenMatches) {
-      throw new UnauthorizedException('Access Denied - Token Reuse Detected');
+  }
+  async refreshTokens(refreshToken: string, profileId: string) {
+    // const user = await this.userService.findOne(userId);
+    // if (!user || !user.refreshToken) {
+    //   throw new UnauthorizedException('Access Denied');
+    // }
+
+    // const refreshTokenMatches = await bcrypt.compare(
+    //   refreshToken,
+    //   user.refreshToken,
+    // );
+    // if (!refreshTokenMatches) {
+    //   throw new UnauthorizedException('Access Denied - Token Reuse Detected');
+    // }
+
+    // const tokens = await this.genrateToken(user.id, user.email, user.role, profileId);
+    // await this.updateRefreshTokenHash(user.id, tokens.refreshToken);
+
+    // return tokens;
+
+    const tokenHash = this.hashToken(refreshToken);
+    const storedToken = await this.refreshTokenRepo.findByTokenHash(tokenHash);
+
+    if (
+      !storedToken ||
+      storedToken.revoked_at ||
+      storedToken.expires_at < new Date()
+    ) {
+      throw new UnauthorizedException('Access denied');
     }
 
-    const tokens = await this.genrateToken(user.id, user.email, user.role, profileId);
-    await this.updateRefreshTokenHash(user.id, tokens.refreshToken);
+    const user = await this.userService.findOne(storedToken.user_id);
+    if (!user) {
+      throw new UnauthorizedException('Access denied');
+    }
 
+    const tokens = await this.genrateToken(
+      user.id,
+      user.email,
+      user.role,
+      profileId,
+    );
+    await this.refreshTokenRepo.revoke(storedToken.id);
+    await this.saveRefreshToken(user.id, tokens.refreshToken);
     return tokens;
   }
 
-  async logout(userId: string) {
-    await this.userService.updateRefreshToken(userId, null);
+  async logout(userId: string, refreshToken: string) {
+    const tokenHash = this.hashToken(refreshToken);
+    const storedToken = await this.refreshTokenRepo.findByTokenHash(tokenHash);
+
+    if (storedToken) {
+      await this.refreshTokenRepo.revoke(storedToken.id);
+    }
+
     await this.activityLogService.logActivity(userId, 'LOGOUT');
   }
 
@@ -330,6 +384,7 @@ export class AuthService {
       user.id,
       newPasswordHash,
     );
+    await this.refreshTokenRepo.revokeAllForUser(user.id);
     await this.activityLogService.logActivity(user.id, 'RESET_PASSWORD');
 
     return {

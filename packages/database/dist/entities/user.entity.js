@@ -34,8 +34,6 @@ let User = class User {
     password_reset_otp;
     reset_otp_expires;
     otp_attempts;
-    refreshToken;
-    lastLoginAt;
     created_at;
     updated_at;
     is_pending_deletion;
@@ -127,14 +125,6 @@ __decorate([
     (0, typeorm_1.Column)({ type: 'int', default: 0 }),
     __metadata("design:type", Number)
 ], User.prototype, "otp_attempts", void 0);
-__decorate([
-    (0, typeorm_1.Column)({ type: 'varchar', nullable: true }),
-    __metadata("design:type", String)
-], User.prototype, "refreshToken", void 0);
-__decorate([
-    (0, typeorm_1.CreateDateColumn)({ type: 'timestamp with time zone', nullable: true }),
-    __metadata("design:type", Date)
-], User.prototype, "lastLoginAt", void 0);
 __decorate([
     (0, typeorm_1.CreateDateColumn)({ type: 'timestamp with time zone' }),
     __metadata("design:type", Date)
