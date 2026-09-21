@@ -12,6 +12,8 @@ export * from './entities/room-join-request.entity';
 export * from './entities/profile.entity';
 export * from './entities/bookmark.entity';
 export * from './entities/refreshtoken.entity';
+export * from './entities/organization.entity';
+export * from './entities/organizationMember.entity';
 
 export * from './enums/user-role.enum';
 export * from './enums/user-plan.enum';
@@ -38,6 +40,8 @@ export * from './repositories/message.repository';
 export * from './repositories/profile.repository';
 export * from './repositories/bookmark.repository';
 export * from './repositories/refreshToken.repository';
+export * from './repositories/organization.repository';
+export * from './repositories/organtizationMember.repository';
 
 export * from './interfaces/article.interface';
 export * from './interfaces/news-fetch-log.interface.repository';
@@ -52,3 +56,5 @@ export * from './interfaces/message.interface';
 export * from './interfaces/profile.interface';
 export * from './interfaces/bookmark.interface';
 export * from './interfaces/refreshToken.interface';
+export * from './interfaces/organization.interface';
+export * from './interfaces/organizationMember.interface';
