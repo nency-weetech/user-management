@@ -20,13 +20,24 @@ export class BookmarkController {
   constructor(private readonly bookmarkService: BookmarkService) {}
   
   @Post()
-  create(@Req() req, @Body() createBookmarkDto: CreateBookmarkDto) {
-    return this.bookmarkService.create(req.user.profileId, createBookmarkDto, req.user.id);
+  createPersonalBookmark(@Req() req, @Body() createBookmarkDto: CreateBookmarkDto) {
+    return this.bookmarkService.createPersonalBookmark(req.user.profileId, createBookmarkDto, req.user.id);
+  }
+
+  @Post(':orgId')
+  createOrgBookmark(@Param('orgId') orgId: string, @Req() req, @Body() createBookmarkDto: CreateBookmarkDto) {
+    return this.bookmarkService.createOrgBookmark(req.user.profileId, createBookmarkDto, req.user.id, orgId);
   }
 
   @Get()
   findAll(@Req() req) {
     return this.bookmarkService.findAll(req.user.profileId);
+  }
+
+  @Get(':orgId')
+  @UseGuards(AuthGuard)
+  findAllBookmarkByOrg(@Param('orgId') orgId: string, @Req() req,){
+    return this.bookmarkService.findAllByorg(orgId, req.user.id)
   }
 
   @Get(':id')

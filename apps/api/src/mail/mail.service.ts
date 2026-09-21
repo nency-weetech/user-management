@@ -114,4 +114,18 @@ export class MailService {
       }
     )
   }
+
+  async sendInvitationGreet(toEmail: string, orgName: string){
+    await this.mailQueue.add(
+      'send-invitation',
+      {toEmail, orgName},
+      {
+        priority: 5,
+        attempts: 3,
+        backoff: {type: 'exponential', delay: 3000},
+        removeOnComplete: false,
+        removeOnFail: false
+      }
+    )
+  }
 }

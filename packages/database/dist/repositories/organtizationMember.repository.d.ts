@@ -7,4 +7,7 @@ export declare class OrganizationMembersRepository extends BaseAbstractRepostito
     constructor(orgMemRepo: Repository<OrganizationMembers>);
     createOrgMember(orgId: string, userId: string): Promise<OrganizationMembers>;
     findByUserId(userId: string): Promise<OrganizationMembers[]>;
+    findUserByOrg(orgId: string, userId: string): Promise<OrganizationMembers | null>;
+    findAllByOrgId(orgId: string): Promise<OrganizationMembers[]>;
+    isMember(userId: string, orgId: string): Promise<boolean>;
 }

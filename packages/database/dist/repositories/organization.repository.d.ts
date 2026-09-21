@@ -7,4 +7,6 @@ export declare class OrganizationRepository extends BaseAbstractRepostitory<Orga
     constructor(organizationRepo: Repository<Organizations>);
     createOrganization(userId: string, name: string, isDefault: boolean): Promise<Organizations>;
     findDefaultByUserId(userId: string): Promise<Organizations | null>;
+    findOneById(id: any): Promise<Organizations>;
+    findIsAdmin(orgId: string, userId: string): Promise<Organizations>;
 }

@@ -34,6 +34,17 @@ let OrganizationRepository = class OrganizationRepository extends base_repositor
     async findDefaultByUserId(userId) {
         return this.organizationRepo.findOne({ where: { owner_id: userId, is_default: true } });
     }
+    async findOneById(id) {
+        return this.organizationRepo.findOne({ where: { id } });
+    }
+    async findIsAdmin(orgId, userId) {
+        return this.organizationRepo.findOne({
+            where: {
+                id: orgId,
+                owner_id: userId
+            }
+        });
+    }
 };
 exports.OrganizationRepository = OrganizationRepository;
 exports.OrganizationRepository = OrganizationRepository = __decorate([

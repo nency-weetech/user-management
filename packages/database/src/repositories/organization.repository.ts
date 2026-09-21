@@ -24,4 +24,17 @@ export class OrganizationRepository
     async findDefaultByUserId(userId: string): Promise<Organizations | null> {
         return this.organizationRepo.findOne({where: {owner_id: userId, is_default: true}})
     }
+
+    async findOneById(id: any): Promise<Organizations> {
+        return this.organizationRepo.findOne({where: {id}})
+    }
+
+    async findIsAdmin(orgId: string, userId: string){
+        return this.organizationRepo.findOne({
+            where: {
+                id: orgId,
+                owner_id: userId
+            }
+        })
+    }
   }

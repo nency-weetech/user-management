@@ -22,7 +22,7 @@ import { ActivityLogService } from '../activity-log/activity-log.service';
 import { SignUpCountService } from '../sign-up-count/sign-up-count.service';
 import { SoftDeleteService } from '../soft-delete/soft-delete.service';
 import { DataSource } from 'typeorm';
-import { Profile, RefreshTokenRepository, User } from '@myapp/database';
+import { OrganizationMembers, Organizations, Profile, RefreshTokenRepository, User } from '@myapp/database';
 import { ProfileService } from '../profile/profile.service';
 
 
@@ -71,6 +71,20 @@ export class AuthService {
         is_default: true,
       });
       await manager.save(newProfile);
+
+      const org = manager.create(Organizations, {
+        owner: {id: user.id} as User,
+        name: `${user.first_name}'s Organization`,
+        is_default: true,
+      })
+      await manager.save(org);
+
+      const orgMember = manager.create(OrganizationMembers, {
+        organization: {id: org.id}as Organizations,
+        user: {id: user.id} as User,
+        joined_at: new Date(),
+      })
+      await manager.save(orgMember)
       return user;
     });
 

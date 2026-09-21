@@ -7,7 +7,9 @@ export declare class BookmarkRepository extends BaseAbstractRepostitory<BookMark
     constructor(bookmarkrepo: Repository<BookMarks>);
     findByProfileId(profileId: string): Promise<BookMarks[]>;
     findByProfileAndArticle(profileId: string, articleId: string): Promise<BookMarks | null>;
+    findByOrgAndArticle(orgId: string, articleId: string): Promise<BookMarks | null>;
     findOneById(bookmarkId: any): Promise<BookMarks>;
     findAllBookmark(profileId: string): Promise<BookMarks[]>;
+    findAllBookmarkByOrg(orgId: string): Promise<BookMarks[]>;
     countByProfileId(profileId: string): Promise<Number>;
 }

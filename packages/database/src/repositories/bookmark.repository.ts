@@ -28,6 +28,15 @@ export class BookmarkRepository
     });
   }
 
+  async findByOrgAndArticle(
+    orgId: string,
+    articleId: string,
+  ): Promise<BookMarks | null> {
+    return await this.bookmarkrepo.findOne({
+      where: { organization_id: orgId, article_id: articleId}
+    })
+  }
+
   async findOneById(bookmarkId: any): Promise<BookMarks> {
     return await this.bookmarkrepo.findOne({ 
         where: { id: bookmarkId },
@@ -47,6 +56,22 @@ export class BookmarkRepository
             created_at: 'DESC'
         }
     });
+  }
+
+  async findAllBookmarkByOrg(orgId: string) : Promise<BookMarks[]>{
+    return await this.bookmarkrepo.find({
+      where: {
+        organization_id: orgId,
+      },
+      relations: {
+        article: true,
+        organization: true
+      },
+      order: {
+        created_at: 'DESC'
+      }
+
+    })
   }
 
   async countByProfileId(profileId: string) : Promise<Number>{

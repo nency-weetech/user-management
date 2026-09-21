@@ -27,12 +27,40 @@ let OrganizationMembersRepository = class OrganizationMembersRepository extends 
         const member = this.orgMemRepo.create({
             organization: { id: orgId },
             user: { id: userId },
-            joined_at: new Date()
+            joined_at: new Date(),
         });
         return this.orgMemRepo.save(member);
     }
     async findByUserId(userId) {
         return this.orgMemRepo.find({ where: { user_id: userId } });
+    }
+    async findUserByOrg(orgId, userId) {
+        return this.orgMemRepo.findOne({
+            where: { organization_id: orgId, user_id: userId },
+        });
+    }
+    async findAllByOrgId(orgId) {
+        return this.orgMemRepo.find({
+            where: {
+                organization_id: orgId,
+            },
+            relations: {
+                user: true,
+                organization: true
+            },
+            order: {
+                joined_at: 'ASC',
+            },
+        });
+    }
+    async isMember(userId, orgId) {
+        const count = await this.orgMemRepo.count({
+            where: {
+                organization_id: orgId,
+                user_id: userId
+            }
+        });
+        return count > 0;
     }
 };
 exports.OrganizationMembersRepository = OrganizationMembersRepository;

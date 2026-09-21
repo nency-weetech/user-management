@@ -31,6 +31,11 @@ let BookmarkRepository = class BookmarkRepository extends base_repository_1.Base
             where: { profile_id: profileId, article_id: articleId },
         });
     }
+    async findByOrgAndArticle(orgId, articleId) {
+        return await this.bookmarkrepo.findOne({
+            where: { organization_id: orgId, article_id: articleId }
+        });
+    }
     async findOneById(bookmarkId) {
         return await this.bookmarkrepo.findOne({
             where: { id: bookmarkId },
@@ -44,6 +49,20 @@ let BookmarkRepository = class BookmarkRepository extends base_repository_1.Base
             },
             relations: {
                 article: true
+            },
+            order: {
+                created_at: 'DESC'
+            }
+        });
+    }
+    async findAllBookmarkByOrg(orgId) {
+        return await this.bookmarkrepo.find({
+            where: {
+                organization_id: orgId,
+            },
+            relations: {
+                article: true,
+                organization: true
             },
             order: {
                 created_at: 'DESC'

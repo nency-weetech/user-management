@@ -8,6 +8,8 @@ import { CreateBookmarkDto } from './dto/create-bookmark.dto';
 import { UpdateBookmarkDto } from './dto/update-bookmark.dto';
 import {
   BookmarkRepository,
+  OrganizationMembersRepository,
+  OrganizationRepository,
   PLAN_CONFIG,
   UserPlanRepository,
   UserUsageRepository,
@@ -19,9 +21,11 @@ export class BookmarkService {
     private readonly bookmarkRepo: BookmarkRepository,
     private readonly userPlanRepo: UserPlanRepository,
     private readonly userUsageRepo: UserUsageRepository,
+    private readonly orgMemberRepo: OrganizationMembersRepository,
+    private readonly orgRepo : OrganizationRepository
   ) {}
 
-  async create(
+  async createPersonalBookmark(
     profileId: string,
     createBookmarkDto: CreateBookmarkDto,
     userId: string,
@@ -84,11 +88,46 @@ export class BookmarkService {
     if (userPlanCheck.bookmarkLimit !== null) {
       await this.userUsageRepo.increamentBookmarkCount(userId, 1);
     }
-    return;
+    return {bookmark};
+  }
+
+  async createOrgBookmark(
+    profileId: string,
+    createBookmarkDto: CreateBookmarkDto,
+    userId: string,
+    orgId: string
+  ){
+    const isMember = await this.orgMemberRepo.isMember(userId, orgId)
+    if (!isMember) {
+      throw new ForbiddenException('You are not a member of this organization');
+    }
+
+    const existOrgBookmark = await this.bookmarkRepo.findByOrgAndArticle(orgId, createBookmarkDto.article_id)
+     if (existOrgBookmark) {
+      throw new ConflictException('Article already bookmarked in this organization');
+    }
+
+    const orgBookmark = await this.bookmarkRepo.create({
+      profile_id: profileId,
+      article_id: createBookmarkDto.article_id,
+      note: createBookmarkDto.note,
+      organization_id: orgId
+    });
+
+    await this.bookmarkRepo.save(orgBookmark);
+    return {orgBookmark};
   }
 
   async findAll(profileId: string) {
     return await this.bookmarkRepo.findAllBookmark(profileId);
+  }
+
+  async findAllByorg(orgId: string, userId: string){
+     const isMember = await this.orgMemberRepo.isMember(userId, orgId)
+    if (!isMember) {
+      throw new ForbiddenException('You are not a member of this organization');
+    }
+    return await this.bookmarkRepo.findAllBookmarkByOrg(orgId);
   }
 
   async findOne(id: string) {

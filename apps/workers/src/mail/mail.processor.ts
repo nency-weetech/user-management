@@ -1,7 +1,7 @@
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
 import * as nodemailer from 'nodemailer';
-import {  runWithJobContext } from '@myapp/shared';
+import { runWithJobContext } from '@myapp/shared';
 import { Inject, Logger } from '@nestjs/common';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 
@@ -15,7 +15,9 @@ import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 export class MailProcessor extends WorkerHost {
   private transporter!: nodemailer.Transporter;
 
-  constructor(@Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger) {
+  constructor(
+    @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
+  ) {
     super();
     this.initTranspoter();
   }
@@ -62,6 +64,9 @@ export class MailProcessor extends WorkerHost {
           case 'send-invoice':
             result = this.sendInvoice(job);
             break;
+          case 'send-invitation':
+            result = this.sendInvitation(job);
+            break;
           default:
             this.logger.warn(`Unkonown Job type: ${job.name}`);
             break;
@@ -88,7 +93,9 @@ export class MailProcessor extends WorkerHost {
 
     const info = await this.transporter.sendMail(mailOption);
     this.logger.log(`Verifiction email sent to ${toEmail}`);
-    this.logger.log(`Verifiction Email URL: ${nodemailer.getTestMessageUrl(info)}`);
+    this.logger.log(
+      `Verifiction Email URL: ${nodemailer.getTestMessageUrl(info)}`,
+    );
 
     return { status: 'sent', messageId: info.messageId };
   }
@@ -143,7 +150,9 @@ export class MailProcessor extends WorkerHost {
     };
 
     const info = await this.transporter.sendMail(mailOption);
-    this.logger.log(`Password Reset URL: ${nodemailer.getTestMessageUrl(info)}`);
+    this.logger.log(
+      `Password Reset URL: ${nodemailer.getTestMessageUrl(info)}`,
+    );
   }
 
   async sendWeeklyReportMail(
@@ -207,17 +216,21 @@ export class MailProcessor extends WorkerHost {
     };
 
     const info = await this.transporter.sendMail(mailOption);
-    this.logger.log(`weekly signup report: ${nodemailer.getTestMessageUrl(info)}`);
+    this.logger.log(
+      `weekly signup report: ${nodemailer.getTestMessageUrl(info)}`,
+    );
   }
 
-async sendInvoice(job: Job<{ toEmail: string; hostedInvoiceUrl: string; invoicePDF: string }>) {
-  const { toEmail, hostedInvoiceUrl, invoicePDF } = job.data;
+  async sendInvoice(
+    job: Job<{ toEmail: string; hostedInvoiceUrl: string; invoicePDF: string }>,
+  ) {
+    const { toEmail, hostedInvoiceUrl, invoicePDF } = job.data;
 
-  const mailOptions = {
-    from: '"App Billing" <no-reply@myapp.com>',
-    to: toEmail,
-    subject: 'Your payment invoice',
-    html: `
+    const mailOptions = {
+      from: '"App Billing" <no-reply@myapp.com>',
+      to: toEmail,
+      subject: 'Your payment invoice',
+      html: `
       <div style="font-family: Arial, sans-serif; margin: 0 auto;">
         <h2 style="color: #333;">Thank you for your payment</h2>
         <p style="color: #555;">Your invoice is ready. You can view or download it using the links below.</p>
@@ -236,9 +249,71 @@ async sendInvoice(job: Job<{ toEmail: string; hostedInvoiceUrl: string; invoiceP
         <p style="color: #999; font-size: 12px;">If the buttons don't work, copy this link into your browser: ${hostedInvoiceUrl}</p>
       </div>
     `,
-  };
+    };
 
-  const info = await this.transporter.sendMail(mailOptions);
-  this.logger.log(`Invoice mail sent to ${toEmail}: ${nodemailer.getTestMessageUrl(info)}`);
-}
+    const info = await this.transporter.sendMail(mailOptions);
+    this.logger.log(
+      `Invoice mail sent to ${toEmail}: ${nodemailer.getTestMessageUrl(info)}`,
+    );
+  }
+
+  async sendInvitation(job: Job<{ toEmail: string; orgName: string }>) {
+    const { toEmail, orgName } = job.data;
+
+    const mailOptions = {
+      from: '"MyApp" <no-reply@myapp.com>',
+      to: toEmail,
+      subject: `You've been added to ${orgName}`,
+      html: `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; color: #333;">
+      <h2 style="margin-bottom: 20px;">
+        You've joined ${orgName}
+      </h2>
+
+      <p style="font-size: 16px; line-height: 1.6;">
+        You have been added as a member of
+        <strong>${orgName}</strong>.
+      </p>
+
+      <p style="font-size: 16px; line-height: 1.6;">
+        You can now access the organization and its resources
+        according to your assigned permissions.
+      </p>
+
+      <div style="margin: 30px 0;">
+        <a
+          href="http://localhost:3000/organizations"
+          style="
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #2563eb;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 15px;
+          "
+        >
+          Open Organization
+        </a>
+      </div>
+
+      <p style="font-size: 14px; color: #777; line-height: 1.5;">
+        If you believe this was done by mistake, please contact your
+        organization administrator.
+      </p>
+
+      <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;" />
+
+      <p style="font-size: 12px; color: #999;">
+        This is an automated email from MyApp. Please do not reply to this email.
+      </p>
+    </div>
+  `,
+    };
+
+    const info = await this.transporter.sendMail(mailOptions);
+    this.logger.log(
+      `Invvitation mail sent to ${toEmail}: ${nodemailer.getTestMessageUrl(info)}`,
+    );
+  }
 }
