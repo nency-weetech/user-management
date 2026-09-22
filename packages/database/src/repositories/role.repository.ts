@@ -14,7 +14,7 @@ export class RoleRepository extends BaseAbstractRepostitory<Roles> implements IR
         const role = this.roleRepo.create({
             organization: {id : organization_id} as Organizations,
             name,
-            is_default: false
+            is_default: is_default
         })
         return this.roleRepo.save(role);
     }

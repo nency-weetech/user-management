@@ -72,6 +72,9 @@ let BookmarkRepository = class BookmarkRepository extends base_repository_1.Base
     async countByProfileId(profileId) {
         return this.bookmarkrepo.count({ where: { profile_id: profileId } });
     }
+    async delete(bookmarkId) {
+        this.bookmarkrepo.delete({ id: bookmarkId });
+    }
 };
 exports.BookmarkRepository = BookmarkRepository;
 exports.BookmarkRepository = BookmarkRepository = __decorate([

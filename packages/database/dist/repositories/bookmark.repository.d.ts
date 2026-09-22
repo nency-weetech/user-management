@@ -12,4 +12,5 @@ export declare class BookmarkRepository extends BaseAbstractRepostitory<BookMark
     findAllBookmark(profileId: string): Promise<BookMarks[]>;
     findAllBookmarkByOrg(orgId: string): Promise<BookMarks[]>;
     countByProfileId(profileId: string): Promise<Number>;
+    delete(bookmarkId: string): Promise<void>;
 }

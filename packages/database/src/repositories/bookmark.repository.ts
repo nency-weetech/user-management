@@ -77,4 +77,8 @@ export class BookmarkRepository
   async countByProfileId(profileId: string) : Promise<Number>{
     return this.bookmarkrepo.count({where: {profile_id: profileId}})
   }
+
+  async delete(bookmarkId: string): Promise<void>{
+    this.bookmarkrepo.delete({id: bookmarkId})
+  }
 }

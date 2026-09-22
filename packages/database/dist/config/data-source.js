@@ -43,8 +43,6 @@ const dotenv = __importStar(require("dotenv"));
 const typeorm_1 = require("typeorm");
 // dotenv.config({ path: path.resolve(process.cwd(), '../../packages/.env') });
 dotenv.config({ path: path_1.default.resolve(process.cwd(), '../../.env') });
-console.log(path_1.default.join((process.cwd(), '../../.env')));
-console.log(process.env.DB_PASSWORD);
 exports.datasourceOptions = {
     type: 'postgres',
     host: process.env.DB_HOST,

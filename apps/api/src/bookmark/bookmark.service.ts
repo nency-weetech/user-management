@@ -8,12 +8,16 @@ import { CreateBookmarkDto } from './dto/create-bookmark.dto';
 import { UpdateBookmarkDto } from './dto/update-bookmark.dto';
 import {
   BookmarkRepository,
+  MemberRoleRepository,
   OrganizationMembersRepository,
   OrganizationRepository,
+  PermissionRepository,
   PLAN_CONFIG,
+  RolePermissionRepository,
   UserPlanRepository,
   UserUsageRepository,
 } from '@myapp/database';
+import { OrganizationService } from '../organization/organization.service';
 
 @Injectable()
 export class BookmarkService {
@@ -22,7 +26,7 @@ export class BookmarkService {
     private readonly userPlanRepo: UserPlanRepository,
     private readonly userUsageRepo: UserUsageRepository,
     private readonly orgMemberRepo: OrganizationMembersRepository,
-    private readonly orgRepo : OrganizationRepository
+    private readonly organizationService : OrganizationService,
   ) {}
 
   async createPersonalBookmark(
@@ -97,6 +101,13 @@ export class BookmarkService {
     userId: string,
     orgId: string
   ){
+
+    const canWrite = await this.organizationService.hasPermission(orgId, userId, 'Bookmark.Write')
+    console.log(canWrite)
+    if(!canWrite){
+      throw new ForbiddenException('You do not have permission to create bookmarks in this organization')
+    }
+
     const isMember = await this.orgMemberRepo.isMember(userId, orgId)
     if (!isMember) {
       throw new ForbiddenException('You are not a member of this organization');
@@ -127,6 +138,7 @@ export class BookmarkService {
     if (!isMember) {
       throw new ForbiddenException('You are not a member of this organization');
     }
+    
     return await this.bookmarkRepo.findAllBookmarkByOrg(orgId);
   }
 
@@ -163,5 +175,26 @@ export class BookmarkService {
       isBookmarked: !!bookmark,
       bookmark_id: bookmark?.id ?? null,
     };
+  }
+
+  async deleteBookmark(bookmarkId: string, userId: string, profileId: string) {
+    const bookmark = await this.bookmarkRepo.findOneById(bookmarkId)
+    if(!bookmark){
+      throw new NotFoundException('Bookmark not found');
+    }
+
+    if(bookmark.organization_id){
+      const canDelete = await this.organizationService.hasPermission(bookmark.organization_id, userId, 'Bookmark.Delete')
+      if(!canDelete){
+        throw new ForbiddenException('You do not have permission to delete bookmarks in this organization');
+      }      
+    }else{
+       if (bookmark.profile_id !== profileId) {
+      throw new ForbiddenException('You can only delete your own bookmarks');
+    }
+    }
+
+    await this.bookmarkRepo.delete(bookmarkId);
+    return {message : "Bookmark successfully deleted"}
   }
 }

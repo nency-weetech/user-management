@@ -13,6 +13,8 @@ import { BookmarkService } from './bookmark.service';
 import { CreateBookmarkDto } from './dto/create-bookmark.dto';
 import { UpdateBookmarkDto } from './dto/update-bookmark.dto';
 import { AuthGuard } from '../guards/auth/auth.guard';
+import { currentUser } from '../decorators/current-user.decorator';
+import { User } from '@myapp/database';
 
 @Controller('bookmark')
 @UseGuards(AuthGuard)
@@ -59,4 +61,11 @@ export class BookmarkController {
   async checkBookmarked(@Req() req, @Param('articleId') articleId: string) {
     return this.bookmarkService.checkedBookmark(req.user.profileId, articleId);
   }
+
+  @Delete(':id/delete')
+  @UseGuards(AuthGuard)
+  async deleteBookmarkOrg(@Param('id') bookmarkId: string, @currentUser() user: User, @Req() req){
+    return this.bookmarkService.deleteBookmark(bookmarkId, user.id, req.user.profileId)
+  }
+
 }

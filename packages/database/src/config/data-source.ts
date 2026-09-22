@@ -5,8 +5,7 @@ import { DataSource, DataSourceOptions } from 'typeorm';
 
 // dotenv.config({ path: path.resolve(process.cwd(), '../../packages/.env') });
 dotenv.config({ path: path.resolve(process.cwd(), '../../.env') });
-console.log(path.join((process.cwd(), '../../.env')))
-console.log(process.env.DB_PASSWORD)
+
 export const datasourceOptions: DataSourceOptions = {
   type: 'postgres',
   host: process.env.DB_HOST,
