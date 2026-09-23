@@ -9,8 +9,12 @@ import {
   MemberRoles,
   OrganizationMembers,
   OrganizationMembersRepository,
+  OrganizationPlan,
+  OrganizationPlanRepository,
   OrganizationRepository,
   Organizations,
+  OrganizationUsage,
+  OrganizationUsageRepository,
   PermissionRepository,
   RolePermissionRepository,
   RolePermissions,
@@ -33,6 +37,8 @@ import { OrganizationModule } from '../organization/organization.module';
       Organizations,
       RolePermissions,
       MemberRoles,
+      OrganizationUsage,
+      OrganizationPlan
     ]),
     OrganizationModule
   ],
@@ -46,6 +52,8 @@ import { OrganizationModule } from '../organization/organization.module';
     OrganizationRepository,
     RolePermissionRepository,
     MemberRoleRepository,
+    OrganizationUsageRepository,
+    OrganizationPlanRepository
   ],
 })
 export class BookmarkModule {}

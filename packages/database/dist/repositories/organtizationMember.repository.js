@@ -39,6 +39,11 @@ let OrganizationMembersRepository = class OrganizationMembersRepository extends 
             where: { organization_id: orgId, user_id: userId },
         });
     }
+    async findMemberByorg(orgId, memberId) {
+        return this.orgMemRepo.findOne({
+            where: { organization_id: orgId, id: memberId },
+        });
+    }
     async findAllByOrgId(orgId) {
         return this.orgMemRepo.find({
             where: {

@@ -42,6 +42,12 @@ export class OrganizationMembersRepository
     });
   }
 
+  async findMemberByorg(orgId: string, memberId: string): Promise<OrganizationMembers | null>{
+        return this.orgMemRepo.findOne({
+      where: { organization_id: orgId, id: memberId },
+    });
+  }
+
   async findAllByOrgId(orgId: string) {
     return this.orgMemRepo.find({
       where: {

@@ -25,7 +25,10 @@ import { DataSource } from 'typeorm';
 import {
   MemberRoles,
   OrganizationMembers,
+  OrganizationPlan,
+  OrganizationPlanEnum,
   Organizations,
+  OrganizationUsage,
   Permissions,
   Profile,
   RefreshTokenRepository,
@@ -87,6 +90,19 @@ export class AuthService {
         is_default: true,
       });
       await manager.save(org);
+
+      const orgPlan = manager.create(OrganizationPlan, {
+        organization: {id: org.id} as Organizations,
+        plan: OrganizationPlanEnum.FREE
+      });
+      await manager.save(orgPlan);
+
+      const orgUsage = manager.create(OrganizationUsage, {
+        organization: {id: org.id} as Organizations,
+        daily_bookmark_count: 0,
+        daily_bookmark_reset_at: null
+      })
+      await manager.save(orgUsage);
 
       const orgMember = manager.create(OrganizationMembers, {
         organization: { id: org.id } as Organizations,

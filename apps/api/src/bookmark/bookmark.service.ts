@@ -10,7 +10,10 @@ import {
   BookmarkRepository,
   MemberRoleRepository,
   OrganizationMembersRepository,
+  OrganizationPlanRepository,
   OrganizationRepository,
+  OrganizationUsageRepository,
+  ORGANIZATIOPN_PLAN_CONFIG,
   PermissionRepository,
   PLAN_CONFIG,
   RolePermissionRepository,
@@ -27,6 +30,8 @@ export class BookmarkService {
     private readonly userUsageRepo: UserUsageRepository,
     private readonly orgMemberRepo: OrganizationMembersRepository,
     private readonly organizationService : OrganizationService,
+    private readonly orgPlanRepo: OrganizationPlanRepository,
+    private readonly orgUsageRepo: OrganizationUsageRepository
   ) {}
 
   async createPersonalBookmark(
@@ -103,14 +108,9 @@ export class BookmarkService {
   ){
 
     const canWrite = await this.organizationService.hasPermission(orgId, userId, 'Bookmark.Write')
-    console.log(canWrite)
+    
     if(!canWrite){
       throw new ForbiddenException('You do not have permission to create bookmarks in this organization')
-    }
-
-    const isMember = await this.orgMemberRepo.isMember(userId, orgId)
-    if (!isMember) {
-      throw new ForbiddenException('You are not a member of this organization');
     }
 
     const existOrgBookmark = await this.bookmarkRepo.findByOrgAndArticle(orgId, createBookmarkDto.article_id)
@@ -118,7 +118,46 @@ export class BookmarkService {
       throw new ConflictException('Article already bookmarked in this organization');
     }
 
-    const orgBookmark = await this.bookmarkRepo.create({
+    const orgPlan = await this.orgPlanRepo.findByOrgId(orgId);
+
+    if (!orgPlan) {
+      throw new NotFoundException('Organization plan not found');
+    }
+
+    const config = ORGANIZATIOPN_PLAN_CONFIG[orgPlan.plan];
+    if (config.bookmarkLimit !== null) {
+      const orgUsage = await this.orgUsageRepo.findByOrgId(orgId);
+      if (!orgUsage) {
+        throw new NotFoundException('Organization usage not found');
+      }
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const resetAt = orgUsage.daily_bookmark_reset_at
+        ? new Date(orgUsage.daily_bookmark_reset_at)
+        : null;
+
+      const sameDay =
+        resetAt !== null &&
+        resetAt.getFullYear() === today.getFullYear() &&
+        resetAt.getMonth() === today.getMonth() &&
+        resetAt.getDate() === today.getDate();
+
+      let currentCount: number;
+      if (!sameDay) {
+        await this.orgUsageRepo.resetDailyBookmarkCount(orgId, today);
+        currentCount = 0;
+      } else {
+        currentCount = orgUsage.daily_bookmark_count;
+      }
+
+      if (currentCount >= config.bookmarkLimit) {
+        throw new ForbiddenException(
+          `Bookmark limit reached (${config.bookmarkLimit}). Upgrade your plan to create more bookmarks.`,
+        );
+      }
+    }
+    const orgBookmark = this.bookmarkRepo.create({
       profile_id: profileId,
       article_id: createBookmarkDto.article_id,
       note: createBookmarkDto.note,
@@ -126,6 +165,10 @@ export class BookmarkService {
     });
 
     await this.bookmarkRepo.save(orgBookmark);
+    const orgPlanCheck = ORGANIZATIOPN_PLAN_CONFIG[orgPlan.plan];
+    if (orgPlanCheck.bookmarkLimit !== null) {
+      await this.orgUsageRepo.incrementBookmarkCount(orgId, 1);
+    }
     return {orgBookmark};
   }
 

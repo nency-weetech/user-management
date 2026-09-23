@@ -9,58 +9,48 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UserUsage = void 0;
+exports.OrganizationUsage = void 0;
 const typeorm_1 = require("typeorm");
-const user_entity_1 = require("./user.entity");
-let UserUsage = class UserUsage {
+const organization_entity_1 = require("./organization.entity");
+let OrganizationUsage = class OrganizationUsage {
     id;
-    user_id;
-    user;
-    daily_article_view_count;
-    daily_article_view_reset_at;
+    organization_id;
+    organization;
     daily_bookmark_count;
     daily_bookmark_reset_at;
     created_at;
     updated_at;
 };
-exports.UserUsage = UserUsage;
+exports.OrganizationUsage = OrganizationUsage;
 __decorate([
     (0, typeorm_1.PrimaryGeneratedColumn)('uuid'),
     __metadata("design:type", String)
-], UserUsage.prototype, "id", void 0);
+], OrganizationUsage.prototype, "id", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ nullable: true, unique: true }),
+    (0, typeorm_1.Column)({ type: 'uuid', unique: true }),
     __metadata("design:type", String)
-], UserUsage.prototype, "user_id", void 0);
+], OrganizationUsage.prototype, "organization_id", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => user_entity_1.User, { nullable: true, onDelete: 'SET NULL' }),
-    (0, typeorm_1.JoinColumn)({ name: 'user_id' }),
-    __metadata("design:type", user_entity_1.User)
-], UserUsage.prototype, "user", void 0);
-__decorate([
-    (0, typeorm_1.Column)({ type: 'int', default: 0 }),
-    __metadata("design:type", Number)
-], UserUsage.prototype, "daily_article_view_count", void 0);
-__decorate([
-    (0, typeorm_1.Column)({ nullable: true }),
-    __metadata("design:type", Date)
-], UserUsage.prototype, "daily_article_view_reset_at", void 0);
+    (0, typeorm_1.ManyToOne)(() => organization_entity_1.Organizations, { onDelete: 'CASCADE' }),
+    (0, typeorm_1.JoinColumn)({ name: 'organization_id' }),
+    __metadata("design:type", organization_entity_1.Organizations)
+], OrganizationUsage.prototype, "organization", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: 'int', default: 0 }),
     __metadata("design:type", Number)
-], UserUsage.prototype, "daily_bookmark_count", void 0);
+], OrganizationUsage.prototype, "daily_bookmark_count", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: 'date', nullable: true }),
     __metadata("design:type", Date)
-], UserUsage.prototype, "daily_bookmark_reset_at", void 0);
+], OrganizationUsage.prototype, "daily_bookmark_reset_at", void 0);
 __decorate([
     (0, typeorm_1.CreateDateColumn)({ type: 'timestamp with time zone' }),
     __metadata("design:type", Date)
-], UserUsage.prototype, "created_at", void 0);
+], OrganizationUsage.prototype, "created_at", void 0);
 __decorate([
     (0, typeorm_1.UpdateDateColumn)({ type: 'timestamp with time zone' }),
     __metadata("design:type", Date)
-], UserUsage.prototype, "updated_at", void 0);
-exports.UserUsage = UserUsage = __decorate([
-    (0, typeorm_1.Entity)('user_usages')
-], UserUsage);
+], OrganizationUsage.prototype, "updated_at", void 0);
+exports.OrganizationUsage = OrganizationUsage = __decorate([
+    (0, typeorm_1.Entity)('organization_usages')
+], OrganizationUsage);

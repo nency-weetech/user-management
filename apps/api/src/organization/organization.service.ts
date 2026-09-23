@@ -106,7 +106,7 @@ export class OrganizationService {
       );
     }
 
-    const existMember = await this.orgMemberRepo.findUserByOrg(
+    const existMember = await this.orgMemberRepo.findMemberByorg(
       orgId,
       targetUserId,
     );
