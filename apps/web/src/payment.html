@@ -483,6 +483,51 @@
                 <button class="plan-btn" data-plan="max" data-price="299">Upgrade to Max</button>
             </div>
         </div>
+
+        <div class="container">
+            <div class="hero" style="margin-top: 60px;">
+                <h1>Upgrade your Organization</h1>
+                <p>One plan, shared by your whole team — everyone gets the same bookmark limit</p>
+            </div>
+
+            <div class="login-box visible" style="margin-bottom: 24px;">
+                <label for="orgIdInput">Organization ID</label>
+                <input type="text" id="orgIdInput" placeholder="Paste your organization ID" />
+            </div>
+
+            <div class="plans" id="orgPlans">
+                <div class="plan-card" data-plan="free">
+                    <div class="plan-name">Free</div>
+                    <div class="plan-price">₹0<span>/one-time</span></div>
+                    <div class="plan-desc">Shared basic bookmark access</div>
+                    <ul class="plan-features">
+                        <li><span class="checkmark">✓</span> 50 bookmarks / day (org-wide)</li>
+                    </ul>
+                    <button class="plan-btn" disabled>Current plan</button>
+                </div>
+
+                <div class="plan-card featured" data-plan="pro">
+                    <div class="badge">Most popular</div>
+                    <div class="plan-name">Pro</div>
+                    <div class="plan-price">₹499<span>/one-time</span></div>
+                    <div class="plan-desc">More room for growing teams</div>
+                    <ul class="plan-features">
+                        <li><span class="checkmark">✓</span> 100 bookmarks / day (org-wide)</li>
+                    </ul>
+                    <button class="org-plan-btn" data-plan="pro" data-price="499">Upgrade to Pro</button>
+                </div>
+
+                <div class="plan-card" data-plan="max">
+                    <div class="plan-name">Max</div>
+                    <div class="plan-price">₹999<span>/one-time</span></div>
+                    <div class="plan-desc">Unlimited, no daily caps</div>
+                    <ul class="plan-features">
+                        <li><span class="checkmark">✓</span> Unlimited bookmarks (org-wide)</li>
+                    </ul>
+                    <button class="org-plan-btn" data-plan="max" data-price="999">Upgrade to Max</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="overlay" id="overlay">
@@ -524,7 +569,7 @@
         const stripe = Stripe(STRIPE_PUBLISHABLE_KEY);
         let elements;
         let selectedPlan = null;
-       
+
         // function getToken() {
         //     return localStorage.getItem('authToken') || '';
         // }
@@ -534,6 +579,52 @@
         //     updateUserStatus();
         // }
 
+        document.querySelectorAll('.org-plan-btn[data-plan]').forEach(btn => {
+            btn.addEventListener('click', () => openOrgCheckout(btn.dataset.plan, btn.dataset.price));
+        });
+
+        async function openOrgCheckout(plan, price) {
+            if (!isLoggedIn()) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const orgId = document.getElementById('orgIdInput').value.trim();
+            if (!orgId) {
+                alert('Please enter an Organization ID first');
+                return;
+            }
+
+            selectedPlan = plan;
+            const planLabel = plan.charAt(0).toUpperCase() + plan.slice(1);
+            document.getElementById('modalPlanName').textContent = 'Upgrade Organization to ' + planLabel;
+            document.getElementById('summaryPlan').textContent = planLabel + ' plan (Organization)';
+            document.getElementById('summaryAmount').textContent = '₹' + price;
+            document.getElementById('modalMsg').textContent = '';
+            document.getElementById('modalMsg').className = 'modal-msg';
+            document.getElementById('payment-element').innerHTML = '';
+            document.getElementById('overlay').classList.add('visible');
+
+            try {
+                const res = await fetch(API_BASE_URL + '/billing/organizations/' + orgId + '/checkout/' + plan, {
+                    method: 'POST',
+                    credentials: "include",
+                });
+
+                const data = await res.json();
+
+                if (!data.clientSecret) {
+                    document.getElementById('modalMsg').textContent = data.message || 'Could not start checkout.';
+                    return;
+                }
+
+                elements = stripe.elements({ clientSecret: data.clientSecret });
+                const paymentElement = elements.create('payment');
+                paymentElement.mount('#payment-element');
+            } catch (err) {
+                document.getElementById('modalMsg').textContent = 'Something went wrong: ' + err.message;
+            }
+        }
         function updateUserStatus() {
             const status = document.getElementById('userStatus');
             const name = getUserName();
@@ -573,7 +664,7 @@
 
                 console.log(res)
                 const data = await res.json();
-                
+
                 if (!data.clientSecret) {
                     document.getElementById('modalMsg').textContent = data.message || 'Could not start checkout.';
                     return;

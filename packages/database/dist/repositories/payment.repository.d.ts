@@ -10,6 +10,7 @@ export declare class PaymentRepository extends BaseAbstractRepostitory<Payments>
     private readonly userRepository;
     constructor(paymentsRepo: Repository<Payments>, userRepository: UserRepository);
     createPayment(userId: string, plan: UserPlanEnum, paymentIntentId: string, amount: number, currency: string): Promise<Payments>;
+    createOrgPayment(orgId: string, plan: UserPlanEnum, paymentIntentId: string, amount: number, currency: string): Promise<Payments>;
     findBySessionId(sessionId: string): Promise<Payments | null>;
     findByPaymentIntentId(paymentIntentId: string): Promise<Payments | null>;
     markSucceeded(paymentIntentId: string): Promise<void>;

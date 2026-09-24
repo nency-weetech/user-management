@@ -7,6 +7,7 @@ import { PaymentsInterface } from '../interfaces/payments.interface';
 import { UserPlanEnum } from '../enums/user-plan.enum';
 import { UserRepository } from './user.repository';
 import { User } from '../entities/user.entity';
+import { Organizations } from '../entities/organization.entity';
 
 export class PaymentRepository
   extends BaseAbstractRepostitory<Payments>
@@ -28,7 +29,7 @@ export class PaymentRepository
     currency: string,
   ): Promise<Payments> {
     const userPayment = this.paymentsRepo.create({
-      user_id : userId,
+      user_id: userId,
       stripe_payment_intent_id: paymentIntentId,
       plan,
       amount,
@@ -38,28 +39,49 @@ export class PaymentRepository
     return this.paymentsRepo.save(userPayment);
   }
 
+  createOrgPayment(
+    orgId: string,
+    plan: UserPlanEnum,
+    paymentIntentId: string,
+    amount: number,
+    currency: string,
+  ): Promise<Payments> {
+    const orgPayment = this.paymentsRepo.create({
+      organization: {id: orgId} as Organizations,
+      stripe_payment_intent_id: paymentIntentId,
+      plan,
+      amount,
+      currency,
+      status: PaymentStatus.PENDING,
+    });
+
+    return this.paymentsRepo.save(orgPayment)
+  }
+
   findBySessionId(sessionId: string): Promise<Payments | null> {
-    return this.paymentsRepo.findOneBy({ stripe_checkout_session_id: sessionId });
+    return this.paymentsRepo.findOneBy({
+      stripe_checkout_session_id: sessionId,
+    });
   }
 
   findByPaymentIntentId(paymentIntentId: string): Promise<Payments | null> {
-    return this.paymentsRepo.findOneBy({ stripe_payment_intent_id: paymentIntentId });
+    return this.paymentsRepo.findOneBy({
+      stripe_payment_intent_id: paymentIntentId,
+    });
   }
 
-  async markSucceeded(
-    paymentIntentId: string,
-  ): Promise<void> {
+  async markSucceeded(paymentIntentId: string): Promise<void> {
     await this.paymentsRepo.update(
-      {  stripe_payment_intent_id: paymentIntentId },
+      { stripe_payment_intent_id: paymentIntentId },
       {
         status: PaymentStatus.SUCCEEDED,
       },
     );
   }
 
-  async markExpired(paymentIntentId: string,): Promise<void> {
+  async markExpired(paymentIntentId: string): Promise<void> {
     await this.paymentsRepo.update(
-      {  stripe_payment_intent_id: paymentIntentId },
+      { stripe_payment_intent_id: paymentIntentId },
       {
         status: PaymentStatus.EXPIRED,
       },

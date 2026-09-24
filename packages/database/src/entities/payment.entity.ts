@@ -4,12 +4,14 @@ import {
   Entity,
   JoinColumn,
   ManyToMany,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { User } from './user.entity';
 import { PaymentStatus } from '../enums/payment-status.enum';
 import { UserPlanEnum } from '../enums/user-plan.enum';
+import { Organizations } from './organization.entity';
 
 @Entity('payments')
 export class Payments {
@@ -17,11 +19,18 @@ export class Payments {
   id!: string;
 
   @Column({ nullable: true })
-  user_id!: string | null;
+  user_id?: string;
 
-  @ManyToMany(() => User, { nullable: true, onDelete: 'SET NULL' })
+  @ManyToOne(() => User, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'userId' })
-  user!: User | null;
+  user?: User;
+
+  @Column({nullable: true, type: 'uuid'})
+  organization_id?: string;
+
+  @ManyToOne(() => Organizations, {nullable: true, onDelete: 'SET NULL'})
+  @JoinColumn({name: 'organization_id'})
+  organization?:Organizations;
 
   @Column({ nullable: true })
   stripe_checkout_session_id!: string|null;

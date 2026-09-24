@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Controller,
+  ForbiddenException,
   Get,
   Param,
   Post,
@@ -11,6 +12,10 @@ import {
 } from '@nestjs/common';
 import { StripeService } from './stripe.service';
 import {
+  OrganizationPlanEnum,
+  OrganizationPlanRepository,
+  OrganizationRepository,
+  ORGANIZATIOPN_PLAN_CONFIG,
   PaymentRepository,
   PaymentStatus,
   PLAN_CONFIG,
@@ -27,6 +32,7 @@ import { BillingQueueService } from './billing.queue.service';
 import { MailService } from '../mail/mail.service';
 import { RoleGuard } from '../guards/role/role.guard';
 import { Roles } from '../decorators/role.decorator';
+import { OrganizationService } from '../organization/organization.service';
 
 @Controller('billing')
 export class BillingController {
@@ -35,6 +41,9 @@ export class BillingController {
     private paymentRepository: PaymentRepository,
     private userPlanRepo: UserPlanRepository,
     private billingQueueService: BillingQueueService,
+    private organizationService: OrganizationService,
+    private orgRepo: OrganizationRepository,
+    private orgPlanRepo: OrganizationPlanRepository,
     private mailService: MailService,
     private userRepository: UserRepository,
   ) {}
@@ -63,6 +72,7 @@ export class BillingController {
       'inr',
       user.id,
       plan,
+      'user',
     );
     await this.paymentRepository.createPayment(
       user.id,
@@ -77,9 +87,60 @@ export class BillingController {
     };
   }
 
+  @Post('organizations/:orgId/checkout/:plan')
+  @UseGuards(AuthGuard)
+  async checkoutForOrganization(
+    @currentUser() user: User,
+    @Param('orgId') orgId: string,
+    @Param('plan') plan: UserPlanEnum,
+  ) {
+    if (!['pro', 'max'].includes(plan)) {
+      throw new BadRequestException('Invalid plan');
+    }
+
+    const isOwner = await this.orgRepo.findIsAdmin(orgId, user.id);
+    if (!isOwner) {
+      throw new ForbiddenException(
+        'Only the organization owner can upgrade the plan',
+      );
+    }
+
+    const orgPlan = await this.orgPlanRepo.findByOrgId(orgId);
+    if (orgPlan?.plan === OrganizationPlanEnum.MAX) {
+      return { message: 'This organization already has the upgraded version.' };
+    }
+
+    const config = ORGANIZATIOPN_PLAN_CONFIG[plan];
+    if (!config) {
+      throw new BadRequestException('Invalid plan');
+    }
+
+    const amountInPaise = config.price * 100;
+
+    const paymentIntent = await this.stripeService.createPaymentIntent(
+      amountInPaise,
+      'inr',
+      orgId,
+      plan,
+      'organization',
+    );
+
+    await this.paymentRepository.createOrgPayment(
+      orgId,
+      plan,
+      paymentIntent.id,
+      amountInPaise,
+      'inr',
+    );
+    return {
+      clientSecret: paymentIntent.client_secret,
+      paymentIntentId: paymentIntent.id,
+    };
+  }
+
   @Post('webhook')
   async webhook(@Req() request: RawBodyRequest<Request>) {
-      console.log('=== WEBHOOK HIT ===');
+    
     const signature = request.headers['stripe-signature'] as string;
     let event: any;
 
@@ -95,7 +156,10 @@ export class BillingController {
       const paymentIntent = event.data.object as any;
       const paymentIntentId = paymentIntent.id;
 
-      await this.billingQueueService.queuePaymentUpdate('failed', paymentIntentId);
+      await this.billingQueueService.queuePaymentUpdate(
+        'failed',
+        paymentIntentId,
+      );
       // const payment = await this.paymentRepository.findBySessionId(sessionId);
       // if (!payment) {
       //   return { received: true };
@@ -112,17 +176,30 @@ export class BillingController {
       console.log('Event type received:', event.type);
       const paymentIntent = event.data.object as any;
       const paymentIntentId = paymentIntent.id;
-      const userId = paymentIntent.metadata.userId;
       const plan = paymentIntent.metadata.plan;
+      
+      if (paymentIntent.metadata.organizationId) {
+        const orgId = paymentIntent.metadata.organizationId;
+        console.log(orgId)
+        await this.billingQueueService.queuePaymentUpdate(
+          'completed',
+          orgId,
+          paymentIntentId,
+          plan,
+          'organization',
+        );
+      }else{
+        const userId = paymentIntent.metadata.userId;
+        await this.billingQueueService.queuePaymentUpdate(
+          'completed',
+          userId,
+          paymentIntentId,
+          plan,
+          'user'
+        );
+      }
 
       //const { hostedInvoiceUrl, invoicePDF } = await this.stripeService.getInvoiceUrl(session.invoice);
-      await this.billingQueueService.queuePaymentUpdate(
-        'completed',
-        userId,
-        paymentIntentId,
-        plan,
-      );
-      
 
       //const user = await this.userRepository.findOneById(userId);
       // await this.mailService.sendInvoice(

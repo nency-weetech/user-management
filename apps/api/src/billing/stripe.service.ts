@@ -60,15 +60,22 @@ export class StripeService {
   async createPaymentIntent(
     amount: number,
     currency: string,
-    userId: string,
+    identifierId: string,
     plan: UserPlanEnum,
+    targetType: 'user' | 'organization' = 'user'
   ): Promise<Stripe.PaymentIntent> {
+    const metadata = targetType === 'organization' 
+        ? {organizationId : identifierId, plan}
+        : {userId : identifierId, plan}
+        
     const paymentIntent = await this.stripe.paymentIntents.create({
       amount,
       currency,
-      metadata: {userId, plan},
+      metadata,
       automatic_payment_methods: {enabled: true}
     })
     return paymentIntent;
   }
+
+  
 }

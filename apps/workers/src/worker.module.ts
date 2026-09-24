@@ -2,7 +2,7 @@
 import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
 import { NewsFetcherService } from './news/news-fetcher.service';
-import { ArticleRepository, PaymentRepository, Payments, User, UserPlan, UserPlanRepository, UserRepository } from '@myapp/database';
+import { ArticleRepository, OrganizationPlan, OrganizationPlanRepository, PaymentRepository, Payments, User, UserPlan, UserPlanRepository, UserRepository } from '@myapp/database';
 import { NewsFetchLogRepository } from '@myapp/database';
 import { MailProcessor } from './mail/mail.processor';
 import { RedisModule } from './redis/redis.module';
@@ -32,19 +32,19 @@ import { PaymentCleanUpCorn } from './billing/payment-cleanup.corn';
     }),
     LoggerModule,
     TypeOrmModule.forRoot(datasourceOptions),
-    TypeOrmModule.forFeature([Article, NewsFetchLog, User, Payments, UserPlan]),
+    TypeOrmModule.forFeature([Article, NewsFetchLog, User, Payments, UserPlan, OrganizationPlan]),
     RedisModule,
     HttpModule,
     BullModule.registerQueue({ name: 'newsQueue' }, { name: 'mailQueue' }, {name: 'billingQueue'}),
   ],
   providers: [
     MailProcessor,
-    
     PaymentEventProcessor,
     PaymentRepository,
     PaymentCleanUpCorn,
     UserPlanRepository,
     UserRepository,
+    OrganizationPlanRepository,
     
     ArticleRepository,
     NewsFetchLogRepository,
