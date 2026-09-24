@@ -13,18 +13,20 @@ export class BillingQueueService {
 
   async queuePaymentUpdate(
     eventType: string,
-    userId?: string,
+    identifierId?: string,
     paymentIntentId?: string,
     plan?: UserPlanEnum,
+    targetType: 'user' | 'organization' = 'user'
   ) {
     const isTest = process.env.NODE_ENV === 'test';
     const job = await this.billingQueue.add(
       'process-payment-event',
       {
         eventType,
-        userId,
+        identifierId,
         paymentIntentId,
         plan,
+        targetType
       },
       {
         attempts: isTest ? 1 : 3,
@@ -35,7 +37,7 @@ export class BillingQueueService {
     );
 
     this.logger.log(
-      `Payment event queued: event-type=${eventType}, userId=${userId} `,
+      `Payment event queued: event-type=${eventType},  identifierId=${identifierId} `,
     );
     return { jobId: job.id };
   }

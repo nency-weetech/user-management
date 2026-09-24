@@ -1,6 +1,7 @@
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Unique, UpdateDateColumn } from "typeorm";
 import { Profile } from "./profile.entity";
 import { Article } from "./article.entity";
+import { Organizations } from "./organization.entity";
 
 @Entity('bookmarks')
 @Unique(['profile_id', 'article_id'])
@@ -24,6 +25,13 @@ export class BookMarks{
 
     @Column({nullable: true})
     note? : string;
+
+    @Column({type: 'uuid', nullable: true})
+    organization_id? : string
+
+    @ManyToOne(() => Organizations, {nullable: true, onDelete: 'SET NULL'})
+    @JoinColumn({name: 'organization_id'})
+    organization?: Organizations;
 
     @CreateDateColumn({type: 'timestamp with time zone'})
     created_at!: Date;

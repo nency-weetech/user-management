@@ -12,15 +12,25 @@ export * from './entities/room-join-request.entity';
 export * from './entities/profile.entity';
 export * from './entities/bookmark.entity';
 export * from './entities/refreshtoken.entity';
+export * from './entities/organization.entity';
+export * from './entities/organizationMember.entity';
+export * from './entities/permission.entity';
+export * from './entities/role.entity';
+export * from './entities/role.permission.entity';
+export * from './entities/member.role.entity';
+export * from './entities/organization.plan.entity';
+export * from './entities/organizationUsage.entity'
 
 export * from './enums/user-role.enum';
 export * from './enums/user-plan.enum';
 export * from './enums/payment-status.enum';
 export * from './enums/room-member-role.enum';
 export * from './enums/join-request-status.dto';
+export * from './enums/organization.plan.enum';
 
 export * from './config/data-source';
 export * from './config/plan.config';
+export * from './config/organization.plan.config';
 
 export * from './common/base.interface';
 export * from './common/base.repository';
@@ -38,6 +48,14 @@ export * from './repositories/message.repository';
 export * from './repositories/profile.repository';
 export * from './repositories/bookmark.repository';
 export * from './repositories/refreshToken.repository';
+export * from './repositories/organization.repository';
+export * from './repositories/organtizationMember.repository';
+export * from './repositories/role.permission.repository'
+export * from './repositories/role.repository';
+export * from './repositories/permission.repository';
+export * from './repositories/member.role.repository';
+export * from './repositories/organizationPlan.repository';
+export * from './repositories/organizationUsage.Repository';
 
 export * from './interfaces/article.interface';
 export * from './interfaces/news-fetch-log.interface.repository';
@@ -52,3 +70,11 @@ export * from './interfaces/message.interface';
 export * from './interfaces/profile.interface';
 export * from './interfaces/bookmark.interface';
 export * from './interfaces/refreshToken.interface';
+export * from './interfaces/organization.interface';
+export * from './interfaces/organizationMember.interface';
+export * from './interfaces/permission.interface';
+export * from './interfaces/role.interface';
+export * from './interfaces/role.permission.interface';
+export * from './interfaces/member.role.interface';
+export * from './interfaces/organizationPlan.interface';
+export * from './interfaces/organizationUsage.interface';

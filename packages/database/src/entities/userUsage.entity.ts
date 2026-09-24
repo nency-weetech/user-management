@@ -4,6 +4,7 @@ import {
   Entity,
   JoinColumn,
   ManyToMany,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -17,8 +18,8 @@ export class UserUsage {
   @Column({ nullable: true, unique: true })
   user_id!: string | null;
 
-  @ManyToMany(() => User, { nullable: true, onDelete: 'SET NULL' })
-  @JoinColumn({ name: 'userId' })
+  @ManyToOne(() => User, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'user_id' })
   user: User | null;
 
   @Column({ type: 'int', default: 0 })

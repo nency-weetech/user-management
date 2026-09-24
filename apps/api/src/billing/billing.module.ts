@@ -1,4 +1,4 @@
-import { PaymentRepository, Payments } from '@myapp/database';
+import { OrganizationPlan, OrganizationPlanRepository, OrganizationRepository, Organizations, PaymentRepository, Payments } from '@myapp/database';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from '../users/users.module';
@@ -9,11 +9,13 @@ import { BullBoardModule } from '@bull-board/nestjs';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import { BullModule } from '@nestjs/bullmq';
 import { MailModule } from '../mail/mail.module';
+import { OrganizationModule } from '../organization/organization.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Payments]),
+    TypeOrmModule.forFeature([Payments, OrganizationPlan, Organizations]),
     UsersModule,
+    OrganizationModule,
     MailModule,
     BullModule.registerQueue({
         name: 'billingQueue'
@@ -24,6 +26,6 @@ import { MailModule } from '../mail/mail.module';
     }),
   ],
   controllers: [BillingController],
-  providers: [StripeService, PaymentRepository, BillingQueueService],
+  providers: [StripeService, PaymentRepository, BillingQueueService, OrganizationPlanRepository, OrganizationRepository],
 })
 export class BillingModule {}

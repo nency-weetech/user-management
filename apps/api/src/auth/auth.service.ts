@@ -22,9 +22,21 @@ import { ActivityLogService } from '../activity-log/activity-log.service';
 import { SignUpCountService } from '../sign-up-count/sign-up-count.service';
 import { SoftDeleteService } from '../soft-delete/soft-delete.service';
 import { DataSource } from 'typeorm';
-import { Profile, RefreshTokenRepository, User } from '@myapp/database';
+import {
+  MemberRoles,
+  OrganizationMembers,
+  OrganizationPlan,
+  OrganizationPlanEnum,
+  Organizations,
+  OrganizationUsage,
+  Permissions,
+  Profile,
+  RefreshTokenRepository,
+  RolePermissions,
+  Roles,
+  User,
+} from '@myapp/database';
 import { ProfileService } from '../profile/profile.service';
-
 
 @Injectable()
 export class AuthService {
@@ -71,8 +83,84 @@ export class AuthService {
         is_default: true,
       });
       await manager.save(newProfile);
+
+      const org = manager.create(Organizations, {
+        owner: { id: user.id } as User,
+        name: `${user.first_name}'s Organization`,
+        is_default: true,
+      });
+      await manager.save(org);
+
+      const orgPlan = manager.create(OrganizationPlan, {
+        organization: {id: org.id} as Organizations,
+        plan: OrganizationPlanEnum.FREE
+      });
+      await manager.save(orgPlan);
+
+      const orgUsage = manager.create(OrganizationUsage, {
+        organization: {id: org.id} as Organizations,
+        daily_bookmark_count: 0,
+        daily_bookmark_reset_at: null
+      })
+      await manager.save(orgUsage);
+
+      const orgMember = manager.create(OrganizationMembers, {
+        organization: { id: org.id } as Organizations,
+        user: { id: user.id } as User,
+        joined_at: new Date(),
+      });
+      await manager.save(orgMember);
+
+      const readPermission = await manager.findOne(Permissions, {
+        where: { name: 'Bookmark.Read' },
+      });
+      const writePermission = await manager.findOne(Permissions, {
+        where: { name: 'Bookmark.Write' },
+      });
+      const deletePermission = await manager.findOne(Permissions, {
+        where: { name: 'Bookmark.Delete' },
+      });
+
+      if (!readPermission || !writePermission || !deletePermission) {
+        throw new Error('Required permissions not seeded');
+      }
+
+      const bookmarkViewer = manager.create(Roles, {
+        organization_id: org.id,
+        name: 'Bookmark_Viewer',
+        is_default: true,
+      });
+      await manager.save(bookmarkViewer);
+      const viewerPermission = manager.create(RolePermissions, {
+        role_id: bookmarkViewer.id,
+        permission_id: readPermission.id,
+      });
+      await manager.save(viewerPermission);
+
+      const bookmarkAdmin = manager.create(Roles, {
+        organization_id: org.id,
+        name: 'Bookmark_Admin',
+        is_default: true,
+      });
+      await manager.save(bookmarkAdmin);
+      const adminPermission = [
+        readPermission,
+        writePermission,
+        deletePermission,
+      ].map((val) =>
+        manager.create(RolePermissions, {
+          role_id: bookmarkAdmin.id,
+          permission_id: val.id,
+        }),
+      );
+      await manager.save(adminPermission);
+
+      const memberRole = manager.create(MemberRoles, {organization_member_id: orgMember.id, role_id: bookmarkAdmin.id})
+      await manager.save(memberRole);
+
       return user;
     });
+    
 
     // const newUser = await this.userService.create({
     //   ...createUserDto,

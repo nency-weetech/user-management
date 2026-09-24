@@ -1,4 +1,5 @@
 import {
+  OrganizationPlanRepository,
   PaymentRepository,
   PaymentStatus,
   UserPlanRepository,
@@ -14,6 +15,7 @@ export class PaymentEventProcessor extends WorkerHost {
   constructor(
     private paymentsRepo: PaymentRepository,
     private userPlanRepo: UserPlanRepository,
+    private orgPlanRepo: OrganizationPlanRepository,
     @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
   ) {
     super();
@@ -32,9 +34,7 @@ export class PaymentEventProcessor extends WorkerHost {
         this.logger.log(`Processing Billing job: ${job.name}`);
         switch (job.name) {
           case 'process-payment-event':
-            console.log("start process")
             await this.handlePaymentEvent(job);
-            console.log("end process")
             break;
           default:
             this.logger.warn(`Unknown job type: ${job.name}`);
@@ -44,20 +44,22 @@ export class PaymentEventProcessor extends WorkerHost {
   }
 
   async handlePaymentEvent(job: Job) {
-    console.log("inside processor:::::::::::")
-    console.log(job.data)
-    const { eventType, userId, paymentIntentId, plan } = job.data;
+    const { eventType, identifierId, paymentIntentId, plan, targetType } = job.data;
 
-    console.log(paymentIntentId)
     const payment = await this.paymentsRepo.findByPaymentIntentId(paymentIntentId);
-    console.log(payment)
+
     if (!payment) return;
 
+    console.log(eventType)
     if (eventType === 'completed') {
       if (payment.status === PaymentStatus.SUCCEEDED) return;
-      const status = await this.paymentsRepo.markSucceeded(paymentIntentId);
-      console.log("status:",  status)
-      await this.userPlanRepo.upgradeToPaid(userId, plan);
+      await this.paymentsRepo.markSucceeded(paymentIntentId);
+
+      if(targetType === 'organization'){
+        await this.orgPlanRepo.upgradeToPlan(identifierId, plan)
+      }else{
+        await this.userPlanRepo.upgradeToPaid(identifierId, plan);
+      }
       this.logger.log(`Payment completed`);
     }
 

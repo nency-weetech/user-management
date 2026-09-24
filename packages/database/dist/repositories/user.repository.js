@@ -25,7 +25,8 @@ let UserRepository = class UserRepository extends base_repository_1.BaseAbstract
         this.userRepository = userRepository;
     }
     async findByEmail(email) {
-        return this.userRepository.findOne({ where: { email } });
+        const user = await this.userRepository.findOne({ where: { email: email } });
+        return user;
     }
     async findEmailWithPassword(email) {
         return this.userRepository

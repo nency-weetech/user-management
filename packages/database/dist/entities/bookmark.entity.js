@@ -13,6 +13,7 @@ exports.BookMarks = void 0;
 const typeorm_1 = require("typeorm");
 const profile_entity_1 = require("./profile.entity");
 const article_entity_1 = require("./article.entity");
+const organization_entity_1 = require("./organization.entity");
 let BookMarks = class BookMarks {
     id;
     profile_id;
@@ -20,6 +21,8 @@ let BookMarks = class BookMarks {
     article_id;
     article;
     note;
+    organization_id;
+    organization;
     created_at;
     updated_at;
 };
@@ -50,6 +53,15 @@ __decorate([
     (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)
 ], BookMarks.prototype, "note", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'uuid', nullable: true }),
+    __metadata("design:type", String)
+], BookMarks.prototype, "organization_id", void 0);
+__decorate([
+    (0, typeorm_1.ManyToOne)(() => organization_entity_1.Organizations, { nullable: true, onDelete: 'SET NULL' }),
+    (0, typeorm_1.JoinColumn)({ name: 'organization_id' }),
+    __metadata("design:type", organization_entity_1.Organizations)
+], BookMarks.prototype, "organization", void 0);
 __decorate([
     (0, typeorm_1.CreateDateColumn)({ type: 'timestamp with time zone' }),
     __metadata("design:type", Date)

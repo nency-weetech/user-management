@@ -14,10 +14,13 @@ const typeorm_1 = require("typeorm");
 const user_entity_1 = require("./user.entity");
 const payment_status_enum_1 = require("../enums/payment-status.enum");
 const user_plan_enum_1 = require("../enums/user-plan.enum");
+const organization_entity_1 = require("./organization.entity");
 let Payments = class Payments {
     id;
     user_id;
     user;
+    organization_id;
+    organization;
     stripe_checkout_session_id;
     stripe_payment_intent_id;
     plan;
@@ -37,10 +40,19 @@ __decorate([
     __metadata("design:type", String)
 ], Payments.prototype, "user_id", void 0);
 __decorate([
-    (0, typeorm_1.ManyToMany)(() => user_entity_1.User, { nullable: true, onDelete: 'SET NULL' }),
+    (0, typeorm_1.ManyToOne)(() => user_entity_1.User, { nullable: true, onDelete: 'SET NULL' }),
     (0, typeorm_1.JoinColumn)({ name: 'userId' }),
     __metadata("design:type", user_entity_1.User)
 ], Payments.prototype, "user", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ nullable: true, type: 'uuid' }),
+    __metadata("design:type", String)
+], Payments.prototype, "organization_id", void 0);
+__decorate([
+    (0, typeorm_1.ManyToOne)(() => organization_entity_1.Organizations, { nullable: true, onDelete: 'SET NULL' }),
+    (0, typeorm_1.JoinColumn)({ name: 'organization_id' }),
+    __metadata("design:type", organization_entity_1.Organizations)
+], Payments.prototype, "organization", void 0);
 __decorate([
     (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)

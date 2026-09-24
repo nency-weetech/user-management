@@ -38,11 +38,26 @@ let PaymentRepository = class PaymentRepository extends base_repository_1.BaseAb
         });
         return this.paymentsRepo.save(userPayment);
     }
+    createOrgPayment(orgId, plan, paymentIntentId, amount, currency) {
+        const orgPayment = this.paymentsRepo.create({
+            organization: { id: orgId },
+            stripe_payment_intent_id: paymentIntentId,
+            plan,
+            amount,
+            currency,
+            status: payment_status_enum_1.PaymentStatus.PENDING,
+        });
+        return this.paymentsRepo.save(orgPayment);
+    }
     findBySessionId(sessionId) {
-        return this.paymentsRepo.findOneBy({ stripe_checkout_session_id: sessionId });
+        return this.paymentsRepo.findOneBy({
+            stripe_checkout_session_id: sessionId,
+        });
     }
     findByPaymentIntentId(paymentIntentId) {
-        return this.paymentsRepo.findOneBy({ stripe_payment_intent_id: paymentIntentId });
+        return this.paymentsRepo.findOneBy({
+            stripe_payment_intent_id: paymentIntentId,
+        });
     }
     async markSucceeded(paymentIntentId) {
         await this.paymentsRepo.update({ stripe_payment_intent_id: paymentIntentId }, {

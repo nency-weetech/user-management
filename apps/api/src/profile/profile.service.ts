@@ -39,7 +39,7 @@ export class ProfileService {
     return this.profileRepo.save(profile);
   }
 
-  async findAllProfile(userId: string): Promise<Profile[]> {
+  async findAllProfile(userId: string): Promise<Profile[]> { 
     const profiles = await this.profileRepo.findAllProfile(userId)
     return profiles;
   }

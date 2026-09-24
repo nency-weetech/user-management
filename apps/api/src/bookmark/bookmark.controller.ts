@@ -13,6 +13,8 @@ import { BookmarkService } from './bookmark.service';
 import { CreateBookmarkDto } from './dto/create-bookmark.dto';
 import { UpdateBookmarkDto } from './dto/update-bookmark.dto';
 import { AuthGuard } from '../guards/auth/auth.guard';
+import { currentUser } from '../decorators/current-user.decorator';
+import { User } from '@myapp/database';
 
 @Controller('bookmark')
 @UseGuards(AuthGuard)
@@ -20,13 +22,24 @@ export class BookmarkController {
   constructor(private readonly bookmarkService: BookmarkService) {}
   
   @Post()
-  create(@Req() req, @Body() createBookmarkDto: CreateBookmarkDto) {
-    return this.bookmarkService.create(req.user.profileId, createBookmarkDto, req.user.id);
+  createPersonalBookmark(@Req() req, @Body() createBookmarkDto: CreateBookmarkDto) {
+    return this.bookmarkService.createPersonalBookmark(req.user.profileId, createBookmarkDto, req.user.id);
+  }
+
+  @Post(':orgId')
+  createOrgBookmark(@Param('orgId') orgId: string, @Req() req, @Body() createBookmarkDto: CreateBookmarkDto) {
+    return this.bookmarkService.createOrgBookmark(req.user.profileId, createBookmarkDto, req.user.id, orgId);
   }
 
   @Get()
   findAll(@Req() req) {
     return this.bookmarkService.findAll(req.user.profileId);
+  }
+
+  @Get(':orgId')
+  @UseGuards(AuthGuard)
+  findAllBookmarkByOrg(@Param('orgId') orgId: string, @Req() req,){
+    return this.bookmarkService.findAllByorg(orgId, req.user.id)
   }
 
   @Get(':id')
@@ -48,4 +61,11 @@ export class BookmarkController {
   async checkBookmarked(@Req() req, @Param('articleId') articleId: string) {
     return this.bookmarkService.checkedBookmark(req.user.profileId, articleId);
   }
+
+  @Delete(':id/delete')
+  @UseGuards(AuthGuard)
+  async deleteBookmarkOrg(@Param('id') bookmarkId: string, @currentUser() user: User, @Req() req){
+    return this.bookmarkService.deleteBookmark(bookmarkId, user.id, req.user.profileId)
+  }
+
 }
