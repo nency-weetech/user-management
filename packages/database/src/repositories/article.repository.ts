@@ -20,7 +20,7 @@ export class ArticleRepository
    }
 
    async upsertArticle(data: Partial<Article>): Promise<Article>{
-    await this.articleRepository.upsert(data as any, ['externalId']);
+    await this.articleRepository.upsert(data as any, ['external_id']);
     return this.findByExternalId(data.external_id!) as Promise<Article>;
    }
 

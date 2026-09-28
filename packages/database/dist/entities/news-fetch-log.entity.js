@@ -53,7 +53,7 @@ __decorate([
 ], NewsFetchLog.prototype, "triggered_by_user_id", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => user_entity_1.User, { nullable: true, onDelete: 'SET NULL' }),
-    (0, typeorm_1.JoinColumn)({ name: 'triggeredByUserId' }),
+    (0, typeorm_1.JoinColumn)({ name: 'triggered_by_user_id' }),
     __metadata("design:type", user_entity_1.User)
 ], NewsFetchLog.prototype, "triggered_by_user", void 0);
 __decorate([

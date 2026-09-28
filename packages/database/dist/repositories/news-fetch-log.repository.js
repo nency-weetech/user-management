@@ -43,8 +43,8 @@ let NewsFetchLogRepository = class NewsFetchLogRepository extends base_repositor
         const failauer = await this.countFailuersSince(sinceDate);
         const avgDuration = await this.newsFetchLogRepository
             .createQueryBuilder('log')
-            .select('AVG(log.durationMs)', 'avg')
-            .where('log.createdAt > :sinceDate', { sinceDate })
+            .select('AVG(log.duration_ms)', 'avg')
+            .where('log.created_at > :sinceDate', { sinceDate })
             .getRawOne();
         return {
             TotalFetches: total,
@@ -58,10 +58,10 @@ let NewsFetchLogRepository = class NewsFetchLogRepository extends base_repositor
         startOfDay.setHours(0, 0, 0, 0);
         const result = await this.newsFetchLogRepository
             .createQueryBuilder('log')
-            .select('SUM(log.articlesFetched)', 'total')
-            .where('log.triggeredByUserId = :userId', { userId })
-            .andWhere('log.triggeredBy = :triggeredBy', { triggeredBy: 'admin' })
-            .andWhere('log.createdAt >= :startOfDay', { startOfDay })
+            .select('SUM(log.articles_fetched)', 'total')
+            .where('log.triggered_by_user_id = :userId', { userId })
+            .andWhere('log.trigger_type = :trigger_type', { trigger_type: 'admin' })
+            .andWhere('log.created_at >= :startOfDay', { startOfDay })
             .getRawOne();
         return Number(result?.total) || 0;
     }

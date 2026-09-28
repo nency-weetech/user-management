@@ -37,6 +37,7 @@ import { MinioModule } from './minio/minio.module';
 import { ProfileModule } from './profile/profile.module';
 import { BookmarkModule } from './bookmark/bookmark.module';
 import { OrganizationModule } from './organization/organization.module';
+import { AnalyticsModule } from './analytics/analytics.module';
 
 const disableThrottler =
   process.env.NODE_ENV === 'test' && process.env.DISABLE_THROTTLER !== 'false';
@@ -101,6 +102,7 @@ const disableThrottler =
     ProfileModule,
     BookmarkModule,
     OrganizationModule,
+    AnalyticsModule,
   ],
   controllers: [AppController],
   providers: [

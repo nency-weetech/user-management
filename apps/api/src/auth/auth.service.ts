@@ -35,6 +35,8 @@ import {
   RolePermissions,
   Roles,
   User,
+  UserPlan,
+  UserUsage,
 } from '@myapp/database';
 import { ProfileService } from '../profile/profile.service';
 
@@ -77,6 +79,19 @@ export class AuthService {
         email_verification_expires: otpExpires,
       });
       await manager.save(user);
+      const userPlan = manager.create(UserPlan, {
+        user: {id: user.id} as User
+      })
+      await manager.save(userPlan)
+
+      const userUsage = manager.create(UserUsage, {
+        user: {id: user.id} as User,
+        daily_article_view_count: 0,
+        daily_article_view_reset_at: null,
+        daily_bookmark_count: 0,
+        daily_bookmark_reset_at: null
+      })
+      await manager.save(userUsage)
       const newProfile = manager.create(Profile, {
         user_id: user.id,
         name: 'Default',
