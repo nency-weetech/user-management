@@ -180,7 +180,7 @@ export class BillingController {
       
       if (paymentIntent.metadata.organizationId) {
         const orgId = paymentIntent.metadata.organizationId;
-        console.log(orgId)
+        
         await this.billingQueueService.queuePaymentUpdate(
           'completed',
           orgId,

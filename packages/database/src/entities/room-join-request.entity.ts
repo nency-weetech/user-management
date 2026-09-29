@@ -24,14 +24,14 @@ export class RoomJoinRequest {
   user_id: string;
 
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'userId' })
+  @JoinColumn({ name: 'user_id' })
   user: User;
 
   @Column({ type: 'uuid' })
   room_id: string;
 
   @ManyToOne(() => Room, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'roomId' })
+  @JoinColumn({ name: 'room_id' })
   room: Room;
 
   @Column({
@@ -48,7 +48,7 @@ export class RoomJoinRequest {
   reviewed_by_id: string;
 
   @ManyToOne(() => User, { onDelete: 'SET NULL', nullable: true })
-  @JoinColumn({ name: 'reviewedById' })
+  @JoinColumn({ name: 'reviewed_by_id' })
   reviewed_by: User;
 
   @Column({ type: 'timestamptz', nullable: true })

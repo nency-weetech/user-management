@@ -22,7 +22,7 @@ export class Payments {
   user_id?: string;
 
   @ManyToOne(() => User, { nullable: true, onDelete: 'SET NULL' })
-  @JoinColumn({ name: 'userId' })
+  @JoinColumn({ name: 'user_id' })
   user?: User;
 
   @Column({nullable: true, type: 'uuid'})

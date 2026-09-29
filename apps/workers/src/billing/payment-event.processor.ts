@@ -1,7 +1,10 @@
 import {
+  OrganizationPlan,
   OrganizationPlanRepository,
   PaymentRepository,
+  Payments,
   PaymentStatus,
+  UserPlan,
   UserPlanRepository,
 } from '@myapp/database';
 import { runWithJobContext } from '@myapp/shared';
@@ -9,6 +12,8 @@ import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Inject, Logger } from '@nestjs/common';
 import { Job } from 'bullmq';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
+import { json } from 'stream/consumers';
+import { DataSource } from 'typeorm';
 
 @Processor('billingQueue')
 export class PaymentEventProcessor extends WorkerHost {
@@ -16,6 +21,7 @@ export class PaymentEventProcessor extends WorkerHost {
     private paymentsRepo: PaymentRepository,
     private userPlanRepo: UserPlanRepository,
     private orgPlanRepo: OrganizationPlanRepository,
+    private dataSource : DataSource,
     @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
   ) {
     super();
@@ -50,16 +56,57 @@ export class PaymentEventProcessor extends WorkerHost {
 
     if (!payment) return;
 
-    console.log(eventType)
     if (eventType === 'completed') {
       if (payment.status === PaymentStatus.SUCCEEDED) return;
-      await this.paymentsRepo.markSucceeded(paymentIntentId);
 
-      if(targetType === 'organization'){
-        await this.orgPlanRepo.upgradeToPlan(identifierId, plan)
-      }else{
-        await this.userPlanRepo.upgradeToPaid(identifierId, plan);
-      }
+      await this.dataSource.transaction(async (manager) => {
+        //await this.paymentsRepo.markSucceeded(paymentIntentId);
+        await manager.update(Payments,
+          {stripe_payment_intent_id: paymentIntentId},
+          {status: PaymentStatus.SUCCEEDED}
+        )
+        if(targetType === 'organization'){
+          await manager.update(OrganizationPlan,
+            {organization_id: identifierId},
+            {plan, plan_upgraded_at: new Date()}
+          )
+          //await this.orgPlanRepo.upgradeToPlan(identifierId, plan)
+        }else{
+          await manager.update(UserPlan, 
+            {user_id : identifierId},
+            {plan, plan_upgraded_at: new Date()}
+          )
+          //await this.userPlanRepo.upgradeToPaid(identifierId, plan);
+        }
+
+        const stripeClearing = await manager.query(
+          `select id from pgledger_accounts where name = $1`, 
+          ['stripe_clearing']
+        );
+
+        const salesRevenue = await manager.query(
+          `select id from pgledger_accounts where name = $1`,
+          ['sales_revenue']
+        )
+
+        const amountInRs = Number(payment.amount) / 100;
+
+        await manager.query(
+          `select * from pgledger_create_transfer($1, $2, $3, $4, $5)`,
+          [
+            stripeClearing[0].id,
+            salesRevenue[0].id,
+            amountInRs,
+            new Date(job.data.eventCreatedAt ?? Date.now()),
+            JSON.stringify({
+              payment_id : payment.id,
+              plan : payment.plan,
+              target_type  : payment.organization_id ? 'ORG' : "USER"
+            })
+          ]
+        );
+      });
+
       this.logger.log(`Payment completed`);
     }
 

@@ -58,3 +58,7 @@ apps/api/dist/
 apps/*/dist/
 apps/*/dist/
 apps/*/dist/
+
+
+modules/redis/dist/
+modules/*/dist/
