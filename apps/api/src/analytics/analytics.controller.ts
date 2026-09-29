@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { AnalyticsService } from './analytics.service';
 
 @Controller('analytics')
@@ -14,4 +14,20 @@ export class AnalyticsController {
   refreshArticleRelationship(){
     return this.analyticsService.refreshArticleRelationship();
   }
+
+  @Get('sale-summary')
+  getSaleSummary(
+    @Query('plan') plan ?: string,
+    @Query('targetType') targetType ?: string,
+    @Query('fromDate') fromDate ?: string,
+    @Query('toDate') toDate ?: string,
+  ){
+    return this.analyticsService.getSalesSummary(plan, targetType, fromDate, toDate);
+  }
+
+  @Get('sale-summary/refresh')
+  refreshSalesSummary(){
+    return this.analyticsService.refreshSalesSummary();
+  }
+
 }
