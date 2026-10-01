@@ -1,8 +1,6 @@
 import {
   NewsFetchLogRepository,
-  UserPlanEnum,
   UserPlanRepository,
-  UserUsageRepository,
 } from '@myapp/database';
 import {
   CanActivate,
@@ -11,7 +9,6 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Observable } from 'rxjs';
 
 @Injectable()
 export class FetchLimitGuard implements CanActivate {
@@ -19,11 +16,13 @@ export class FetchLimitGuard implements CanActivate {
     private userPlanRepo: UserPlanRepository,
     private newsFetchLogRepo: NewsFetchLogRepository,
   ) {}
+
   async canActivate(context: ExecutionContext) {
     const request = context.switchToHttp().getRequest();
     const { user } = request;
+
     if (!user) {
-      throw new NotFoundException('User Not exists');
+      throw new NotFoundException('User not exists');
     }
 
     const userPlan = await this.userPlanRepo.findByUserId(user.id);
@@ -32,20 +31,24 @@ export class FetchLimitGuard implements CanActivate {
       throw new NotFoundException('User plan not found');
     }
 
-    if (userPlan.plan === UserPlanEnum.MAX) {
+    const dailyFetchLimit = userPlan.plan.daily_fetch_limit;
+
+    // null = unlimited
+    if (dailyFetchLimit === null) {
       request.remainingFetchLimit = null;
       return true;
     }
 
-    const DAILY_FETCH_LIMIT = userPlan.plan === UserPlanEnum.PRO ? 60 : 30;
     const sum = await this.newsFetchLogRepo.sumArticleFetchToday(user.id);
 
-    if (sum >= DAILY_FETCH_LIMIT) {
+    if (sum >= dailyFetchLimit) {
       throw new ForbiddenException(
-        'Daily View limit Reached, Upgrad plan for unlimited access.',
+        'Daily fetch limit reached. Upgrade your plan for more access.',
       );
     }
-    request.remainingFetchLimit = DAILY_FETCH_LIMIT - sum;
+
+    request.remainingFetchLimit = dailyFetchLimit - sum;
+
     return true;
   }
 }

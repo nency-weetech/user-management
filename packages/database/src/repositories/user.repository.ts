@@ -191,4 +191,8 @@ export class UserRepository
   async updateCreatedAtForTest(userId: string, date: Date): Promise<void> {
     await this.userRepository.update(userId, {created_at: date})
   }
+
+  async updateStripeCustomerid(userId: string, customerId: string): Promise<void>{
+    await this.userRepository.update(userId, {stripe_customer_id: customerId});
+  }
 }

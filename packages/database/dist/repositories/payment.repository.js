@@ -27,22 +27,22 @@ let PaymentRepository = class PaymentRepository extends base_repository_1.BaseAb
         this.paymentsRepo = paymentsRepo;
         this.userRepository = userRepository;
     }
-    createPayment(userId, plan, paymentIntentId, amount, currency) {
+    createPayment(userId, planId, paymentIntentId, amount, currency) {
         const userPayment = this.paymentsRepo.create({
             user_id: userId,
             stripe_payment_intent_id: paymentIntentId,
-            plan,
+            plan_id: planId,
             amount,
             currency,
             status: payment_status_enum_1.PaymentStatus.PENDING,
         });
         return this.paymentsRepo.save(userPayment);
     }
-    createOrgPayment(orgId, plan, paymentIntentId, amount, currency) {
+    createOrgPayment(orgId, planId, paymentIntentId, amount, currency) {
         const orgPayment = this.paymentsRepo.create({
             organization: { id: orgId },
             stripe_payment_intent_id: paymentIntentId,
-            plan,
+            plan_id: planId,
             amount,
             currency,
             status: payment_status_enum_1.PaymentStatus.PENDING,

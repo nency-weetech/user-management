@@ -37,4 +37,7 @@ export class OrganizationRepository
             }
         })
     }
+    async updateStripeCustomerid(orgId: string, customerId: string): Promise<void>{
+    await this.organizationRepo.update(orgId, {stripe_customer_id: customerId});
+  }
   }

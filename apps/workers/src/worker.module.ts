@@ -20,7 +20,8 @@ import { LoggerModule } from '@myapp/shared';
 import path from 'path';
 import { PaymentEventProcessor } from './billing/payment-event.processor';
 import { PaymentCleanUpCorn } from './billing/payment-cleanup.corn';
-
+import { StripeInvoiceService } from './billing/stripe-invoice.service';
+import { Plans_catalog } from '@myapp/database/dist/entities/plans.entity';
 @Module({
   imports: [
    ConfigModule.forRoot({
@@ -32,7 +33,7 @@ import { PaymentCleanUpCorn } from './billing/payment-cleanup.corn';
     }),
     LoggerModule,
     TypeOrmModule.forRoot(datasourceOptions),
-    TypeOrmModule.forFeature([Article, NewsFetchLog, User, Payments, UserPlan, OrganizationPlan]),
+    TypeOrmModule.forFeature([Article, NewsFetchLog, User, Payments, UserPlan, OrganizationPlan, Plans_catalog]),
     RedisModule,
     HttpModule,
     BullModule.registerQueue({ name: 'newsQueue' }, { name: 'mailQueue' }, {name: 'billingQueue'}),
@@ -40,6 +41,7 @@ import { PaymentCleanUpCorn } from './billing/payment-cleanup.corn';
   providers: [
     MailProcessor,
     PaymentEventProcessor,
+    StripeInvoiceService,
     PaymentRepository,
     PaymentCleanUpCorn,
     UserPlanRepository,

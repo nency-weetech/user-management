@@ -39,6 +39,9 @@ import {
   UserUsage,
 } from '@myapp/database';
 import { ProfileService } from '../profile/profile.service';
+import { Plans_catalog } from '@myapp/database/dist/entities/plans.entity';
+import { PlanTargetType } from '@myapp/database/dist/enums/plan-target-type.enum';
+import { PlanType } from '@myapp/database/dist/enums/plan.enum';
 
 @Injectable()
 export class AuthService {
@@ -79,19 +82,32 @@ export class AuthService {
         email_verification_expires: otpExpires,
       });
       await manager.save(user);
+      const userFreePlan = await manager.findOne(Plans_catalog, {
+        where: {
+          target_type: PlanTargetType.USER,
+          name: PlanType.FREE,
+        },
+      });
+
+      if (!userFreePlan) {
+        throw new Error('User FREE plan not found');
+      }
+
       const userPlan = manager.create(UserPlan, {
-        user: {id: user.id} as User
-      })
-      await manager.save(userPlan)
+        user: { id: user.id } as User,
+        plan: {id: userFreePlan.id},
+      });
+
+      await manager.save(userPlan);
 
       const userUsage = manager.create(UserUsage, {
-        user: {id: user.id} as User,
+        user: { id: user.id } as User,
         daily_article_view_count: 0,
         daily_article_view_reset_at: null,
         daily_bookmark_count: 0,
-        daily_bookmark_reset_at: null
-      })
-      await manager.save(userUsage)
+        daily_bookmark_reset_at: null,
+      });
+      await manager.save(userUsage);
       const newProfile = manager.create(Profile, {
         user_id: user.id,
         name: 'Default',
@@ -106,17 +122,28 @@ export class AuthService {
       });
       await manager.save(org);
 
-      const orgPlan = manager.create(OrganizationPlan, {
-        organization: {id: org.id} as Organizations,
-        plan: OrganizationPlanEnum.FREE
+      const organizationFreePlan = await manager.findOne(Plans_catalog, {
+        where: {
+          target_type: PlanTargetType.ORGANIZATION,
+          name: PlanType.FREE,
+        },
       });
+
+      if (!organizationFreePlan) {
+        throw new Error('Organization FREE plan not found');
+      }
+      const orgPlan = manager.create(OrganizationPlan, {
+        organization: { id: org.id } as Organizations,
+        plan: {id : organizationFreePlan.id},
+      });
+
       await manager.save(orgPlan);
 
       const orgUsage = manager.create(OrganizationUsage, {
-        organization: {id: org.id} as Organizations,
+        organization: { id: org.id } as Organizations,
         daily_bookmark_count: 0,
-        daily_bookmark_reset_at: null
-      })
+        daily_bookmark_reset_at: null,
+      });
       await manager.save(orgUsage);
 
       const orgMember = manager.create(OrganizationMembers, {
@@ -170,12 +197,14 @@ export class AuthService {
       );
       await manager.save(adminPermission);
 
-      const memberRole = manager.create(MemberRoles, {organization_member_id: orgMember.id, role_id: bookmarkAdmin.id})
+      const memberRole = manager.create(MemberRoles, {
+        organization_member_id: orgMember.id,
+        role_id: bookmarkAdmin.id,
+      });
       await manager.save(memberRole);
 
       return user;
     });
-    
 
     // const newUser = await this.userService.create({
     //   ...createUserDto,

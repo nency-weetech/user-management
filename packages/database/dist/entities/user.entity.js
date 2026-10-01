@@ -40,6 +40,7 @@ let User = class User {
     deletion_requested_at;
     deleted_at;
     profile;
+    stripe_customer_id;
 };
 exports.User = User;
 __decorate([
@@ -150,6 +151,10 @@ __decorate([
     (0, typeorm_1.OneToMany)(() => profile_entity_1.Profile, (profile) => profile.user),
     __metadata("design:type", Array)
 ], User.prototype, "profile", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'varchar', nullable: true, unique: true }),
+    __metadata("design:type", String)
+], User.prototype, "stripe_customer_id", void 0);
 exports.User = User = __decorate([
     (0, typeorm_1.Entity)('users')
 ], User);

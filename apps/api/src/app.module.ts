@@ -39,6 +39,7 @@ import { ProfileModule } from './profile/profile.module';
 import { BookmarkModule } from './bookmark/bookmark.module';
 import { OrganizationModule } from './organization/organization.module';
 import { AnalyticsModule } from './analytics/analytics.module';
+import { PgledgerModule } from './benchmark/pgledger/pgledger.module';
 
 const disableThrottler =
   process.env.NODE_ENV === 'test' && process.env.DISABLE_THROTTLER !== 'false';
@@ -104,6 +105,7 @@ const disableThrottler =
     BookmarkModule,
     OrganizationModule,
     AnalyticsModule,
+    PgledgerModule,
   ],
   controllers: [AppController],
   providers: [

@@ -468,7 +468,9 @@
                     <li><span class="checkmark">✓</span> 60 admin fetches / day</li>
                     <li><span class="checkmark">✓</span> Priority support</li>
                 </ul>
-                <button class="plan-btn" data-plan="pro" data-price="99">Upgrade to Pro</button>
+                <button class="plan-btn" data-plan="e4d4072a-ce11-49fb-a09b-9e07f1739018" data-plan-name="pro" data-price="99">
+                    Upgrade to Pro
+                </button>
             </div>
 
             <div class="plan-card" data-plan="max">
@@ -480,7 +482,9 @@
                     <li><span class="checkmark">✓</span> Unlimited admin fetches</li>
                     <li><span class="checkmark">✓</span> Priority support</li>
                 </ul>
-                <button class="plan-btn" data-plan="max" data-price="299">Upgrade to Max</button>
+                <button class="plan-btn" data-plan="a050edaf-2cb7-4bac-a202-93a227759e5f" data-plan-name="max" data-price="299">
+                    Upgrade to Max
+                </button>
             </div>
         </div>
 
@@ -514,7 +518,9 @@
                     <ul class="plan-features">
                         <li><span class="checkmark">✓</span> 100 bookmarks / day (org-wide)</li>
                     </ul>
-                    <button class="org-plan-btn" data-plan="pro" data-price="499">Upgrade to Pro</button>
+                    <button class="org-plan-btn" data-plan="5b8889ab-a08f-4334-a59f-640df70ed824" data-plan-name="pro" data-price="499">
+                        Upgrade to Pro
+                    </button>
                 </div>
 
                 <div class="plan-card" data-plan="max">
@@ -524,7 +530,9 @@
                     <ul class="plan-features">
                         <li><span class="checkmark">✓</span> Unlimited bookmarks (org-wide)</li>
                     </ul>
-                    <button class="org-plan-btn" data-plan="max" data-price="999">Upgrade to Max</button>
+                    <button class="org-plan-btn" data-plan="757b420a-6f98-43b9-9344-52bcb5f5df85" data-plan-name="max" data-price="999">
+                        Upgrade to Max
+                    </button>
                 </div>
             </div>
         </div>
@@ -580,49 +588,76 @@
         // }
 
         document.querySelectorAll('.org-plan-btn[data-plan]').forEach(btn => {
-            btn.addEventListener('click', () => openOrgCheckout(btn.dataset.plan, btn.dataset.price));
+            btn.addEventListener('click', () =>
+                openOrgCheckout(
+                    btn.dataset.plan,
+                    btn.dataset.planName,
+                    btn.dataset.price
+                )
+            );
         });
 
-        async function openOrgCheckout(plan, price) {
+        async function openOrgCheckout(planId, planName, price) {
             if (!isLoggedIn()) {
                 window.location.href = 'index.html';
                 return;
             }
 
             const orgId = document.getElementById('orgIdInput').value.trim();
+
             if (!orgId) {
                 alert('Please enter an Organization ID first');
                 return;
             }
 
-            selectedPlan = plan;
-            const planLabel = plan.charAt(0).toUpperCase() + plan.slice(1);
-            document.getElementById('modalPlanName').textContent = 'Upgrade Organization to ' + planLabel;
-            document.getElementById('summaryPlan').textContent = planLabel + ' plan (Organization)';
+            selectedPlan = planId;
+
+            const planLabel = planName.charAt(0).toUpperCase() + planName.slice(1);
+
+            document.getElementById('modalPlanName').textContent =
+                'Upgrade Organization to ' + planLabel;
+
+            document.getElementById('summaryPlan').textContent =
+                planLabel + ' plan (Organization)';
+
             document.getElementById('summaryAmount').textContent = '₹' + price;
+
             document.getElementById('modalMsg').textContent = '';
             document.getElementById('modalMsg').className = 'modal-msg';
             document.getElementById('payment-element').innerHTML = '';
             document.getElementById('overlay').classList.add('visible');
 
             try {
-                const res = await fetch(API_BASE_URL + '/billing/organizations/' + orgId + '/checkout/' + plan, {
-                    method: 'POST',
-                    credentials: "include",
-                });
+                const res = await fetch(
+                    API_BASE_URL +
+                    '/billing/organizations/' +
+                    orgId +
+                    '/checkout/' +
+                    planId,
+                    {
+                        method: 'POST',
+                        credentials: 'include',
+                    }
+                );
 
                 const data = await res.json();
 
                 if (!data.clientSecret) {
-                    document.getElementById('modalMsg').textContent = data.message || 'Could not start checkout.';
+                    document.getElementById('modalMsg').textContent =
+                        data.message || 'Could not start checkout.';
                     return;
                 }
 
-                elements = stripe.elements({ clientSecret: data.clientSecret });
+                elements = stripe.elements({
+                    clientSecret: data.clientSecret
+                });
+
                 const paymentElement = elements.create('payment');
                 paymentElement.mount('#payment-element');
+
             } catch (err) {
-                document.getElementById('modalMsg').textContent = 'Something went wrong: ' + err.message;
+                document.getElementById('modalMsg').textContent =
+                    'Something went wrong: ' + err.message;
             }
         }
         function updateUserStatus() {
@@ -633,48 +668,67 @@
         }
 
         document.querySelectorAll('.plan-btn[data-plan]').forEach(btn => {
-            btn.addEventListener('click', () => openCheckout(btn.dataset.plan, btn.dataset.price));
+            btn.addEventListener('click', () =>
+                openCheckout(
+                    btn.dataset.plan,
+                    btn.dataset.planName,
+                    btn.dataset.price
+                )
+            );
         });
 
-        async function openCheckout(plan, price) {
+        async function openCheckout(planId, planName, price) {
             if (!isLoggedIn()) {
                 window.location.href = 'index.html';
                 return;
             }
 
-            selectedPlan = plan;
-            const planLabel = plan.charAt(0).toUpperCase() + plan.slice(1);
-            document.getElementById('modalPlanName').textContent = 'Upgrade to ' + planLabel;
-            document.getElementById('summaryPlan').textContent = planLabel + ' plan';
-            document.getElementById('summaryAmount').textContent = '₹' + price;
+            selectedPlan = planId;
+
+            const planLabel =
+                planName.charAt(0).toUpperCase() + planName.slice(1);
+
+            document.getElementById('modalPlanName').textContent =
+                'Upgrade to ' + planLabel;
+
+            document.getElementById('summaryPlan').textContent =
+                planLabel + ' plan';
+
+            document.getElementById('summaryAmount').textContent =
+                '₹' + price;
+
             document.getElementById('modalMsg').textContent = '';
             document.getElementById('modalMsg').className = 'modal-msg';
             document.getElementById('payment-element').innerHTML = '';
             document.getElementById('overlay').classList.add('visible');
 
             try {
-                const res = await fetch(API_BASE_URL + '/billing/checkout/' + plan, {
-                    method: 'POST',
-                    credentials: "include",
-                    // headers: {
-                    //     'Content-Type': 'application/json',
-                    //     // Authorization: 'Bearer ' + getToken(),
-                    // },
-                });
+                const res = await fetch(
+                    API_BASE_URL + '/billing/checkout/' + planId,
+                    {
+                        method: 'POST',
+                        credentials: 'include',
+                    }
+                );
 
-                console.log(res)
                 const data = await res.json();
 
                 if (!data.clientSecret) {
-                    document.getElementById('modalMsg').textContent = data.message || 'Could not start checkout.';
+                    document.getElementById('modalMsg').textContent =
+                        data.message || 'Could not start checkout.';
                     return;
                 }
 
-                elements = stripe.elements({ clientSecret: data.clientSecret });
+                elements = stripe.elements({
+                    clientSecret: data.clientSecret
+                });
+
                 const paymentElement = elements.create('payment');
                 paymentElement.mount('#payment-element');
+
             } catch (err) {
-                document.getElementById('modalMsg').textContent = 'Something went wrong: ' + err.message;
+                document.getElementById('modalMsg').textContent =
+                    'Something went wrong: ' + err.message;
             }
         }
 

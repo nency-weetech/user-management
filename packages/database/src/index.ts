@@ -19,7 +19,8 @@ export * from './entities/role.entity';
 export * from './entities/role.permission.entity';
 export * from './entities/member.role.entity';
 export * from './entities/organization.plan.entity';
-export * from './entities/organizationUsage.entity'
+export * from './entities/organizationUsage.entity';
+export * from './entities/plans.entity';
 
 export * from './enums/user-role.enum';
 export * from './enums/user-plan.enum';
@@ -27,6 +28,8 @@ export * from './enums/payment-status.enum';
 export * from './enums/room-member-role.enum';
 export * from './enums/join-request-status.dto';
 export * from './enums/organization.plan.enum';
+export * from './enums/plan-target-type.enum';
+export * from './enums/plan.enum';
 
 export * from './config/data-source';
 export * from './config/plan.config';

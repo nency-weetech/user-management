@@ -61,7 +61,7 @@ export class MailProcessor extends WorkerHost {
           case 'send-weekly-report':
             result = this.sendWeeklyReportMail(job);
             break;
-          case 'send-invoice':
+          case 'send-invoice-email':
             result = this.sendInvoice(job);
             break;
           case 'send-invitation':
@@ -222,9 +222,20 @@ export class MailProcessor extends WorkerHost {
   }
 
   async sendInvoice(
-    job: Job<{ toEmail: string; hostedInvoiceUrl: string; invoicePDF: string }>,
+    job: Job<{
+      toEmail: string;
+      hostedInvoiceUrl: string;
+      invoicePDF?: string | null;
+    }>,
   ) {
     const { toEmail, hostedInvoiceUrl, invoicePDF } = job.data;
+
+    const pdfButton = invoicePDF
+      ? `<a href="${invoicePDF}"
+         style="display: inline-block; padding: 10px 20px; background-color: #f0f0f0; color: #333; text-decoration: none; border-radius: 4px;">
+         Download PDF
+       </a>`
+      : '';
 
     const mailOptions = {
       from: '"App Billing" <no-reply@myapp.com>',
@@ -234,18 +245,13 @@ export class MailProcessor extends WorkerHost {
       <div style="font-family: Arial, sans-serif; margin: 0 auto;">
         <h2 style="color: #333;">Thank you for your payment</h2>
         <p style="color: #555;">Your invoice is ready. You can view or download it using the links below.</p>
-
         <div style="margin: 24px 0;">
           <a href="${hostedInvoiceUrl}"
              style="display: inline-block; padding: 10px 20px; background-color: #4A90E2; color: #fff; text-decoration: none; border-radius: 4px; margin-right: 12px;">
             View Invoice
           </a>
-          <a href="${invoicePDF}"
-             style="display: inline-block; padding: 10px 20px; background-color: #f0f0f0; color: #333; text-decoration: none; border-radius: 4px;">
-            Download PDF
-          </a>
+          ${pdfButton}
         </div>
-
         <p style="color: #999; font-size: 12px;">If the buttons don't work, copy this link into your browser: ${hostedInvoiceUrl}</p>
       </div>
     `,
@@ -255,6 +261,7 @@ export class MailProcessor extends WorkerHost {
     this.logger.log(
       `Invoice mail sent to ${toEmail}: ${nodemailer.getTestMessageUrl(info)}`,
     );
+    return { status: 'sent', messageId: info.messageId };
   }
 
   async sendInvitation(job: Job<{ toEmail: string; orgName: string }>) {

@@ -29,9 +29,9 @@ export class BookmarkService {
     private readonly userPlanRepo: UserPlanRepository,
     private readonly userUsageRepo: UserUsageRepository,
     private readonly orgMemberRepo: OrganizationMembersRepository,
-    private readonly organizationService : OrganizationService,
+    private readonly organizationService: OrganizationService,
     private readonly orgPlanRepo: OrganizationPlanRepository,
-    private readonly orgUsageRepo: OrganizationUsageRepository
+    private readonly orgUsageRepo: OrganizationUsageRepository,
   ) {}
 
   async createPersonalBookmark(
@@ -49,8 +49,8 @@ export class BookmarkService {
       throw new NotFoundException('User plan not found');
     }
 
-    const config = PLAN_CONFIG[userPlan.plan];
-    if (config.bookmarkLimit !== null) {
+    const bookmarkLimit = userPlan.plan.bookmark_limit;
+    if (bookmarkLimit !== null) {
       const userUsage = await this.userUsageRepo.findByUserId(userId);
       if (!userUsage) {
         throw new NotFoundException('User usage not found');
@@ -76,46 +76,55 @@ export class BookmarkService {
         currentCount = userUsage.daily_bookmark_count;
       }
 
-      if (currentCount >= config.bookmarkLimit) {
+      if (currentCount >= bookmarkLimit) {
         throw new ForbiddenException(
-          `Bookmark limit reached (${config.bookmarkLimit}). Upgrade your plan to create more bookmarks.`,
+          `Bookmark limit reached (${bookmarkLimit}). Upgrade your plan to create more bookmarks.`,
         );
       }
-    }
-    if (existBookmark) {
-      throw new ConflictException('Article already bookmarked');
-    }
+      if (existBookmark) {
+        throw new ConflictException('Article already bookmarked');
+      }
 
-    const bookmark = this.bookmarkRepo.create({
-      profile_id: profileId,
-      article_id: createBookmarkDto.article_id,
-      note: createBookmarkDto.note,
-    });
-    await this.bookmarkRepo.save(bookmark);
+      const bookmark = this.bookmarkRepo.create({
+        profile_id: profileId,
+        article_id: createBookmarkDto.article_id,
+        note: createBookmarkDto.note,
+      });
+      await this.bookmarkRepo.save(bookmark);
 
-    const userPlanCheck = PLAN_CONFIG[userPlan.plan];
-    if (userPlanCheck.bookmarkLimit !== null) {
-      await this.userUsageRepo.increamentBookmarkCount(userId, 1);
+      if (bookmarkLimit !== null) {
+        await this.userUsageRepo.increamentBookmarkCount(userId, 1);
+      }
+      return { bookmark };
     }
-    return {bookmark};
   }
 
   async createOrgBookmark(
     profileId: string,
     createBookmarkDto: CreateBookmarkDto,
     userId: string,
-    orgId: string
-  ){
+    orgId: string,
+  ) {
+    const canWrite = await this.organizationService.hasPermission(
+      orgId,
+      userId,
+      'Bookmark.Write',
+    );
 
-    const canWrite = await this.organizationService.hasPermission(orgId, userId, 'Bookmark.Write')
-    
-    if(!canWrite){
-      throw new ForbiddenException('You do not have permission to create bookmarks in this organization')
+    if (!canWrite) {
+      throw new ForbiddenException(
+        'You do not have permission to create bookmarks in this organization',
+      );
     }
 
-    const existOrgBookmark = await this.bookmarkRepo.findByOrgAndArticle(orgId, createBookmarkDto.article_id)
-     if (existOrgBookmark) {
-      throw new ConflictException('Article already bookmarked in this organization');
+    const existOrgBookmark = await this.bookmarkRepo.findByOrgAndArticle(
+      orgId,
+      createBookmarkDto.article_id,
+    );
+    if (existOrgBookmark) {
+      throw new ConflictException(
+        'Article already bookmarked in this organization',
+      );
     }
 
     const orgPlan = await this.orgPlanRepo.findByOrgId(orgId);
@@ -124,8 +133,8 @@ export class BookmarkService {
       throw new NotFoundException('Organization plan not found');
     }
 
-    const config = ORGANIZATIOPN_PLAN_CONFIG[orgPlan.plan];
-    if (config.bookmarkLimit !== null) {
+    const bookmarkLimit = orgPlan.plan.bookmark_limit;
+    if (bookmarkLimit !== null) {
       const orgUsage = await this.orgUsageRepo.findByOrgId(orgId);
       if (!orgUsage) {
         throw new NotFoundException('Organization usage not found');
@@ -151,9 +160,9 @@ export class BookmarkService {
         currentCount = orgUsage.daily_bookmark_count;
       }
 
-      if (currentCount >= config.bookmarkLimit) {
+      if (currentCount >= bookmarkLimit) {
         throw new ForbiddenException(
-          `Bookmark limit reached (${config.bookmarkLimit}). Upgrade your plan to create more bookmarks.`,
+          `Bookmark limit reached (${bookmarkLimit}). Upgrade your plan to create more bookmarks.`,
         );
       }
     }
@@ -161,27 +170,26 @@ export class BookmarkService {
       profile_id: profileId,
       article_id: createBookmarkDto.article_id,
       note: createBookmarkDto.note,
-      organization_id: orgId
+      organization_id: orgId,
     });
 
     await this.bookmarkRepo.save(orgBookmark);
-    const orgPlanCheck = ORGANIZATIOPN_PLAN_CONFIG[orgPlan.plan];
-    if (orgPlanCheck.bookmarkLimit !== null) {
+    if (bookmarkLimit !== null) {
       await this.orgUsageRepo.incrementBookmarkCount(orgId, 1);
     }
-    return {orgBookmark};
+    return { orgBookmark };
   }
 
   async findAll(profileId: string) {
     return await this.bookmarkRepo.findAllBookmark(profileId);
   }
 
-  async findAllByorg(orgId: string, userId: string){
-     const isMember = await this.orgMemberRepo.isMember(userId, orgId)
+  async findAllByorg(orgId: string, userId: string) {
+    const isMember = await this.orgMemberRepo.isMember(userId, orgId);
     if (!isMember) {
       throw new ForbiddenException('You are not a member of this organization');
     }
-    
+
     return await this.bookmarkRepo.findAllBookmarkByOrg(orgId);
   }
 
@@ -221,23 +229,29 @@ export class BookmarkService {
   }
 
   async deleteBookmark(bookmarkId: string, userId: string, profileId: string) {
-    const bookmark = await this.bookmarkRepo.findOneById(bookmarkId)
-    if(!bookmark){
+    const bookmark = await this.bookmarkRepo.findOneById(bookmarkId);
+    if (!bookmark) {
       throw new NotFoundException('Bookmark not found');
     }
 
-    if(bookmark.organization_id){
-      const canDelete = await this.organizationService.hasPermission(bookmark.organization_id, userId, 'Bookmark.Delete')
-      if(!canDelete){
-        throw new ForbiddenException('You do not have permission to delete bookmarks in this organization');
-      }      
-    }else{
-       if (bookmark.profile_id !== profileId) {
-      throw new ForbiddenException('You can only delete your own bookmarks');
-    }
+    if (bookmark.organization_id) {
+      const canDelete = await this.organizationService.hasPermission(
+        bookmark.organization_id,
+        userId,
+        'Bookmark.Delete',
+      );
+      if (!canDelete) {
+        throw new ForbiddenException(
+          'You do not have permission to delete bookmarks in this organization',
+        );
+      }
+    } else {
+      if (bookmark.profile_id !== profileId) {
+        throw new ForbiddenException('You can only delete your own bookmarks');
+      }
     }
 
     await this.bookmarkRepo.delete(bookmarkId);
-    return {message : "Bookmark successfully deleted"}
+    return { message: 'Bookmark successfully deleted' };
   }
 }

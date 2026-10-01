@@ -23,18 +23,21 @@ let OrganizationPlanRepository = class OrganizationPlanRepository extends base_r
         super(orgPlanRepo);
         this.orgPlanRepo = orgPlanRepo;
     }
-    async createOrgPlan(organizationId, plan) {
+    async createOrgPlan(organizationId, planId) {
         const orgPlan = this.orgPlanRepo.create({
             organization: { id: organizationId },
-            plan
+            plan: { id: planId },
         });
         return this.orgPlanRepo.save(orgPlan);
     }
     async findByOrgId(organizationId) {
-        return this.orgPlanRepo.findOne({ where: { organization_id: organizationId } });
+        return this.orgPlanRepo.findOne({
+            where: { organization_id: organizationId },
+            relations: { plan: true }
+        });
     }
-    async upgradeToPlan(organizationId, plan) {
-        await this.orgPlanRepo.update({ organization_id: organizationId }, { plan, plan_upgraded_at: new Date() });
+    async upgradeToPlan(organizationId, planId) {
+        await this.orgPlanRepo.update({ organization_id: organizationId }, { plan: { id: planId }, plan_upgraded_at: new Date() });
     }
 };
 exports.OrganizationPlanRepository = OrganizationPlanRepository;

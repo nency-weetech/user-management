@@ -3,6 +3,7 @@ import {
   UserPlanRepository,
   UserUsageRepository,
 } from '@myapp/database';
+import { PlanType } from '@myapp/database/dist/enums/plan.enum';
 import {
   CanActivate,
   ExecutionContext,
@@ -30,11 +31,11 @@ export class ViewLimitGuard implements CanActivate {
       throw new NotFoundException('User plan not found');
     }
 
-    if (userPlan.plan === UserPlanEnum.MAX) {
+    if (userPlan?.plan?.name === PlanType.MAX) {
       return true;
     }
 
-    const dailyLimit = userPlan.plan === UserPlanEnum.PRO ? 100 : 20;
+    const dailyLimit = userPlan.plan.daily_view_limit;
     const userUsage = await this.userUsageRepo.findByUserId(user.id);
     if (!userUsage) {
       throw new NotFoundException('User usage not found');

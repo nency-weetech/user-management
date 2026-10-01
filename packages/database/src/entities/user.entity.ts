@@ -101,6 +101,9 @@ export class User {
   @Exclude()
   deleted_at!: Date | null;
 
-  @OneToMany(() => Profile, (profile)=> profile.user)
+  @OneToMany(() => Profile, (profile) => profile.user)
   profile!: Profile[];
+
+  @Column({ type: 'varchar', nullable: true, unique: true })
+  stripe_customer_id: string | null;
 }

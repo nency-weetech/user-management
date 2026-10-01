@@ -6,36 +6,43 @@ import { Repository } from 'typeorm';
 import { UserPlanEnum } from '../enums/user-plan.enum';
 import { UserPlanInterface } from '../interfaces/userPlan.Interface';
 import { User } from '../entities/user.entity';
+import { Plans_catalog } from '../entities/plans.entity';
 
-export class UserPlanRepository extends BaseAbstractRepostitory<UserPlan> implements UserPlanInterface{
+export class UserPlanRepository
+  extends BaseAbstractRepostitory<UserPlan>
+  implements UserPlanInterface
+{
   constructor(
     @InjectRepository(UserPlan)
     private readonly userPlanRepository: Repository<UserPlan>,
   ) {
     super(userPlanRepository);
   }
-  async createPlan(userId: string, plan: UserPlanEnum): Promise<UserPlan> {
+  async createPlan(userId: string, planId: string): Promise<UserPlan> {
     const userPlan = this.userPlanRepository.create({
       user_id: userId,
-      plan,
+      plan: { id: planId } as Plans_catalog,
       plan_upgraded_at: null,
     });
     return this.userPlanRepository.save(userPlan);
   }
 
   async findByUserId(userId: string): Promise<UserPlan | null> {
-   try {
-     const userplan = await this.userPlanRepository.findOne({where: {user_id : userId}});
-     return userplan
-   } catch (error) {
-      console.log(error)
-   }
+    try {
+      const userplan = await this.userPlanRepository.findOne({
+        where: { user_id: userId },
+        relations: {plan: true}
+      });
+      return userplan;
+    } catch (error) {
+      console.log(error);
+    }
   }
 
-  async upgradeToPaid(userId: string,plan : UserPlanEnum): Promise<void> {
+  async upgradeToPaid(userId: string, planId: string): Promise<void> {
     await this.userPlanRepository.update(
-      { user_id : userId},
-      { plan: plan, plan_upgraded_at: new Date() },
+      { user_id: userId },
+      { plan: { id: planId } as Plans_catalog, plan_upgraded_at: new Date() },
     );
   }
 }

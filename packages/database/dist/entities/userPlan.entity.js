@@ -11,13 +11,14 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserPlan = void 0;
 const typeorm_1 = require("typeorm");
-const user_plan_enum_1 = require("../enums/user-plan.enum");
 const user_entity_1 = require("./user.entity");
+const plans_entity_1 = require("./plans.entity");
 let UserPlan = class UserPlan {
     id;
     user_id;
     user;
     plan;
+    plan_id;
     plan_upgraded_at;
     created_at;
     updated_at;
@@ -37,9 +38,14 @@ __decorate([
     __metadata("design:type", user_entity_1.User)
 ], UserPlan.prototype, "user", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'enum', enum: user_plan_enum_1.UserPlanEnum, default: user_plan_enum_1.UserPlanEnum.FREE }),
-    __metadata("design:type", String)
+    (0, typeorm_1.ManyToOne)(() => plans_entity_1.Plans_catalog, { nullable: false }),
+    (0, typeorm_1.JoinColumn)({ name: 'plan_id' }),
+    __metadata("design:type", plans_entity_1.Plans_catalog)
 ], UserPlan.prototype, "plan", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'plan_id', type: 'uuid' }),
+    __metadata("design:type", String)
+], UserPlan.prototype, "plan_id", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: 'timestamp with time zone', nullable: true }),
     __metadata("design:type", Date)

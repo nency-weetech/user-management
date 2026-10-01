@@ -9,7 +9,7 @@ export class ProfileRepository extends BaseAbstractRepostitory<Profile> implemen
         super(profileRepo);
     }
 
-    async countByUserId(userId: string) : Promise<Number>{
+    async countByUserId(userId: string) : Promise<number>{
         const user = this.profileRepo.count({where : {user_id: userId}})
         return user;
     }

@@ -1,13 +1,22 @@
-import { UserPlanEnum } from '@myapp/database';
-import { Injectable } from '@nestjs/common';
+import { PaymentRepository, Payments, UserPlanEnum } from '@myapp/database';
+import { Plans_catalog } from '@myapp/database/dist/entities/plans.entity';
+import { PlanTargetType } from '@myapp/database/dist/enums/plan-target-type.enum';
+import { PlanType } from '@myapp/database/dist/enums/plan.enum';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 // import { ConfigService } from '@nestjs/config';
 import Stripe from 'stripe';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class StripeService {
   private stripe: Stripe;
 
-  constructor() {
+  constructor(
+    @InjectRepository(Plans_catalog)
+    private planCatelogRepository: Repository<Plans_catalog>,
+    private paymentRepo: PaymentRepository,
+  ) {
     // this.stripe = new Stripe(this.configService.get<string>(STRIPE_SECRET_KEY));
     this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
   }
@@ -58,24 +67,99 @@ export class StripeService {
   }
 
   async createPaymentIntent(
-    amount: number,
-    currency: string,
+    planId: string,
     identifierId: string,
-    plan: UserPlanEnum,
-    targetType: 'user' | 'organization' = 'user'
+    targetType: PlanTargetType,
+    stripeCustomerId: string,
   ): Promise<Stripe.PaymentIntent> {
-    const metadata = targetType === 'organization' 
-        ? {organizationId : identifierId, plan}
-        : {userId : identifierId, plan}
-        
-    const paymentIntent = await this.stripe.paymentIntents.create({
-      amount,
-      currency,
+    const plan = await this.planCatelogRepository.findOne({
+      where: { id: planId, target_type: targetType },
+    });
+    if (!plan) throw new BadRequestException('Invalid plan');
+    if (plan.name === PlanType.FREE) {
+      throw new BadRequestException('Cannot create payment for FREE plan');
+    }
+
+    const metadata =
+      targetType === PlanTargetType.ORGANIZATION
+        ? { organizationId: identifierId, planId: plan.id }
+        : { userId: identifierId, planId: plan.id };
+
+    return this.stripe.paymentIntents.create({
+      amount: Math.round(plan.price * 100),
+      currency: plan.currency.toLowerCase(),
+      customer: stripeCustomerId,
       metadata,
-      automatic_payment_methods: {enabled: true}
-    })
-    return paymentIntent;
+      automatic_payment_methods: { enabled: true },
+    });
   }
 
-  
+  async findByPaymentIntentId(paymentIntentId: string) {
+    return this.paymentRepo.findOne({
+      where: {
+        stripe_payment_intent_id: paymentIntentId,
+      },
+      relations: {
+        plan: true,
+        user: true,
+        organization: true,
+      },
+    });
+  }
+
+  async createCustomer(email: string, ownerId: string, type: 'user' | 'org') {
+    const c = await this.stripe.customers.create(
+      { email, metadata: { ownerId, type } },
+      { idempotencyKey: `cust-${type}-${ownerId}` },
+    );
+    return c.id;
+  }
+
+  async issueInvoiceForPayment(
+    payment: Payments,
+    stripeCustomerId: string,
+  ): Promise<Stripe.Invoice> {
+    const plan = await this.planCatelogRepository.findOne({
+      where: { id: payment.plan_id },
+    });
+    if (!plan || plan.name === PlanType.FREE)
+      throw new BadRequestException('Invalid plan');
+
+    const key = (s: string) => ({ idempotencyKey: `${s}-${payment.id}` });
+
+    const draft = await this.stripe.invoices.create(
+      {
+        customer: stripeCustomerId,
+        collection_method: 'charge_automatically',
+        auto_advance: false,
+        pending_invoice_items_behavior: 'exclude',
+        currency: plan.currency.toLowerCase(),
+        metadata: { paymentId: payment.id, planId: plan.id },
+      },
+      key('inv-create'),
+    );
+
+    await this.stripe.invoiceItems.create(
+      {
+        customer: stripeCustomerId,
+        invoice: draft.id,
+        amount: Math.round(plan.price * 100),
+        currency: plan.currency.toLowerCase(),
+        description: `${plan.name.toUpperCase()} Plan`,
+      },
+      key('inv-item'),
+    );
+
+    const open = await this.stripe.invoices.finalizeInvoice(
+      draft.id,
+      { auto_advance: false },
+      key('inv-finalize'),
+    );
+
+    return this.stripe.invoices.attachPayment(
+      open.id,
+      { payment_intent: payment.stripe_payment_intent_id },
+      key('inv-attach'),
+    );
+  }
 }

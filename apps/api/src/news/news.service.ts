@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { ArticleRepository, UserPlanEnum, UserPlanRepository, UserUsageRepository } from '@myapp/database';
 import { UpdateArticleDto } from './dtos/update-article.dto';
 import { Article } from '@myapp/database';
+import { PlanType } from '@myapp/database/dist/enums/plan.enum';
 
 @Injectable()
 export class NewsService {
@@ -16,7 +17,7 @@ export class NewsService {
     );
 
     const userPlan = await this.userPlanRepo.findByUserId(userId);
-    if(userPlan.plan !== UserPlanEnum.MAX){
+    if(userPlan.plan?.name !== PlanType.MAX){
       this.userUsageRepo.incrementViewCount(userId, items.length)
     }
     return {
@@ -41,7 +42,7 @@ export class NewsService {
   async update(id: string, dto: UpdateArticleDto): Promise<Article>{
     const article = await this.articleRepository.findOneById(id)
     if(!article){
-      throw new NotFoundException(`Article with ${id} not found`)
+      throw new NotFoundException(`Article with ${id} not found`) 
     }
 
     const updated = await this.articleRepository.preload({id, ...dto})

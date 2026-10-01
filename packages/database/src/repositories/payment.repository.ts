@@ -23,7 +23,7 @@ export class PaymentRepository
 
   createPayment(
     userId: string,
-    plan: UserPlanEnum,
+    planId: string,
     paymentIntentId: string,
     amount: number,
     currency: string,
@@ -31,7 +31,7 @@ export class PaymentRepository
     const userPayment = this.paymentsRepo.create({
       user_id: userId,
       stripe_payment_intent_id: paymentIntentId,
-      plan,
+      plan_id: planId,
       amount,
       currency,
       status: PaymentStatus.PENDING,
@@ -40,16 +40,16 @@ export class PaymentRepository
   }
 
   createOrgPayment(
-    orgId: string,
-    plan: UserPlanEnum,
-    paymentIntentId: string,
-    amount: number,
-    currency: string,
-  ): Promise<Payments> {
+  orgId: string,
+  planId: string,
+  paymentIntentId: string,
+  amount: number,
+  currency: string,
+): Promise<Payments> {
     const orgPayment = this.paymentsRepo.create({
       organization: {id: orgId} as Organizations,
       stripe_payment_intent_id: paymentIntentId,
-      plan,
+      plan_id: planId,
       amount,
       currency,
       status: PaymentStatus.PENDING,

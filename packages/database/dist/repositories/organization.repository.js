@@ -45,6 +45,9 @@ let OrganizationRepository = class OrganizationRepository extends base_repositor
             }
         });
     }
+    async updateStripeCustomerid(orgId, customerId) {
+        await this.organizationRepo.update(orgId, { stripe_customer_id: customerId });
+    }
 };
 exports.OrganizationRepository = OrganizationRepository;
 exports.OrganizationRepository = OrganizationRepository = __decorate([

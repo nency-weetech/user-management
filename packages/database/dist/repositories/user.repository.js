@@ -159,6 +159,9 @@ let UserRepository = class UserRepository extends base_repository_1.BaseAbstract
     async updateCreatedAtForTest(userId, date) {
         await this.userRepository.update(userId, { created_at: date });
     }
+    async updateStripeCustomerid(userId, customerId) {
+        await this.userRepository.update(userId, { stripe_customer_id: customerId });
+    }
 };
 exports.UserRepository = UserRepository;
 exports.UserRepository = UserRepository = __decorate([

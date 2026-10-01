@@ -13,8 +13,8 @@ exports.Payments = void 0;
 const typeorm_1 = require("typeorm");
 const user_entity_1 = require("./user.entity");
 const payment_status_enum_1 = require("../enums/payment-status.enum");
-const user_plan_enum_1 = require("../enums/user-plan.enum");
 const organization_entity_1 = require("./organization.entity");
+const plans_entity_1 = require("./plans.entity");
 let Payments = class Payments {
     id;
     user_id;
@@ -23,12 +23,15 @@ let Payments = class Payments {
     organization;
     stripe_checkout_session_id;
     stripe_payment_intent_id;
+    plan_id;
     plan;
     amount;
     currency;
     status;
     created_at;
     updated_at;
+    stripe_invoice_id;
+    invoice_status;
 };
 exports.Payments = Payments;
 __decorate([
@@ -49,7 +52,10 @@ __decorate([
     __metadata("design:type", String)
 ], Payments.prototype, "organization_id", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => organization_entity_1.Organizations, { nullable: true, onDelete: 'SET NULL' }),
+    (0, typeorm_1.ManyToOne)(() => organization_entity_1.Organizations, {
+        nullable: true,
+        onDelete: 'SET NULL',
+    }),
     (0, typeorm_1.JoinColumn)({ name: 'organization_id' }),
     __metadata("design:type", organization_entity_1.Organizations)
 ], Payments.prototype, "organization", void 0);
@@ -62,8 +68,13 @@ __decorate([
     __metadata("design:type", String)
 ], Payments.prototype, "stripe_payment_intent_id", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'enum', enum: user_plan_enum_1.UserPlanEnum }),
+    (0, typeorm_1.Column)({ name: 'plan_id', type: 'uuid' }),
     __metadata("design:type", String)
+], Payments.prototype, "plan_id", void 0);
+__decorate([
+    (0, typeorm_1.ManyToOne)(() => plans_entity_1.Plans_catalog, { nullable: false }),
+    (0, typeorm_1.JoinColumn)({ name: 'plan_id' }),
+    __metadata("design:type", plans_entity_1.Plans_catalog)
 ], Payments.prototype, "plan", void 0);
 __decorate([
     (0, typeorm_1.Column)(),
@@ -74,7 +85,11 @@ __decorate([
     __metadata("design:type", String)
 ], Payments.prototype, "currency", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'enum', enum: payment_status_enum_1.PaymentStatus, default: payment_status_enum_1.PaymentStatus.PENDING }),
+    (0, typeorm_1.Column)({
+        type: 'enum',
+        enum: payment_status_enum_1.PaymentStatus,
+        default: payment_status_enum_1.PaymentStatus.PENDING,
+    }),
     __metadata("design:type", String)
 ], Payments.prototype, "status", void 0);
 __decorate([
@@ -85,6 +100,14 @@ __decorate([
     (0, typeorm_1.UpdateDateColumn)({ type: 'timestamp with time zone' }),
     __metadata("design:type", Date)
 ], Payments.prototype, "updated_at", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'varchar', nullable: true }),
+    __metadata("design:type", String)
+], Payments.prototype, "stripe_invoice_id", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'varchar', nullable: true }),
+    __metadata("design:type", String)
+], Payments.prototype, "invoice_status", void 0);
 exports.Payments = Payments = __decorate([
     (0, typeorm_1.Entity)('payments')
 ], Payments);
