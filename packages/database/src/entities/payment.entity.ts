@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -66,9 +67,26 @@ export class Payments {
   @UpdateDateColumn({ type: 'timestamp with time zone' })
   updated_at!: Date;
 
+  @Index('payments_stripe_invoice_id_uq', {
+    unique: true,
+    where: '"stripe_invoice_id" IS NOT NULL',
+  })
   @Column({ type: 'varchar', nullable: true })
   stripe_invoice_id: string | null;
 
   @Column({ type: 'varchar', nullable: true })
   invoice_status: string | null;
+
+  @Column({type: 'int', nullable: true})
+  subtotal_amount?: number | null;
+
+  @Column({type: 'int', nullable: true})
+  discount_amount!: number;
+
+  @Column({type: 'int', nullable: true})
+  tax_amount!: number;
+
+  @Column({type: 'varchar', nullable: true})
+  coupon_code!: string | null;
+
 }

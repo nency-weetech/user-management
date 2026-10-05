@@ -1,4 +1,4 @@
-import { OrganizationPlan, OrganizationPlanRepository, OrganizationRepository, Organizations, PaymentRepository, Payments } from '@myapp/database';
+import { DiscountCode, OrganizationPlan, OrganizationPlanRepository, OrganizationRepository, Organizations, PaymentRepository, Payments } from '@myapp/database';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from '../users/users.module';
@@ -11,10 +11,11 @@ import { BullModule } from '@nestjs/bullmq';
 import { MailModule } from '../mail/mail.module';
 import { OrganizationModule } from '../organization/organization.module';
 import { Plans_catalog } from '@myapp/database/dist/entities/plans.entity';
+import { DiscountService } from './discount.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Payments, OrganizationPlan, Organizations, Plans_catalog]),
+    TypeOrmModule.forFeature([Payments, OrganizationPlan, Organizations, Plans_catalog, DiscountCode]),
     UsersModule,
     OrganizationModule,
     MailModule,
@@ -27,7 +28,7 @@ import { Plans_catalog } from '@myapp/database/dist/entities/plans.entity';
     }),
   ],
   controllers: [BillingController],
-  providers: [StripeService, PaymentRepository, BillingQueueService, OrganizationPlanRepository, OrganizationRepository],
+  providers: [StripeService, PaymentRepository, BillingQueueService, OrganizationPlanRepository, OrganizationRepository, DiscountService],
   exports: [StripeService]
 })
 export class BillingModule {}

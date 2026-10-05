@@ -2,15 +2,22 @@ import { PaymentRepository, Payments, UserPlanEnum } from '@myapp/database';
 import { Plans_catalog } from '@myapp/database/dist/entities/plans.entity';
 import { PlanTargetType } from '@myapp/database/dist/enums/plan-target-type.enum';
 import { PlanType } from '@myapp/database/dist/enums/plan.enum';
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 // import { ConfigService } from '@nestjs/config';
 import Stripe from 'stripe';
 import { Repository } from 'typeorm';
+import { AmountBreakdown, TAX_RATE_PERCENT } from './pricing.util';
 
+export interface PlanInvoiceResult {
+  invoiceId: string;
+  paymentIntentId: string;
+  clientSecret: string;
+}
 @Injectable()
 export class StripeService {
   private stripe: Stripe;
+  private readonly logger = new Logger(StripeService.name);
 
   constructor(
     @InjectRepository(Plans_catalog)
@@ -107,59 +114,117 @@ export class StripeService {
     });
   }
 
-  async createCustomer(email: string, ownerId: string, type: 'user' | 'org') {
-    const c = await this.stripe.customers.create(
-      { email, metadata: { ownerId, type } },
-      { idempotencyKey: `cust-${type}-${ownerId}` },
-    );
-    return c.id;
+  async createCustomer(params: {
+    email: string;
+    name?: string;
+    metadata: Record<string, string>;
+  }): Promise<string> {
+    const customer = await this.stripe.customers.create(params);
+    return customer.id;
   }
 
-  async issueInvoiceForPayment(
-    payment: Payments,
-    stripeCustomerId: string,
-  ): Promise<Stripe.Invoice> {
-    const plan = await this.planCatelogRepository.findOne({
-      where: { id: payment.plan_id },
-    });
-    if (!plan || plan.name === PlanType.FREE)
-      throw new BadRequestException('Invalid plan');
+  async createPlanInvoice(params: {
+    customerId: string; // dono case mein PAYING USER ka Stripe customer
+    plan: Plans_catalog;
+    breakdown: AmountBreakdown;
+    couponCode: string | null;
+    targetType: PlanTargetType; // USER ya ORGANIZATION
+    targetId: string; // userId ya orgId
+    payerUserId: string; // jo user pay kar raha hai
+    billedTo?: string;
+  }): Promise<PlanInvoiceResult> {
+    const {
+      customerId,
+      plan,
+      breakdown,
+      couponCode,
+      targetType,
+      targetId,
+      payerUserId,
+      billedTo,
+    } = params;
+    const currency = plan.currency.toLowerCase();
 
-    const key = (s: string) => ({ idempotencyKey: `${s}-${payment.id}` });
-
-    const draft = await this.stripe.invoices.create(
+    const isOrg = targetType === PlanTargetType.ORGANIZATION;
+    const metadata: Record<string, string> = {
+      planId: plan.id,
+      targetType: String(targetType),
+      payerUserId,
+      ...(isOrg ? { organizationId: targetId } : { userId: targetId }),
+    };
+    const lines = [
       {
-        customer: stripeCustomerId,
-        collection_method: 'charge_automatically',
-        auto_advance: false,
-        pending_invoice_items_behavior: 'exclude',
-        currency: plan.currency.toLowerCase(),
-        metadata: { paymentId: payment.id, planId: plan.id },
-      },
-      key('inv-create'),
-    );
-
-    await this.stripe.invoiceItems.create(
-      {
-        customer: stripeCustomerId,
-        invoice: draft.id,
-        amount: Math.round(plan.price * 100),
-        currency: plan.currency.toLowerCase(),
+        kind: 'plan',
         description: `${plan.name.toUpperCase()} Plan`,
+        amount: breakdown.subtotal,
       },
-      key('inv-item'),
-    );
+      {
+        kind: 'discount',
+        description: `Coupon discount (${couponCode})`,
+        amount: -breakdown.discount,
+      },
+      {
+        kind: 'tax',
+        description: `Tax (${TAX_RATE_PERCENT})`,
+        amount: +breakdown.tax,
+      },
+    ].filter((l) => l.amount !== 0);
 
-    const open = await this.stripe.invoices.finalizeInvoice(
-      draft.id,
-      { auto_advance: false },
-      key('inv-finalize'),
-    );
+    const invoice = await this.stripe.invoices.create({
+      customer: customerId,
+      collection_method: 'charge_automatically',
+      auto_advance: false,
+      pending_invoice_items_behavior: 'exclude',
+      description: billedTo ? `Billed to: ${billedTo}` : undefined,
+      metadata: { ...metadata, couponCode: couponCode ?? '' },
+    });
 
-    return this.stripe.invoices.attachPayment(
-      open.id,
-      { payment_intent: payment.stripe_payment_intent_id },
-      key('inv-attach'),
-    );
+    try {
+      for (const line of lines) {
+        await this.stripe.invoiceItems.create({
+          customer: customerId,
+          invoice: invoice.id,
+          currency,
+          amount: line.amount,
+          description: line.description,
+          metadata: { kind: line.kind },
+        });
+      }
+      const draft = await this.stripe.invoices.retrieve(invoice.id);
+      if (draft.total !== breakdown.total) {
+        throw new Error(
+          `Invoice total ${draft.total} != expected ${breakdown.total}`,
+        );
+      }
+
+      const open = await this.stripe.invoices.finalizeInvoice(invoice.id, {
+        auto_advance: false,
+        expand: ['confirmation_secret'],
+      });
+
+      const clientSecret = open.confirmation_secret?.client_secret;
+      if (!clientSecret)
+        throw new Error(`Invoice ${open.id} has no client secret`);
+
+      const paymentIntentId = clientSecret.split('_secret_')[0];
+      await this.stripe.paymentIntents.update(paymentIntentId, {
+        metadata: { ...metadata, invoiceId: open.id },
+      });
+      return { invoiceId: open.id, paymentIntentId, clientSecret };
+    } catch (error) {
+      await this.discardInvoice(invoice.id);
+      throw error;
+    }
+  }
+
+  async discardInvoice(invoiceId: string) {
+    try {
+      const inv = await this.stripe.invoices.retrieve(invoiceId);
+      if (inv.status === 'draft') await this.stripe.invoices.del(invoiceId);
+      else if (inv.status === 'open')
+        await this.stripe.invoices.voidInvoice(invoiceId);
+    } catch (e) {
+      this.logger.error(`Could not discard invoice ${invoiceId}: ${e.message}`);
+    }
   }
 }

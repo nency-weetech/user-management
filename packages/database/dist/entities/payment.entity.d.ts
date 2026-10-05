@@ -19,4 +19,8 @@ export declare class Payments {
     updated_at: Date;
     stripe_invoice_id: string | null;
     invoice_status: string | null;
+    subtotal_amount?: number | null;
+    discount_amount: number;
+    tax_amount: number;
+    coupon_code: string | null;
 }

@@ -32,7 +32,9 @@ let OrganizationRepository = class OrganizationRepository extends base_repositor
         return this.organizationRepo.save(org);
     }
     async findDefaultByUserId(userId) {
-        return this.organizationRepo.findOne({ where: { owner_id: userId, is_default: true } });
+        return this.organizationRepo.findOne({
+            where: { owner_id: userId, is_default: true },
+        });
     }
     async findOneById(id) {
         return this.organizationRepo.findOne({ where: { id } });
@@ -41,12 +43,12 @@ let OrganizationRepository = class OrganizationRepository extends base_repositor
         return this.organizationRepo.findOne({
             where: {
                 id: orgId,
-                owner_id: userId
-            }
+                owner_id: userId,
+            },
         });
     }
     async updateStripeCustomerid(orgId, customerId) {
-        await this.organizationRepo.update(orgId, { stripe_customer_id: customerId });
+        await this.organizationRepo.update({ id: orgId, stripe_customer_id: (0, typeorm_2.IsNull)() }, { stripe_customer_id: customerId });
     }
 };
 exports.OrganizationRepository = OrganizationRepository;

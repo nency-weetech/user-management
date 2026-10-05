@@ -430,6 +430,58 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        .plan-tax {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin: -2px 0 12px;
+        }
+
+        .breakdown {
+            background: var(--bg);
+            border-radius: 8px;
+            padding: 14px 16px;
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+
+        .breakdown .row {
+            display: flex;
+            justify-content: space-between;
+            padding: 3px 0;
+        }
+
+        .breakdown .row.discount {
+            color: var(--success);
+        }
+
+        .breakdown .row.total {
+            border-top: 1px solid var(--border);
+            margin-top: 6px;
+            padding-top: 8px;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .coupon-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .coupon-row input {
+            flex: 1;
+            height: 40px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0 12px;
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+
+        .hidden {
+            display: none !important;
+        }
     </style>
 </head>
 <script src="auth.js"></script>
@@ -468,7 +520,8 @@
                     <li><span class="checkmark">✓</span> 60 admin fetches / day</li>
                     <li><span class="checkmark">✓</span> Priority support</li>
                 </ul>
-                <button class="plan-btn" data-plan="e4d4072a-ce11-49fb-a09b-9e07f1739018" data-plan-name="pro" data-price="99">
+                <button class="plan-btn" data-plan="e4d4072a-ce11-49fb-a09b-9e07f1739018" data-plan-name="pro"
+                    data-price="99">
                     Upgrade to Pro
                 </button>
             </div>
@@ -482,7 +535,8 @@
                     <li><span class="checkmark">✓</span> Unlimited admin fetches</li>
                     <li><span class="checkmark">✓</span> Priority support</li>
                 </ul>
-                <button class="plan-btn" data-plan="a050edaf-2cb7-4bac-a202-93a227759e5f" data-plan-name="max" data-price="299">
+                <button class="plan-btn" data-plan="a050edaf-2cb7-4bac-a202-93a227759e5f" data-plan-name="max"
+                    data-price="299">
                     Upgrade to Max
                 </button>
             </div>
@@ -518,7 +572,8 @@
                     <ul class="plan-features">
                         <li><span class="checkmark">✓</span> 100 bookmarks / day (org-wide)</li>
                     </ul>
-                    <button class="org-plan-btn" data-plan="5b8889ab-a08f-4334-a59f-640df70ed824" data-plan-name="pro" data-price="499">
+                    <button class="org-plan-btn" data-plan="5b8889ab-a08f-4334-a59f-640df70ed824" data-plan-name="pro"
+                        data-price="499">
                         Upgrade to Pro
                     </button>
                 </div>
@@ -530,7 +585,8 @@
                     <ul class="plan-features">
                         <li><span class="checkmark">✓</span> Unlimited bookmarks (org-wide)</li>
                     </ul>
-                    <button class="org-plan-btn" data-plan="757b420a-6f98-43b9-9344-52bcb5f5df85" data-plan-name="max" data-price="999">
+                    <button class="org-plan-btn" data-plan="757b420a-6f98-43b9-9344-52bcb5f5df85" data-plan-name="max"
+                        data-price="999">
                         Upgrade to Max
                     </button>
                 </div>
@@ -548,17 +604,22 @@
                 <button class="close-btn" id="closeModal">&times;</button>
             </div>
 
-            <div class="order-summary">
-                <span class="plan" id="summaryPlan">Pro plan</span>
-                <span class="amount" id="summaryAmount">₹99</span>
+            <div class="breakdown" id="breakdown"></div>
+
+            <div id="couponStep">
+                <div class="coupon-row">
+                    <input type="text" id="couponInput" placeholder="Discount code (optional)" maxlength="32" />
+                </div>
+                <button class="pay-btn" id="continueBtn">Continue to payment</button>
             </div>
 
-            <div id="payment-element"></div>
-
-            <button class="pay-btn" id="payBtn">
-                <span class="spinner" id="paySpinner"></span>
-                <span id="payBtnText">Pay now</span>
-            </button>
+            <div id="payStep" class="hidden">
+                <div id="payment-element"></div>
+                <button class="pay-btn" id="payBtn">
+                    <span class="spinner" id="paySpinner"></span>
+                    <span id="payBtnText">Pay now</span>
+                </button>
+            </div>
 
             <p class="modal-msg" id="modalMsg"></p>
 
@@ -568,7 +629,7 @@
         </div>
     </div>
 
-    <script>
+    <!-- <script>
         requireAuth();
         const API_BASE_URL = 'http://localhost:3100';
         const STRIPE_PUBLISHABLE_KEY = 'pk_test_51Tq3SQGplz2HQtxpOp8wPkvMYpRVQb7NNfP9eR0G2xyst4WaxaiJ5Hvs6FGvfRL68WXaCftPygTnrCgbgtcidaIq0072XqcAvD';
@@ -768,8 +829,169 @@
             }
         });
         updateUserStatus();
-    </script>
+    </script> -->
 
+    <script>
+    requireAuth();
+    const API_BASE_URL = 'http://localhost:3100';
+    const STRIPE_PUBLISHABLE_KEY = 'pk_test_51Tq3SQGplz2HQtxpOp8wPkvMYpRVQb7NNfP9eR0G2xyst4WaxaiJ5Hvs6FGvfRL68WXaCftPygTnrCgbgtcidaIq0072XqcAvD'; // 
+    const TAX_RATE_PERCENT = 18; 
+
+    const stripe = Stripe(STRIPE_PUBLISHABLE_KEY);
+    let elements = null;
+    let current = null; 
+
+    const $ = (id) => document.getElementById(id);
+    const inr = (paise) => '₹' + (paise / 100).toFixed(2);
+
+
+    function displayBreakdown(price, discountPaise = 0) {
+        const subtotal = Math.round(price * 100);
+        const taxable = subtotal - discountPaise;
+        const tax = Math.round((taxable * TAX_RATE_PERCENT) / 100);
+        return { subtotal, discount: discountPaise, tax, total: taxable + tax };
+    }
+
+    function renderBreakdown(b) {
+        $('breakdown').innerHTML = `
+            <div class="row"><span>Subtotal</span><span>${inr(b.subtotal)}</span></div>
+            ${b.discount > 0 ? `<div class="row discount"><span>Coupon discount</span><span>-${inr(b.discount)}</span></div>` : ''}
+            <div class="row"><span>Tax (${TAX_RATE_PERCENT}%)</span><span>${inr(b.tax)}</span></div>
+            <div class="row total"><span>Total</span><span>${inr(b.total)}</span></div>`;
+    }
+
+    function setMsg(text, ok = false) {
+        $('modalMsg').textContent = text;
+        $('modalMsg').className = 'modal-msg' + (ok ? ' success' : '');
+    }
+
+    function errorText(data, fallback) {
+        const m = data && data.message;
+        return Array.isArray(m) ? m.join(', ') : m || fallback;
+    }
+
+    // plan cards par "+ tax = total"
+    document.querySelectorAll('.plan-btn[data-price], .org-plan-btn[data-price]').forEach((btn) => {
+        const b = displayBreakdown(Number(btn.dataset.price));
+        const el = document.createElement('div');
+        el.className = 'plan-tax';
+        el.textContent = `+ ${inr(b.tax)} tax (${TAX_RATE_PERCENT}%) = ${inr(b.total)}`;
+        btn.closest('.plan-card').querySelector('.plan-price').after(el);
+    });
+
+    function updateUserStatus() {
+        const name = getUserName();
+        $('userStatus').innerHTML = `Hi${name ? ', ' + name : ''} <button id="signOutBtn">Sign out</button>`;
+        $('signOutBtn').addEventListener('click', () => signOut());
+    }
+
+    // modal kholte waqt koi API call nahi, invoice tabhi banegi jab user Continue dabaye
+    function openCheckout({ planId, planName, price, orgId = null }) {
+        if (!isLoggedIn()) { window.location.href = 'index.html'; return; }
+
+        current = { planId, planName, price, orgId };
+        const label = planName.charAt(0).toUpperCase() + planName.slice(1);
+        $('modalPlanName').textContent = (orgId ? 'Upgrade Organization to ' : 'Upgrade to ') + label;
+        $('couponInput').value = '';
+        renderBreakdown(displayBreakdown(price));
+        setMsg('');
+        $('couponStep').classList.remove('hidden');
+        $('payStep').classList.add('hidden');
+        $('payment-element').innerHTML = '';
+        elements = null;
+        $('overlay').classList.add('visible');
+    }
+
+    async function startPayment() {
+        const btn = $('continueBtn');
+        btn.disabled = true;
+        setMsg('');
+        try {
+            const { planId, orgId } = current;
+            const url = orgId
+                ? `${API_BASE_URL}/billing/organizations/${orgId}/payment-intent/${planId}`
+                : `${API_BASE_URL}/billing/payment-intent/${planId}`;
+            const code = $('couponInput').value.trim();
+
+            const res = await fetch(url, {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(code ? { discountCode: code } : {}),
+            });
+            const data = await res.json().catch(() => ({}));
+
+            if (!res.ok || !data.clientSecret) {
+                setMsg(errorText(data, 'Could not start payment.'));
+                return;
+            }
+
+            renderBreakdown(data.breakdown); // server ka asli amount
+            elements = stripe.elements({ clientSecret: data.clientSecret });
+            elements.create('payment').mount('#payment-element');
+            $('couponStep').classList.add('hidden');
+            $('payStep').classList.remove('hidden');
+        } catch (err) {
+            setMsg('Something went wrong: ' + err.message);
+        } finally {
+            btn.disabled = false;
+        }
+    }
+
+    document.querySelectorAll('.plan-btn[data-plan]').forEach((btn) => {
+        btn.addEventListener('click', () =>
+            openCheckout({
+                planId: btn.dataset.plan,
+                planName: btn.dataset.planName,
+                price: Number(btn.dataset.price),
+            }));
+    });
+
+    document.querySelectorAll('.org-plan-btn[data-plan]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            const orgId = $('orgIdInput').value.trim();
+            if (!orgId) { alert('Please enter an Organization ID first'); return; }
+            openCheckout({
+                planId: btn.dataset.plan,
+                planName: btn.dataset.planName,
+                price: Number(btn.dataset.price),
+                orgId,
+            });
+        });
+    });
+
+    $('continueBtn').addEventListener('click', startPayment);
+    $('couponInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') startPayment(); });
+
+    $('closeModal').addEventListener('click', () => $('overlay').classList.remove('visible'));
+    $('overlay').addEventListener('click', (e) => {
+        if (e.target.id === 'overlay') $('overlay').classList.remove('visible');
+    });
+
+    $('payBtn').addEventListener('click', async () => {
+        if (!elements) return;
+        const spinner = $('paySpinner');
+        const btnText = $('payBtnText');
+        const payBtn = $('payBtn');
+
+        setMsg('');
+        spinner.classList.add('active');
+        btnText.textContent = 'Processing...';
+        payBtn.disabled = true;
+
+        const { error } = await stripe.confirmPayment({
+            elements,
+            confirmParams: { return_url: API_BASE_URL + '/billing/success' },
+        });
+
+        spinner.classList.remove('active');
+        payBtn.disabled = false;
+        btnText.textContent = 'Pay now';
+        if (error) setMsg(error.message);
+    });
+
+    updateUserStatus();
+</script>
 </body>
 
 </html>

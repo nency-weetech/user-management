@@ -4,6 +4,7 @@ import {
   PaymentRepository,
   Payments,
   PaymentStatus,
+  User,
   UserPlan,
   UserPlanRepository,
 } from '@myapp/database';
@@ -14,7 +15,7 @@ import { Inject, Logger } from '@nestjs/common';
 import { Job, Queue } from 'bullmq';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { json } from 'stream/consumers';
-import { DataSource } from 'typeorm';
+import { DataSource, Not } from 'typeorm';
 import { StripeInvoiceService } from './stripe-invoice.service';
 
 @Processor('billingQueue')
@@ -46,9 +47,6 @@ export class PaymentEventProcessor extends WorkerHost {
           case 'process-payment-event':
             await this.handlePaymentEvent(job);
             break;
-          case 'create-invoice':
-            await this.handleCreateInvoice(job);
-            break;
           case 'sync-invoice':
             await this.handleSyncInvoice(job);
             break;
@@ -72,14 +70,18 @@ export class PaymentEventProcessor extends WorkerHost {
       if (payment.status === PaymentStatus.SUCCEEDED) return;
 
       await this.dataSource.transaction(async (manager) => {
-        await manager.update(
+        const claim = await manager.update(
           Payments,
-          { stripe_payment_intent_id: paymentIntentId },
+          {
+            stripe_payment_intent_id: paymentIntentId,
+            status: Not(PaymentStatus.SUCCEEDED),
+          },
           {
             status: PaymentStatus.SUCCEEDED,
             plan_id: planId,
           },
         );
+        if (!claim.affected) return;
 
         if (targetType === 'organization') {
           await manager.update(
@@ -138,51 +140,54 @@ export class PaymentEventProcessor extends WorkerHost {
     }
   }
 
-  async handleCreateInvoice(job: Job) {
-    const payment = await this.paymentsRepo.findByPaymentIntentId(
-      job.data.paymentIntentId,
-    );
-    if (!payment) {
-      this.logger.warn(`No payment for PI ${job.data.paymentIntentId}`);
-      return;
-    }
-    await this.stripeService.issueInvoiceForPayment(payment);
-  }
-
   async handleSyncInvoice(job: Job) {
     const invoice = await this.stripeService.retrieveInvoice(
       job.data.invoiceId,
     );
-    const paymentId = invoice.metadata?.paymentId;
-    if (!paymentId) return;
 
-    await this.dataSource.getRepository(Payments).update(paymentId, {
-      stripe_invoice_id: invoice.id,
-      invoice_status: invoice.status ?? undefined,
+    const repo = this.dataSource.getRepository(Payments);
+    const payment = await repo.findOne({
+      where: { stripe_invoice_id: invoice.id },
     });
 
-    if (invoice.status === 'paid') {
-      if (!invoice.customer_email || !invoice.hosted_invoice_url) {
-        this.logger.warn(
-          `Invoice ${invoice.id}: email/url missing, mail skipped`,
-        );
-        return;
-      }
-      await this.mailQueue.add(
-        'send-invoice-email', // tumhare MailProcessor ka case
-        {
-          toEmail: invoice.customer_email,
-          hostedInvoiceUrl: invoice.hosted_invoice_url,
-          invoicePDF: invoice.invoice_pdf,
-        },
-        {
-          jobId: `invoice-mail-${invoice.id}`,
-          attempts: 5,
-          backoff: { type: 'exponential', delay: 3000 },
-          removeOnComplete: false,
-          removeOnFail: false,
-        },
-      );
+    if (!payment) {
+      this.logger.warn(`No payment row yet for invoice ${invoice.id}`);
+      return;
     }
+
+    await repo.update(payment.id, { invoice_status: invoice.status });
+    if (invoice.status !== 'paid') return;
+
+    const payerId = invoice.metadata?.payerUserId;
+    const payer = payerId
+      ? await this.dataSource
+          .getRepository(User)
+          .findOne({ where: { id: payerId } })
+      : null;
+
+    const toEmail = payer?.email ?? invoice.customer_email;
+
+    if (!toEmail || !invoice.hosted_invoice_url) {
+      this.logger.warn(
+        `Invoice ${invoice.id}: email or url missing, mail skipped`,
+      );
+      return;
+    }
+
+    await this.mailQueue.add(
+      'send-invoice-email',
+      {
+        toEmail: invoice.customer_email,
+        hostedInvoiceUrl: invoice.hosted_invoice_url,
+        invoicePDF: invoice.invoice_pdf,
+      },
+      {
+        jobId: `invoice-mail-${invoice.id}`,
+        attempts: 5,
+        backoff: { type: 'exponential', delay: 3000 },
+        removeOnComplete: false,
+        removeOnFail: false,
+      },
+    );
   }
 }

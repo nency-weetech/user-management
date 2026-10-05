@@ -32,6 +32,10 @@ let Payments = class Payments {
     updated_at;
     stripe_invoice_id;
     invoice_status;
+    subtotal_amount;
+    discount_amount;
+    tax_amount;
+    coupon_code;
 };
 exports.Payments = Payments;
 __decorate([
@@ -101,6 +105,10 @@ __decorate([
     __metadata("design:type", Date)
 ], Payments.prototype, "updated_at", void 0);
 __decorate([
+    (0, typeorm_1.Index)('payments_stripe_invoice_id_uq', {
+        unique: true,
+        where: '"stripe_invoice_id" IS NOT NULL',
+    }),
     (0, typeorm_1.Column)({ type: 'varchar', nullable: true }),
     __metadata("design:type", String)
 ], Payments.prototype, "stripe_invoice_id", void 0);
@@ -108,6 +116,22 @@ __decorate([
     (0, typeorm_1.Column)({ type: 'varchar', nullable: true }),
     __metadata("design:type", String)
 ], Payments.prototype, "invoice_status", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'int', nullable: true }),
+    __metadata("design:type", Number)
+], Payments.prototype, "subtotal_amount", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'int', nullable: true }),
+    __metadata("design:type", Number)
+], Payments.prototype, "discount_amount", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'int', nullable: true }),
+    __metadata("design:type", Number)
+], Payments.prototype, "tax_amount", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'varchar', nullable: true }),
+    __metadata("design:type", String)
+], Payments.prototype, "coupon_code", void 0);
 exports.Payments = Payments = __decorate([
     (0, typeorm_1.Entity)('payments')
 ], Payments);

@@ -13,26 +13,34 @@ import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
   },
 })
 export class MailProcessor extends WorkerHost {
-  private transporter!: nodemailer.Transporter;
-
   constructor(
     @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
   ) {
     super();
-    this.initTranspoter();
   }
 
-  private async initTranspoter() {
-    const testAccount = await nodemailer.createTestAccount();
-    this.transporter = nodemailer.createTransport({
-      host: 'smtp.ethereal.email',
-      port: 587,
-      secure: false,
-      auth: {
-        user: testAccount.user,
-        pass: testAccount.pass,
-      },
-    });
+  private transporterPromise?: Promise<nodemailer.Transporter>;
+  private getTransporter(): Promise<nodemailer.Transporter> {
+    if (!this.transporterPromise) {
+      this.transporterPromise = (async () => {
+        const testAccount = await nodemailer.createTestAccount();
+        return nodemailer.createTransport({
+          host: 'smtp.ethereal.email',
+          port: 587,
+          secure: false,
+          auth: { user: testAccount.user, pass: testAccount.pass },
+        });
+      })().catch((err) => {
+        this.transporterPromise = undefined;
+        throw err;
+      });
+    }
+    return this.transporterPromise;
+  }
+
+  private async sendMail(options: nodemailer.SendMailOptions) {
+    const transporter = await this.getTransporter();
+    return transporter.sendMail(options);
   }
 
   async process(job: Job<any, any, string>): Promise<any> {
@@ -44,34 +52,25 @@ export class MailProcessor extends WorkerHost {
         attempt: job.attemptsMade,
       },
       async () => {
-        let result;
         switch (job.name) {
           case 'send-verification-OTP':
-            result = this.handleVerifactionOtp(job);
-            break;
+            return this.handleVerifactionOtp(job);
           case 'send-otp-reminder':
-            result = this.handleOtpReminder(job);
-            break;
+            return this.handleOtpReminder(job);
           case 'send-welcome':
-            result = this.welcomeMail(job);
-            break;
+            return this.welcomeMail(job);
           case 'send-reset-pass-otp':
-            result = this.resetPassOtp(job);
-            break;
+            return this.resetPassOtp(job);
           case 'send-weekly-report':
-            result = this.sendWeeklyReportMail(job);
-            break;
+            return this.sendWeeklyReportMail(job);
           case 'send-invoice-email':
-            result = this.sendInvoice(job);
-            break;
+            return this.sendInvoice(job);
           case 'send-invitation':
-            result = this.sendInvitation(job);
-            break;
+            return this.sendInvitation(job);
           default:
             this.logger.warn(`Unkonown Job type: ${job.name}`);
-            break;
+            return undefined;
         }
-        return result;
       },
     );
   }
@@ -91,7 +90,7 @@ export class MailProcessor extends WorkerHost {
         `,
     };
 
-    const info = await this.transporter.sendMail(mailOption);
+    const info = await this.sendMail(mailOption);
     this.logger.log(`Verifiction email sent to ${toEmail}`);
     this.logger.log(
       `Verifiction Email URL: ${nodemailer.getTestMessageUrl(info)}`,
@@ -112,7 +111,7 @@ export class MailProcessor extends WorkerHost {
             <h3>Please Verify email ${toEmail} with valid OTP</h3>
             `,
     };
-    const info = await this.transporter.sendMail(mailOption);
+    const info = await this.sendMail(mailOption);
     this.logger.log(`reminder mail: ${nodemailer.getTestMessageUrl(info)}`);
   }
 
@@ -126,7 +125,7 @@ export class MailProcessor extends WorkerHost {
             <h3>Welcome ${toEmail} </h3>
             `,
     };
-    const info = await this.transporter.sendMail(mailOption);
+    const info = await this.sendMail(mailOption);
     this.logger.log(`Welcom mail: ${nodemailer.getTestMessageUrl(info)}`);
 
     return { status: 'sent', messageId: info.messageId };
@@ -149,7 +148,7 @@ export class MailProcessor extends WorkerHost {
         `,
     };
 
-    const info = await this.transporter.sendMail(mailOption);
+    const info = await this.sendMail(mailOption);
     this.logger.log(
       `Password Reset URL: ${nodemailer.getTestMessageUrl(info)}`,
     );
@@ -215,7 +214,7 @@ export class MailProcessor extends WorkerHost {
     `,
     };
 
-    const info = await this.transporter.sendMail(mailOption);
+    const info = await this.sendMail(mailOption);
     this.logger.log(
       `weekly signup report: ${nodemailer.getTestMessageUrl(info)}`,
     );
@@ -257,7 +256,7 @@ export class MailProcessor extends WorkerHost {
     `,
     };
 
-    const info = await this.transporter.sendMail(mailOptions);
+    const info = await this.sendMail(mailOptions);
     this.logger.log(
       `Invoice mail sent to ${toEmail}: ${nodemailer.getTestMessageUrl(info)}`,
     );
@@ -318,7 +317,7 @@ export class MailProcessor extends WorkerHost {
   `,
     };
 
-    const info = await this.transporter.sendMail(mailOptions);
+    const info = await this.sendMail(mailOptions);
     this.logger.log(
       `Invvitation mail sent to ${toEmail}: ${nodemailer.getTestMessageUrl(info)}`,
     );

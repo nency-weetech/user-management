@@ -19,7 +19,7 @@ import { Article } from '@myapp/database';
 import { LoggerModule } from '@myapp/shared';
 import path from 'path';
 import { PaymentEventProcessor } from './billing/payment-event.processor';
-import { PaymentCleanUpCorn } from './billing/payment-cleanup.corn';
+import { PaymentCleanUpCron } from './billing/payment-cleanup.corn';
 import { StripeInvoiceService } from './billing/stripe-invoice.service';
 import { Plans_catalog } from '@myapp/database/dist/entities/plans.entity';
 @Module({
@@ -43,7 +43,7 @@ import { Plans_catalog } from '@myapp/database/dist/entities/plans.entity';
     PaymentEventProcessor,
     StripeInvoiceService,
     PaymentRepository,
-    PaymentCleanUpCorn,
+    PaymentCleanUpCron,
     UserPlanRepository,
     UserRepository,
     OrganizationPlanRepository,

@@ -17,6 +17,7 @@ export class BillingQueueService {
     paymentIntentId?: string,
     planId?: string,
     targetType: 'user' | 'organization' = 'user',
+    eventCreatedAt?: number
   ) {
     const isTest = process.env.NODE_ENV === 'test';
     const job = await this.billingQueue.add(
@@ -27,6 +28,7 @@ export class BillingQueueService {
         paymentIntentId,
         planId,
         targetType,
+        eventCreatedAt
       },
       {
         attempts: isTest ? 1 : 3,
@@ -40,20 +42,6 @@ export class BillingQueueService {
       `Payment event queued: event-type=${eventType},  identifierId=${identifierId} `,
     );
     return { jobId: job.id };
-  }
-
-  async queueInvoiceCreation(paymentIntentId: string) {
-    return this.billingQueue.add(
-      'create-invoice',
-      { paymentIntentId },
-      {
-        jobId: `invoice-${paymentIntentId}`, // duplicate webhook se double job nahi
-        attempts: 5,
-        backoff: { type: 'exponential', delay: 3000 },
-        removeOnComplete: false,
-        removeOnFail: false,
-      },
-    );
   }
 
   async queueInvoiceSync(invoiceId: string, eventId: string) {

@@ -36,6 +36,7 @@ __exportStar(require("./entities/member.role.entity"), exports);
 __exportStar(require("./entities/organization.plan.entity"), exports);
 __exportStar(require("./entities/organizationUsage.entity"), exports);
 __exportStar(require("./entities/plans.entity"), exports);
+__exportStar(require("./entities/discount-code.entity"), exports);
 __exportStar(require("./enums/user-role.enum"), exports);
 __exportStar(require("./enums/user-plan.enum"), exports);
 __exportStar(require("./enums/payment-status.enum"), exports);

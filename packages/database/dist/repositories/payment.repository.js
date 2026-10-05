@@ -27,7 +27,19 @@ let PaymentRepository = class PaymentRepository extends base_repository_1.BaseAb
         this.paymentsRepo = paymentsRepo;
         this.userRepository = userRepository;
     }
-    createPayment(userId, planId, paymentIntentId, amount, currency) {
+    invoiceColumns(extra) {
+        if (!extra)
+            return {};
+        return {
+            stripe_invoice_id: extra.invoiceId,
+            invoice_status: 'open',
+            subtotal_amount: extra.subtotal,
+            discount_amount: extra.discount,
+            tax_amount: extra.tax,
+            coupon_code: extra.couponCode,
+        };
+    }
+    createPayment(userId, planId, paymentIntentId, amount, currency, extra) {
         const userPayment = this.paymentsRepo.create({
             user_id: userId,
             stripe_payment_intent_id: paymentIntentId,
@@ -35,10 +47,11 @@ let PaymentRepository = class PaymentRepository extends base_repository_1.BaseAb
             amount,
             currency,
             status: payment_status_enum_1.PaymentStatus.PENDING,
+            ...this.invoiceColumns(extra),
         });
         return this.paymentsRepo.save(userPayment);
     }
-    createOrgPayment(orgId, planId, paymentIntentId, amount, currency) {
+    createOrgPayment(orgId, planId, paymentIntentId, amount, currency, extra) {
         const orgPayment = this.paymentsRepo.create({
             organization: { id: orgId },
             stripe_payment_intent_id: paymentIntentId,
@@ -46,6 +59,7 @@ let PaymentRepository = class PaymentRepository extends base_repository_1.BaseAb
             amount,
             currency,
             status: payment_status_enum_1.PaymentStatus.PENDING,
+            ...this.invoiceColumns(extra),
         });
         return this.paymentsRepo.save(orgPayment);
     }
@@ -65,13 +79,17 @@ let PaymentRepository = class PaymentRepository extends base_repository_1.BaseAb
         });
     }
     async markExpired(paymentIntentId) {
-        await this.paymentsRepo.update({ stripe_payment_intent_id: paymentIntentId }, {
-            status: payment_status_enum_1.PaymentStatus.EXPIRED,
-        });
+        const res = await this.paymentsRepo.update({
+            stripe_payment_intent_id: paymentIntentId,
+            status: payment_status_enum_1.PaymentStatus.PENDING, // SUCCEEDED ko kabhi overwrite nahi karega
+        }, { status: payment_status_enum_1.PaymentStatus.EXPIRED });
+        return !!res.affected;
     }
-    async findStalePending(cutoff) {
+    findStalePending(cutoff, limit = 50) {
         return this.paymentsRepo.find({
             where: { status: payment_status_enum_1.PaymentStatus.PENDING, created_at: (0, typeorm_2.LessThan)(cutoff) },
+            order: { created_at: 'ASC' },
+            take: limit,
         });
     }
     async findAllPaginated(page, limit, status, plan) {
