@@ -55,6 +55,7 @@ async function bootstrap() {
   // app.useLogger(logger)
   // app.useGlobalInterceptors(new LoggingInterceptor())
   app.useGlobalInterceptors(new LoggerUserInterceptor());
+  app.enableShutdownHooks();
 
   await app.listen(process.env.PORT ?? 3100);
 }

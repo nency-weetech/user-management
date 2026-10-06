@@ -5,4 +5,9 @@ export * from './logger/context/logger.job.util';
 export * from './logger/context/logger.user.interceptor';
 export * from './logger/logger.formatter';
 export * from './logger/logger.dev-formatter';
+export * from './pdf/browser.service';
+export * from './pdf/pdf-render.service';
+export * from './pdf/with-timeout';
+export * from './pdf/storage.service';
+export * from './pdf/pdf-cleanup.service';
 //# sourceMappingURL=index.d.ts.map

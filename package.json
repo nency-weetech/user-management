@@ -7,7 +7,8 @@
   "license": "UNLICENSED",
   "workspaces": [
     "apps/*",
-    "packages/*"
+    "packages/*",
+    "modules/*"
   ],
   "scripts": {
     "build": "nest build",
@@ -17,6 +18,7 @@
     "start:api:dev": "npm run build:database && npm run build:shared && npm run start:dev --workspace=apps/api",
     "start:workers": "npm run start --workspace=apps/workers",
     "start:workers:dev": "npm run start:dev --workspace=apps/workers",
+    "start:pdf-service:dev": "npm run start:dev --workspace=apps/pdf-service",
     "build:database": "npm run build --workspace=packages/database",
     "build:shared": "npm run build --workspace=packages/shared",
     "build:packages": "npm run build:database && npm run build:shared",

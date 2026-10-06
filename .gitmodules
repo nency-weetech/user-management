@@ -1,3 +1,6 @@
 [submodule "modules/redis"]
 	path = modules/redis
 	url = https://github.com/nency-weetech/redis-module.git
+[submodule "module/redis-module/libs/library"]
+	path = module/redis-module/libs/library
+	url = https://github.com/nency-weetech/redis-module

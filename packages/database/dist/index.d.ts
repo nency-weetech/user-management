@@ -21,6 +21,7 @@ export * from './entities/organization.plan.entity';
 export * from './entities/organizationUsage.entity';
 export * from './entities/plans.entity';
 export * from './entities/discount-code.entity';
+export * from './entities/pdf_jobs.entity';
 export * from './enums/user-role.enum';
 export * from './enums/user-plan.enum';
 export * from './enums/payment-status.enum';

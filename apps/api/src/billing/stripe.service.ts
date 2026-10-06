@@ -170,12 +170,15 @@ export class StripeService {
       },
     ].filter((l) => l.amount !== 0);
 
+    const taxText = `${currency.toUpperCase()} ${(breakdown.tax / 100).toFixed(2)}`;
+
     const invoice = await this.stripe.invoices.create({
       customer: customerId,
       collection_method: 'charge_automatically',
       auto_advance: false,
       pending_invoice_items_behavior: 'exclude',
       description: billedTo ? `Billed to: ${billedTo}` : undefined,
+      footer: `Total includes ${TAX_RATE_PERCENT}% tax (${taxText}).`,
       metadata: { ...metadata, couponCode: couponCode ?? '' },
     });
 
