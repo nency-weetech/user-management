@@ -1,5 +1,5 @@
 import { PdfJob } from '@myapp/database';
-import { BrowserService, LoggerModule, PdfRenderService, StorageService } from '@myapp/shared';
+import { BrowserService, LoggerModule, PdfRenderService, PdfStorage, StorageService } from '@myapp/shared';
 import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -22,6 +22,7 @@ import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
   controllers: [PdfController],
   providers: [
     StorageService,
+    PdfStorage,
     PdfRenderService,
     BrowserService,
     PdfService,

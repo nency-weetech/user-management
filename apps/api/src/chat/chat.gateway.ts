@@ -23,7 +23,7 @@ import { RoomsService } from '../rooms/rooms.service';
 import { OnEvent } from '@nestjs/event-emitter';
 import { ChatService } from './chat.service';
 import Redis from 'ioredis';
-import { MinioService } from '../minio/minio.service';
+import { ChatStorage } from '../minio/minio.service';
 
 @WebSocketGateway({
   cors: {
@@ -41,7 +41,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private readonly chatService: ChatService,
     private readonly roomRepository: RoomRepository,
     private readonly roomsService: RoomsService,
-    private readonly minioService: MinioService,
+    private readonly minioService: ChatStorage,
     @Inject('REDIS_CLIENT') private readonly redis: Redis,
   ) {}
   private readonly logger = new Logger(ChatGateway.name);

@@ -2,7 +2,7 @@ import { PdfJob, PdfJobStatus } from '@myapp/database';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { LessThan, Repository } from 'typeorm';
-import { StorageService } from './storage.service';
+import { PdfStorage } from './pdf.storage.service';
 
 const PROCESSING_TIMEOUT_MINUTES = 10;
 
@@ -11,7 +11,7 @@ export class PdfCleanupService {
   private readonly logger = new Logger(PdfCleanupService.name);
   constructor(
     @InjectRepository(PdfJob) private readonly jobs: Repository<PdfJob>,
-    private readonly storageService: StorageService,
+    private readonly storageService: PdfStorage,
   ) {}
 
   async cleanup() {

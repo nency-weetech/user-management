@@ -24,6 +24,8 @@ __exportStar(require("./logger/logger.dev-formatter"), exports);
 __exportStar(require("./pdf/browser.service"), exports);
 __exportStar(require("./pdf/pdf-render.service"), exports);
 __exportStar(require("./pdf/with-timeout"), exports);
-__exportStar(require("./pdf/storage.service"), exports);
+__exportStar(require("./pdf/pdf.storage.service"), exports);
 __exportStar(require("./pdf/pdf-cleanup.service"), exports);
+__exportStar(require("./storage/storage.module"), exports);
+__exportStar(require("./storage/storage.service"), exports);
 //# sourceMappingURL=index.js.map

@@ -1,13 +1,12 @@
-import { OnModuleInit } from "@nestjs/common";
-export declare class StorageService implements OnModuleInit {
+import { OnModuleInit } from '@nestjs/common';
+import { StorageService } from '../storage/storage.service';
+export declare class PdfStorage implements OnModuleInit {
+    private readonly storageService;
     private readonly bucket;
-    private readonly region;
-    private readonly base;
-    private readonly internal;
-    private readonly publicClient;
+    constructor(storageService: StorageService);
     onModuleInit(): Promise<void>;
-    upload(key: string, buffer: Buffer): Promise<void>;
-    exists(key: string): Promise<Boolean>;
+    upload(key: string, pdf: Buffer): Promise<import("minio/dist/main/internal/type.js").UploadedObjectInfo>;
+    exists(key: string): Promise<boolean>;
     presignGet(key: string, expirySecond?: number, filename?: string): Promise<string>;
     remove(key: string): Promise<void>;
 }

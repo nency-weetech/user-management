@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Custom invoice PDF</title>
+    <script src="auth.js"></script>
+    <style>
+        :root {
+            --bg: #f7f7f5;
+            --card: #ffffff;
+            --border: #e6e4de;
+            --text: #1c1c1a;
+            --text-secondary: #6b6a63;
+            --text-muted: #9b9a92;
+            --accent: #d85a30;
+            --accent-dark: #993c1d;
+            --success: #0f6e56;
+            --danger: #a32d2d;
+            --radius: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 32px;
+            border-bottom: 1px solid var(--border);
+            background: var(--card);
+        }
+
+        .home-link {
+            font-size: 13px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .home-link:hover {
+            color: var(--text);
+            text-decoration: underline;
+        }
+
+        .user-status {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .user-status button {
+            background: none;
+            border: none;
+            color: var(--accent);
+            cursor: pointer;
+            font-size: 13px;
+            padding: 0;
+            margin-left: 6px;
+            text-decoration: underline;
+        }
+
+        .container {
+            max-width: 560px;
+            margin: 0 auto;
+            padding: 48px 24px;
+        }
+
+        h1 {
+            font-size: 26px;
+            font-weight: 600;
+            margin: 0 0 8px;
+            letter-spacing: -0.4px;
+        }
+
+        .sub {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin: 0 0 28px;
+            line-height: 1.5;
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            height: 40px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0 12px;
+            font-size: 14px;
+            margin-bottom: 16px;
+            font-family: inherit;
+        }
+
+        input[type="color"] {
+            width: 56px;
+            height: 40px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 2px;
+            background: #ffffff;
+            cursor: pointer;
+        }
+
+        .hint {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin: -8px 0 16px;
+            line-height: 1.4;
+        }
+
+        .color-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .color-row span {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .btn {
+            width: 100%;
+            height: 44px;
+            border-radius: 8px;
+            border: none;
+            background: var(--text);
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background: #333333;
+        }
+
+        .btn.accent {
+            background: var(--accent);
+        }
+
+        .btn.accent:hover {
+            background: var(--accent-dark);
+        }
+
+        .btn.ghost {
+            background: #ffffff;
+            color: var(--text);
+            border: 1px solid var(--border);
+            margin-top: 10px;
+        }
+
+        .btn.ghost:hover {
+            background: #f5f5f3;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .status-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 15px;
+        }
+
+        .spin {
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            flex-shrink: 0;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .msg {
+            font-size: 13px;
+            margin: 12px 0 0;
+            min-height: 16px;
+            color: var(--danger);
+            line-height: 1.4;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        a:focus-visible,
+        button:focus-visible,
+        input:focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .spin {
+                animation: none;
+            }
+        }
+
+        @media (max-width: 560px) {
+            .top-bar {
+                padding: 14px 16px;
+            }
+
+            .container {
+                padding: 32px 16px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="top-bar">
+        <a href="index.html" class="home-link">← NewsHub</a>
+        <div class="user-status" id="userStatus"></div>
+    </div>
+
+    <main class="container">
+        <h1>Custom invoice PDF</h1>
+        <p class="sub">Create a branded PDF invoice for a completed payment. It shows the plan, discount, tax and total.
+            Available on paid plans.</p>
+
+        <section class="card" id="formCard">
+            <label for="paymentId">Payment ID</label>
+            <input type="text" id="paymentId" placeholder="3f2b9c1e-0000-0000-0000-000000000000" autocomplete="off"
+                spellcheck="false" />
+            <p class="hint">Use the ID of one of your completed payments.</p>
+
+            <label for="company">Company name (optional)</label>
+            <input type="text" id="company" maxlength="60" placeholder="Acme Inc." autocomplete="organization" />
+
+            <label for="color">Brand color</label>
+            <div class="color-row">
+                <input type="color" id="color" value="#d85a30" />
+                <span id="colorHex">#d85a30</span>
+            </div>
+
+            <button class="btn accent" id="generateBtn">Generate PDF</button>
+            <p class="msg" id="formMsg" role="alert"></p>
+        </section>
+
+        <section class="card hidden" id="resultCard" aria-live="polite">
+            <div class="status-row">
+                <div class="spin" id="spin"></div>
+                <span id="statusText">Waiting in queue…</span>
+            </div>
+            <button class="btn accent hidden" id="downloadBtn" style="margin-top: 16px;">Download PDF</button>
+            <button class="btn ghost hidden" id="checkBtn">Check again</button>
+            <button class="btn ghost hidden" id="againBtn">Generate another</button>
+            <p class="msg" id="resultMsg" role="alert"></p>
+        </section>
+    </main>
+
+    <script>
+        requireAuth();
+
+        const API_BASE_URL = 'http://localhost:3100';
+        const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+        const POLL_MS = 1500;
+        const POLL_LIMIT_MS = 60000;
+
+        const $ = (id) => document.getElementById(id);
+        const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+        let currentJobId = null;
+
+        function updateUserStatus() {
+            const box = $('userStatus');
+            const name = getUserName();
+            box.textContent = 'Hi' + (name ? ', ' + name : '');
+            const btn = document.createElement('button');
+            btn.textContent = 'Sign out';
+            btn.addEventListener('click', () => signOut());
+            box.appendChild(btn);
+        }
+
+        async function api(method, path, body) {
+            const res = await fetch(API_BASE_URL + path, {
+                method,
+                credentials: 'include',
+                headers: body ? { 'Content-Type': 'application/json' } : undefined,
+                body: body ? JSON.stringify(body) : undefined,
+            });
+            const data = await res.json().catch(() => ({}));
+            return { res, data };
+        }
+
+        const FALLBACK_ERRORS = {
+            401: 'Your session has ended. Log in again.',
+            403: 'Custom invoice PDFs are available on paid plans.',
+            404: 'We could not find that payment. Check the payment ID.',
+            410: 'This PDF has expired. Generate it again.',
+            429: 'Too many PDFs are being generated. Try again in a minute.',
+            502: 'The PDF service is not reachable. Try again later.',
+        };
+
+        function errorText(res, data) {
+            const m = data && data.message;
+            const text = Array.isArray(m) ? m.join(', ') : m;
+            return text || FALLBACK_ERRORS[res.status] || 'Something went wrong. Try again.';
+        }
+
+        // states: working | ready | slow | error
+        function show(state) {
+            $('formCard').classList.add('hidden');
+            $('resultCard').classList.remove('hidden');
+            $('resultMsg').textContent = '';
+
+            $('spin').classList.toggle('hidden', state !== 'working');
+            $('downloadBtn').classList.toggle('hidden', state !== 'ready');
+            $('checkBtn').classList.toggle('hidden', state !== 'slow');
+            $('againBtn').classList.toggle('hidden', state === 'working');
+
+            if (state === 'working') $('statusText').textContent = 'Waiting in queue…';
+            if (state === 'ready') $('statusText').textContent = 'Your PDF is ready';
+            if (state === 'slow') $('statusText').textContent = 'This is taking longer than usual';
+        }
+
+        function showError(text) {
+            show('error');
+            $('statusText').textContent = 'We could not get your PDF';
+            $('resultMsg').textContent = text;
+        }
+
+        async function track() {
+            if (!currentJobId) return;
+            show('working');
+
+            const deadline = Date.now() + POLL_LIMIT_MS;
+            while (Date.now() < deadline) {
+                const { res, data } = await api('GET', '/billing/custom-invoice-pdf/' + currentJobId);
+                if (!res.ok) return showError(errorText(res, data));
+
+                if (data.status === 'ready') return show('ready');
+                if (data.status === 'failed') return showError('PDF generation failed. Generate it again.');
+                if (data.status === 'expired') return showError('This PDF has expired. Generate it again.');
+
+                $('statusText').textContent =
+                    data.status === 'processing' ? 'Generating your PDF…' : 'Waiting in queue…';
+                await sleep(POLL_MS);
+            }
+            show('slow');
+        }
+
+        $('color').addEventListener('input', () => {
+            $('colorHex').textContent = $('color').value;
+        });
+
+        $('generateBtn').addEventListener('click', async () => {
+            const btn = $('generateBtn');
+            const paymentId = $('paymentId').value.trim();
+            $('formMsg').textContent = '';
+
+            if (!UUID_RE.test(paymentId)) {
+                $('formMsg').textContent = 'Enter a valid payment ID.';
+                return;
+            }
+
+            const body = { brandColor: $('color').value }; // always #rrggbb
+            const company = $('company').value.trim();
+            if (company) body.companyName = company;
+
+            btn.disabled = true;
+            try {
+                const { res, data } = await api(
+                    'POST',
+                    '/billing/payments/' + paymentId + '/custom-invoice-pdf',
+                    body,
+                );
+                if (!res.ok) {
+                    $('formMsg').textContent = errorText(res, data);
+                    return;
+                }
+                currentJobId = data.jobId;
+                await track();
+            } catch (err) {
+                $('formMsg').textContent = 'Network problem: ' + err.message;
+            } finally {
+                btn.disabled = false;
+            }
+        });
+
+        $('downloadBtn').addEventListener('click', async () => {
+            const btn = $('downloadBtn');
+            btn.disabled = true;
+            $('resultMsg').textContent = '';
+            try {
+                // a fresh link every click: each one works for about 60 seconds
+                const { res, data } = await api('GET', '/billing/custom-invoice-pdf/' + currentJobId + '/download');
+                if (!res.ok) {
+                    $('resultMsg').textContent = errorText(res, data);
+                    return;
+                }
+                if (!/^https?:\/\//.test(data.url)) {
+                    $('resultMsg').textContent = 'Received an invalid download link.';
+                    return;
+                }
+                window.location.href = data.url; // attachment header downloads the file, page stays open
+            } catch (err) {
+                $('resultMsg').textContent = 'Network problem: ' + err.message;
+            } finally {
+                btn.disabled = false;
+            }
+        });
+
+        $('checkBtn').addEventListener('click', () => track());
+
+        $('againBtn').addEventListener('click', () => {
+            currentJobId = null;
+            $('resultCard').classList.add('hidden');
+            $('formCard').classList.remove('hidden');
+            $('formMsg').textContent = '';
+        });
+
+        updateUserStatus();
+    </script>
+</body>
+
+</html>

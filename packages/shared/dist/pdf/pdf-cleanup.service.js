@@ -18,7 +18,7 @@ const database_1 = require("@myapp/database");
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
-const storage_service_1 = require("./storage.service");
+const pdf_storage_service_1 = require("./pdf.storage.service");
 const PROCESSING_TIMEOUT_MINUTES = 10;
 let PdfCleanupService = PdfCleanupService_1 = class PdfCleanupService {
     jobs;
@@ -89,6 +89,6 @@ exports.PdfCleanupService = PdfCleanupService = PdfCleanupService_1 = __decorate
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(database_1.PdfJob)),
     __metadata("design:paramtypes", [typeorm_2.Repository,
-        storage_service_1.StorageService])
+        pdf_storage_service_1.PdfStorage])
 ], PdfCleanupService);
 //# sourceMappingURL=pdf-cleanup.service.js.map

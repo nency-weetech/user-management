@@ -4,8 +4,11 @@ import {
   Controller,
   ForbiddenException,
   Get,
+  Header,
+  HttpCode,
   Logger,
   Param,
+  ParseUUIDPipe,
   Post,
   Query,
   RawBodyRequest,
@@ -43,10 +46,12 @@ import { PlanType } from '@myapp/database/dist/enums/plan.enum';
 import { PaymentIntentDto } from './dto/paymentIntent.dto';
 import { DiscountService } from './discount.service';
 import { calculateAmount, MIN_CHARGE_PAISE, toPaisa } from './pricing.util';
+import { CustomInvoicePdfDto } from './dto/custom-invoice-pdf.dto';
+import { CustomInvoicePdfService } from './custom-invoice-pdf.service';
 
 @Controller('billing')
 export class BillingController {
-  private readonly logger = new Logger(BillingController.name)
+  private readonly logger = new Logger(BillingController.name);
   constructor(
     private stripeService: StripeService,
     private paymentRepository: PaymentRepository,
@@ -60,6 +65,7 @@ export class BillingController {
     private userRepository: UserRepository,
     @InjectRepository(Plans_catalog)
     private planCatelogRepository: Repository<Plans_catalog>,
+    private customInvoicePdfservice: CustomInvoicePdfService,
   ) {}
 
   // @Post('checkout/:planId')
@@ -395,9 +401,9 @@ export class BillingController {
           paymentIntent.id,
           planId,
           organizationId ? PlanTargetType.ORGANIZATION : PlanTargetType.USER,
-          event.created * 1000
+          event.created * 1000,
         );
-       
+
         break;
       }
 
@@ -445,5 +451,32 @@ export class BillingController {
         totalPages: Math.ceil(total / Number(limit)),
       },
     };
+  }
+
+  @Post('payments/:paymentId/custom-invoice-pdf')
+  @HttpCode(202)
+  @UseGuards(AuthGuard)
+  create(
+    @currentUser() user: User,
+    @Param('paymentId', ParseUUIDPipe) paymentId: string,
+    @Body() dto: CustomInvoicePdfDto,
+  ) {
+    return this.customInvoicePdfservice.create(user, paymentId, dto);
+  }
+
+  @Get('custom-invoice-pdf/:jobId')
+  @UseGuards(AuthGuard)
+  status(
+    @currentUser() user: User,
+    @Param('jobId', ParseUUIDPipe) jobId: string,
+  ) {
+    return this.customInvoicePdfservice.status(user, jobId);
+  }
+
+  @Get('custom-invoice-pdf/:jobId/download')
+  @UseGuards(AuthGuard)
+  @Header('Cache-Control', 'no-store')
+  download(@currentUser() user: User, @Param('jobId') jobId: string) {
+    return this.customInvoicePdfservice.download(user, jobId);
   }
 }

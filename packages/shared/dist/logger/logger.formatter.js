@@ -11,7 +11,7 @@ exports.structuredformatter = winston_1.default.format.printf((rawInfo) => {
     const info = rawInfo;
     const context = logger_context_1.LoggerContext.get();
     const logEntry = {
-        timestamp: info.timestamp ?? new Date().toISOString(),
+        timestamp: info.timestamp ?? new Date().toString(),
         level: info.level,
         message: info.message,
         service: SERVICE_NAME,

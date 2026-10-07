@@ -12,7 +12,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Queue } from 'bullmq';
 import { In, Repository } from 'typeorm';
-import { StorageService } from '@myapp/shared';
+import { PdfStorage } from '@myapp/shared';
 
 const MAX_ACTIVE_PER_OWNER = Number(process.env.PDF_MAX_ACTIVE_PER_OWNER ?? 3);
 
@@ -27,7 +27,7 @@ export class PdfService {
     @InjectQueue('pdfQueue')
     private readonly queue: Queue,
 
-    private readonly storageService: StorageService,
+    private readonly storageService: PdfStorage,
   ) {}
 
   async create(ownerId: string, html: string, filename?: string) {
