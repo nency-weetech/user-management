@@ -16,13 +16,13 @@ export class BrowserService implements OnApplicationShutdown{
         return this.launching;
     }
 
-    async isUp(b: Browser){
+    isUp(b: Browser){
         const x =  b as any;
         return typeof x.connected === 'boolean' ? x.connected : x.isConnected();
     }
 
     async launch() : Promise<Browser>{
-        const args = ['--disable-dev-shm-usage', 'disable-gpu']
+        const args = ['--disable-dev-shm-usage', '--disable-gpu']
         if(process.env.PUPPETEER_NO_SANDBOX === 'true'){
             args.push('--no-sandbox', '--disable-setuid-sandbox')
         }

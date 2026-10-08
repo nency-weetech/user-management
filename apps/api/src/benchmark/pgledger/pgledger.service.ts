@@ -34,8 +34,6 @@ export class PgledgerService {
       ],
     );
 
-    console.log(result.rows);
-
     return result.rows;
   }
 

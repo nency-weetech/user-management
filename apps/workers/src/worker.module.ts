@@ -16,7 +16,7 @@ import { NewsService } from '@myapp/api/src/news/news.service';
 import { NewsRefreshCorn } from './news/news-refresh.cron';
 import { NewsFetchLog } from '@myapp/database';
 import { Article } from '@myapp/database';
-import { BrowserService, LoggerModule, PdfCleanupService, PdfRenderService, StorageService } from '@myapp/shared';
+import { BrowserService, LoggerModule, PdfCleanupService, PdfRenderService, PdfStorage, StorageService } from '@myapp/shared';
 import path from 'path';
 import { PaymentEventProcessor } from './billing/payment-event.processor';
 import { PaymentCleanUpCron } from './billing/payment-cleanup.corn';
@@ -42,6 +42,7 @@ import { PdfCleanupCorn } from './pdf/pdf-cleanup.corn';
     
   ],
   providers: [
+    PdfStorage,
     MailProcessor,
     PaymentEventProcessor,
     PdfCleanupService,

@@ -4,7 +4,7 @@ import { Logger } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Job } from "bullmq";
-import { PdfRenderService, StorageService, withTimeout } from "@myapp/shared";
+import { PdfRenderService, PdfStorage, StorageService, withTimeout } from "@myapp/shared";
 
 
 const ttlMs = () => Number(process.env.PDF_TTL_MS ?? 60 * 60 * 1000);
@@ -16,7 +16,7 @@ export class PdfProcessor extends WorkerHost{
   constructor(
     @InjectRepository(PdfJob) private readonly jobs: Repository<PdfJob>,
     private readonly pdfRender: PdfRenderService,
-    private readonly storage: StorageService
+    private readonly storage: PdfStorage
   ){
     super();
   }
