@@ -45,6 +45,7 @@ import { PlanType } from '@myapp/database/dist/enums/plan.enum';
 
 import { SpanStatusCode, trace } from '@opentelemetry/api';
 import { measure } from '../comman/with-span';
+import { hashOtp, verifyOtp } from './otp.util';
 const tracer = trace.getTracer('auth-service');
 @Injectable()
 export class AuthService {
@@ -76,7 +77,7 @@ export class AuthService {
 
     const otp = crypto.randomInt(100000, 999999).toString();
     const hashedOtp = await measure('register.otp_hash', async () =>
-      bcrypt.hash(otp, 10),
+      hashOtp(otp, createUserDto.email),
     );
     const otpExpires = new Date(Date.now() + 15 * 60 * 1000);
 
@@ -437,10 +438,12 @@ export class AuthService {
       throw new BadRequestException('OTP expired');
     }
 
-    const isValidOtp = await bcrypt.compare(
-      dto.otp,
-      user.email_verification_otp,
-    );
+    // const isValidOtp = await bcrypt.compare(
+    //   dto.otp,
+    //   user.email_verification_otp,
+    // );
+
+    const isValidOtp = verifyOtp(dto.otp, user.email, user.email_verification_otp)
 
     if (!isValidOtp) {
       throw new BadRequestException('Invalid OTP');
