@@ -1,3 +1,5 @@
+import './tracing';
+import './console-instrumentation';
 import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
 import {
@@ -30,7 +32,7 @@ async function bootstrap() {
     }),
   );
   app.enableCors({
-    origin: 'http://localhost:8080',
+    origin: 'http://localhost:8000',
     credentials: true,
   });
 

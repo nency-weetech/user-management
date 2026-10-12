@@ -6,7 +6,7 @@ import { Inject, Logger } from '@nestjs/common';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 
 @Processor('mailQueue', {
-  concurrency: 1,
+  concurrency: 5,
   limiter: {
     max: 5,
     duration: 60000,

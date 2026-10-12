@@ -5,7 +5,7 @@ export declare class BrowserService implements OnApplicationShutdown {
     private browser?;
     private launching?;
     get(): Promise<Browser>;
-    isUp(b: Browser): Promise<any>;
+    isUp(b: Browser): any;
     launch(): Promise<Browser>;
     onApplicationShutdown(): Promise<void>;
 }

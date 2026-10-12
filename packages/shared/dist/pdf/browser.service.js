@@ -26,12 +26,12 @@ let BrowserService = BrowserService_1 = class BrowserService {
         }
         return this.launching;
     }
-    async isUp(b) {
+    isUp(b) {
         const x = b;
         return typeof x.connected === 'boolean' ? x.connected : x.isConnected();
     }
     async launch() {
-        const args = ['--disable-dev-shm-usage', 'disable-gpu'];
+        const args = ['--disable-dev-shm-usage', '--disable-gpu'];
         if (process.env.PUPPETEER_NO_SANDBOX === 'true') {
             args.push('--no-sandbox', '--disable-setuid-sandbox');
         }
