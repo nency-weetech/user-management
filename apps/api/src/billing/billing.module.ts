@@ -1,4 +1,12 @@
-import { OrganizationPlan, OrganizationPlanRepository, OrganizationRepository, Organizations, PaymentRepository, Payments } from '@myapp/database';
+import {
+  DiscountCode,
+  OrganizationPlan,
+  OrganizationPlanRepository,
+  OrganizationRepository,
+  Organizations,
+  PaymentRepository,
+  Payments,
+} from '@myapp/database';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from '../users/users.module';
@@ -10,22 +18,42 @@ import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import { BullModule } from '@nestjs/bullmq';
 import { MailModule } from '../mail/mail.module';
 import { OrganizationModule } from '../organization/organization.module';
+import { Plans_catalog } from '@myapp/database/dist/entities/plans.entity';
+import { DiscountService } from './discount.service';
+import { CustomInvoicePdfService } from './custom-invoice-pdf.service';
+import { PdfServiceClient } from './pdf-service.client';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Payments, OrganizationPlan, Organizations]),
+    TypeOrmModule.forFeature([
+      Payments,
+      OrganizationPlan,
+      Organizations,
+      Plans_catalog,
+      DiscountCode,
+    ]),
     UsersModule,
     OrganizationModule,
     MailModule,
     BullModule.registerQueue({
-        name: 'billingQueue'
+      name: 'billingQueue',
     }),
     BullBoardModule.forFeature({
-        name: 'billingQueue',
-        adapter: BullMQAdapter
+      name: 'billingQueue',
+      adapter: BullMQAdapter,
     }),
   ],
   controllers: [BillingController],
-  providers: [StripeService, PaymentRepository, BillingQueueService, OrganizationPlanRepository, OrganizationRepository],
+  providers: [
+    StripeService,
+    PaymentRepository,
+    BillingQueueService,
+    OrganizationPlanRepository,
+    OrganizationRepository,
+    DiscountService,
+    CustomInvoicePdfService,
+    PdfServiceClient
+  ],
+  exports: [StripeService],
 })
 export class BillingModule {}

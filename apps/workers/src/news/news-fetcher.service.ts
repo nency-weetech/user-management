@@ -21,6 +21,7 @@ export class NewsFetcherService {
     number: number,
     triggeredByUserId: string | null = null,
   ): Promise<{ fetched: number }> {
+    console.log(triggeredByUserId)
     const startTime = Date.now();
     const triggeredType = triggeredByUserId
       ? fetchTrigger.ADMIN
@@ -69,7 +70,7 @@ export class NewsFetcherService {
         duration_ms: Date.now() - startTime,
       });
       await this.newFetchLogRepository.save(log);
-
+      
       return { fetched: storedCount };
     } catch (error) {
       const errorMessage =
@@ -85,6 +86,7 @@ export class NewsFetcherService {
         duration_ms: Date.now() - startTime,
       });
       await this.newFetchLogRepository.save(log);
+      console.log(log)
       if (errorMessage.includes('401') || errorMessage.includes('403')) {
         throw new InternalServerErrorException(
           'News API authentication failed - check API Key configuration',

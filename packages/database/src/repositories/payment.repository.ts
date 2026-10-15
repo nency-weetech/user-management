@@ -8,7 +8,13 @@ import { UserPlanEnum } from '../enums/user-plan.enum';
 import { UserRepository } from './user.repository';
 import { User } from '../entities/user.entity';
 import { Organizations } from '../entities/organization.entity';
-
+export interface PaymentExtra {
+  invoiceId: string;
+  subtotal: number;
+  discount: number;
+  tax: number;
+  couponCode: string | null;
+}
 export class PaymentRepository
   extends BaseAbstractRepostitory<Payments>
   implements PaymentsInterface
@@ -21,41 +27,56 @@ export class PaymentRepository
     super(paymentsRepo);
   }
 
+  private invoiceColumns(extra?: PaymentExtra): Partial<Payments> {
+    if (!extra) return {};
+    return {
+      stripe_invoice_id: extra.invoiceId,
+      invoice_status: 'open',
+      subtotal_amount: extra.subtotal,
+      discount_amount: extra.discount,
+      tax_amount: extra.tax,
+      coupon_code: extra.couponCode,
+    };
+  }
   createPayment(
     userId: string,
-    plan: UserPlanEnum,
+    planId: string,
     paymentIntentId: string,
     amount: number,
     currency: string,
+    extra?: PaymentExtra,
   ): Promise<Payments> {
     const userPayment = this.paymentsRepo.create({
       user_id: userId,
       stripe_payment_intent_id: paymentIntentId,
-      plan,
+      plan_id: planId,
       amount,
       currency,
       status: PaymentStatus.PENDING,
+      ...this.invoiceColumns(extra),
     });
     return this.paymentsRepo.save(userPayment);
   }
 
   createOrgPayment(
     orgId: string,
-    plan: UserPlanEnum,
+    planId: string,
     paymentIntentId: string,
     amount: number,
     currency: string,
+    extra?: PaymentExtra,
   ): Promise<Payments> {
     const orgPayment = this.paymentsRepo.create({
-      organization: {id: orgId} as Organizations,
+      organization: { id: orgId } as Organizations,
       stripe_payment_intent_id: paymentIntentId,
-      plan,
+      plan_id: planId,
       amount,
       currency,
       status: PaymentStatus.PENDING,
+      ...this.invoiceColumns(extra),
     });
 
-    return this.paymentsRepo.save(orgPayment)
+    return this.paymentsRepo.save(orgPayment);
   }
 
   findBySessionId(sessionId: string): Promise<Payments | null> {
@@ -79,18 +100,22 @@ export class PaymentRepository
     );
   }
 
-  async markExpired(paymentIntentId: string): Promise<void> {
-    await this.paymentsRepo.update(
-      { stripe_payment_intent_id: paymentIntentId },
+  async markExpired(paymentIntentId: string): Promise<boolean> {
+    const res = await this.paymentsRepo.update(
       {
-        status: PaymentStatus.EXPIRED,
+        stripe_payment_intent_id: paymentIntentId,
+        status: PaymentStatus.PENDING, // SUCCEEDED ko kabhi overwrite nahi karega
       },
+      { status: PaymentStatus.EXPIRED },
     );
+    return !!res.affected;
   }
 
-  async findStalePending(cutoff: Date): Promise<Payments[]> {
+  findStalePending(cutoff: Date, limit = 50) {
     return this.paymentsRepo.find({
       where: { status: PaymentStatus.PENDING, created_at: LessThan(cutoff) },
+      order: { created_at: 'ASC' },
+      take: limit,
     });
   }
 

@@ -26,4 +26,5 @@ export declare class User {
     deletion_requested_at: Date | null;
     deleted_at: Date | null;
     profile: Profile[];
+    stripe_customer_id: string | null;
 }

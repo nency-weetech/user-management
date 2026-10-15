@@ -1,10 +1,11 @@
 import { Organizations } from './organization.entity';
-import { OrganizationPlanEnum } from '../enums/organization.plan.enum';
+import { Plans_catalog } from './plans.entity';
 export declare class OrganizationPlan {
     id: string;
     organization_id: string;
     organization: Organizations;
-    plan: OrganizationPlanEnum;
+    plan: Plans_catalog;
+    plan_id: string;
     plan_upgraded_at: Date;
     created_at: Date;
     updated_at: Date;

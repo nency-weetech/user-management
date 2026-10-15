@@ -12,12 +12,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.OrganizationPlan = void 0;
 const typeorm_1 = require("typeorm");
 const organization_entity_1 = require("./organization.entity");
-const organization_plan_enum_1 = require("../enums/organization.plan.enum");
+const plans_entity_1 = require("./plans.entity");
 let OrganizationPlan = class OrganizationPlan {
     id;
     organization_id;
     organization;
     plan;
+    plan_id;
     plan_upgraded_at;
     created_at;
     updated_at;
@@ -37,13 +38,14 @@ __decorate([
     __metadata("design:type", organization_entity_1.Organizations)
 ], OrganizationPlan.prototype, "organization", void 0);
 __decorate([
-    (0, typeorm_1.Column)({
-        type: 'enum',
-        enum: organization_plan_enum_1.OrganizationPlanEnum,
-        default: organization_plan_enum_1.OrganizationPlanEnum.FREE,
-    }),
-    __metadata("design:type", String)
+    (0, typeorm_1.ManyToOne)(() => plans_entity_1.Plans_catalog, { nullable: false }),
+    (0, typeorm_1.JoinColumn)({ name: 'plan_id' }),
+    __metadata("design:type", plans_entity_1.Plans_catalog)
 ], OrganizationPlan.prototype, "plan", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'plan_id', type: 'uuid' }),
+    __metadata("design:type", String)
+], OrganizationPlan.prototype, "plan_id", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: 'timestamp with time zone', nullable: true }),
     __metadata("design:type", Date)

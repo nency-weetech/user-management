@@ -2,7 +2,7 @@
 import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
 import { NewsFetcherService } from './news/news-fetcher.service';
-import { ArticleRepository, OrganizationPlan, OrganizationPlanRepository, PaymentRepository, Payments, User, UserPlan, UserPlanRepository, UserRepository } from '@myapp/database';
+import { ArticleRepository, OrganizationPlan, OrganizationPlanRepository, PaymentRepository, Payments, PdfJob, User, UserPlan, UserPlanRepository, UserRepository } from '@myapp/database';
 import { NewsFetchLogRepository } from '@myapp/database';
 import { MailProcessor } from './mail/mail.processor';
 import { RedisModule } from './redis/redis.module';
@@ -16,11 +16,14 @@ import { NewsService } from '@myapp/api/src/news/news.service';
 import { NewsRefreshCorn } from './news/news-refresh.cron';
 import { NewsFetchLog } from '@myapp/database';
 import { Article } from '@myapp/database';
-import { LoggerModule } from '@myapp/shared';
+import { BrowserService, LoggerModule, PdfCleanupService, PdfRenderService, PdfStorage, StorageService } from '@myapp/shared';
 import path from 'path';
 import { PaymentEventProcessor } from './billing/payment-event.processor';
-import { PaymentCleanUpCorn } from './billing/payment-cleanup.corn';
-
+import { PaymentCleanUpCron } from './billing/payment-cleanup.corn';
+import { StripeInvoiceService } from './billing/stripe-invoice.service';
+import { Plans_catalog } from '@myapp/database/dist/entities/plans.entity';
+import { PdfProcessor } from './pdf/pdf.processor';
+import { PdfCleanupCorn } from './pdf/pdf-cleanup.corn';
 @Module({
   imports: [
    ConfigModule.forRoot({
@@ -32,16 +35,25 @@ import { PaymentCleanUpCorn } from './billing/payment-cleanup.corn';
     }),
     LoggerModule,
     TypeOrmModule.forRoot(datasourceOptions),
-    TypeOrmModule.forFeature([Article, NewsFetchLog, User, Payments, UserPlan, OrganizationPlan]),
+    TypeOrmModule.forFeature([Article, NewsFetchLog, User, Payments, UserPlan, OrganizationPlan, Plans_catalog, PdfJob]),
     RedisModule,
     HttpModule,
-    BullModule.registerQueue({ name: 'newsQueue' }, { name: 'mailQueue' }, {name: 'billingQueue'}),
+    BullModule.registerQueue({ name: 'newsQueue' }, { name: 'mailQueue' }, {name: 'billingQueue'}, {name: 'pdfQueue'}),
+    
   ],
   providers: [
+    PdfStorage,
     MailProcessor,
     PaymentEventProcessor,
+    PdfCleanupService,
+    PdfProcessor,
+    PdfCleanupCorn,
+    StorageService,
+    PdfRenderService,
+    BrowserService,
+    StripeInvoiceService,
     PaymentRepository,
-    PaymentCleanUpCorn,
+    PaymentCleanUpCron,
     UserPlanRepository,
     UserRepository,
     OrganizationPlanRepository,

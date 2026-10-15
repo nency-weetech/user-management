@@ -19,6 +19,7 @@ let Organizations = class Organizations {
     owner;
     is_default;
     created_at;
+    stripe_customer_id;
 };
 exports.Organizations = Organizations;
 __decorate([
@@ -46,6 +47,10 @@ __decorate([
     (0, typeorm_1.CreateDateColumn)({ type: 'timestamp with time zone' }),
     __metadata("design:type", Date)
 ], Organizations.prototype, "created_at", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'varchar', nullable: true, unique: true }),
+    __metadata("design:type", String)
+], Organizations.prototype, "stripe_customer_id", void 0);
 exports.Organizations = Organizations = __decorate([
     (0, typeorm_1.Entity)('organizations')
 ], Organizations);

@@ -15,7 +15,8 @@ import { RateLimitModule } from './rate-limit/rate-limit.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ActivityLogModule } from './activity-log/activity-log.module';
-import { RedisModule } from './redis/redis.module';
+//import { RedisModule } from './redis/redis.module';
+import { RedisModule } from '@myapp/redis-module';
 import { SignUpCountService } from './sign-up-count/sign-up-count.service';
 //import { ScheduleModule } from '@nestjs/schedule';
 import { SoftDeleteService } from './soft-delete/soft-delete.service';
@@ -32,11 +33,13 @@ import path from 'path';
 import { BillingModule } from './billing/billing.module';
 import { ChatModule } from './chat/chat.module';
 import { RoomsModule } from './rooms/rooms.module';
-import {EventEmitterModule} from '@nestjs/event-emitter'
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { MinioModule } from './minio/minio.module';
 import { ProfileModule } from './profile/profile.module';
 import { BookmarkModule } from './bookmark/bookmark.module';
 import { OrganizationModule } from './organization/organization.module';
+import { AnalyticsModule } from './analytics/analytics.module';
+import { PgledgerModule } from './benchmark/pgledger/pgledger.module';
 
 const disableThrottler =
   process.env.NODE_ENV === 'test' && process.env.DISABLE_THROTTLER !== 'false';
@@ -101,6 +104,8 @@ const disableThrottler =
     ProfileModule,
     BookmarkModule,
     OrganizationModule,
+    AnalyticsModule,
+    PgledgerModule,
   ],
   controllers: [AppController],
   providers: [

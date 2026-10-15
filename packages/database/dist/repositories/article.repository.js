@@ -27,7 +27,7 @@ let ArticleRepository = class ArticleRepository extends base_repository_1.BaseAb
         return this.articleRepository.findOne({ where: { external_id: externalId } });
     }
     async upsertArticle(data) {
-        await this.articleRepository.upsert(data, ['externalId']);
+        await this.articleRepository.upsert(data, ['external_id']);
         return this.findByExternalId(data.external_id);
     }
     async findAllPaginated(page, limit, category) {

@@ -37,7 +37,7 @@ __decorate([
 ], RoomJoinRequest.prototype, "user_id", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => user_entity_1.User, { onDelete: 'CASCADE' }),
-    (0, typeorm_1.JoinColumn)({ name: 'userId' }),
+    (0, typeorm_1.JoinColumn)({ name: 'user_id' }),
     __metadata("design:type", user_entity_1.User)
 ], RoomJoinRequest.prototype, "user", void 0);
 __decorate([
@@ -46,7 +46,7 @@ __decorate([
 ], RoomJoinRequest.prototype, "room_id", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => room_entity_1.Room, { onDelete: 'CASCADE' }),
-    (0, typeorm_1.JoinColumn)({ name: 'roomId' }),
+    (0, typeorm_1.JoinColumn)({ name: 'room_id' }),
     __metadata("design:type", room_entity_1.Room)
 ], RoomJoinRequest.prototype, "room", void 0);
 __decorate([
@@ -67,7 +67,7 @@ __decorate([
 ], RoomJoinRequest.prototype, "reviewed_by_id", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => user_entity_1.User, { onDelete: 'SET NULL', nullable: true }),
-    (0, typeorm_1.JoinColumn)({ name: 'reviewedById' }),
+    (0, typeorm_1.JoinColumn)({ name: 'reviewed_by_id' }),
     __metadata("design:type", user_entity_1.User)
 ], RoomJoinRequest.prototype, "reviewed_by", void 0);
 __decorate([

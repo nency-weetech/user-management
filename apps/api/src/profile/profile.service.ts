@@ -19,14 +19,13 @@ export class ProfileService {
     if (!userPlan) {
         throw new NotFoundException('User plan not found');
     }
-    const config = PLAN_CONFIG[userPlan.plan] 
-
-    if(config.profileLimit !== null){
+    const profileLimit = userPlan.plan.profile_limit;
+    if(profileLimit !== null){
       const currentCount = await this.profileRepo.countByUserId(userId)
 
-      if (currentCount >= config.profileLimit) {
+      if (currentCount >= profileLimit) {
       throw new ForbiddenException(
-        `Profile limit reached (${config.profileLimit}). Upgrade your plan to create more profiles.`,
+        `Profile limit reached (${profileLimit}). Upgrade your plan to create more profiles.`,
       );
     }
     }

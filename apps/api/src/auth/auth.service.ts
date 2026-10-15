@@ -35,9 +35,18 @@ import {
   RolePermissions,
   Roles,
   User,
+  UserPlan,
+  UserUsage,
 } from '@myapp/database';
 import { ProfileService } from '../profile/profile.service';
+import { Plans_catalog } from '@myapp/database/dist/entities/plans.entity';
+import { PlanTargetType } from '@myapp/database/dist/enums/plan-target-type.enum';
+import { PlanType } from '@myapp/database/dist/enums/plan.enum';
 
+import { SpanStatusCode, trace } from '@opentelemetry/api';
+import { measure } from '../comman/with-span';
+import { hashOtp, verifyOtp } from './otp.util';
+const tracer = trace.getTracer('auth-service');
 @Injectable()
 export class AuthService {
   constructor(
@@ -62,105 +71,341 @@ export class AuthService {
     }
 
     const saltRound = 10;
-    const password = await bcrypt.hash(createUserDto.password, saltRound);
+    const password = await measure('register.password_hash', async () =>
+      bcrypt.hash(createUserDto.password, saltRound),
+    );
 
     const otp = crypto.randomInt(100000, 999999).toString();
-    const hashedOtp = await bcrypt.hash(otp, 10);
+    const hashedOtp = await measure('register.otp_hash', async () =>
+      hashOtp(otp, createUserDto.email),
+    );
     const otpExpires = new Date(Date.now() + 15 * 60 * 1000);
 
-    const newUser = await this.datasource.transaction(async (manager) => {
-      const user = manager.create(User, {
-        ...createUserDto,
-        password,
-        is_email_verified: false,
-        email_verification_otp: hashedOtp,
-        email_verification_expires: otpExpires,
-      });
-      await manager.save(user);
-      const newProfile = manager.create(Profile, {
-        user_id: user.id,
-        name: 'Default',
-        is_default: true,
-      });
-      await manager.save(newProfile);
+    const newUser = await measure('register.database_transaction', async () =>
+      this.datasource.transaction(async (manager) => {
+        const user = await measure('register.create_user', async () => {
+          const entity = manager.create(User, {
+            ...createUserDto,
+            password,
+            is_email_verified: false,
+            email_verification_otp: hashedOtp,
+            email_verification_expires: otpExpires,
+          });
 
-      const org = manager.create(Organizations, {
-        owner: { id: user.id } as User,
-        name: `${user.first_name}'s Organization`,
-        is_default: true,
-      });
-      await manager.save(org);
+          return manager.save(entity);
+        });
 
-      const orgPlan = manager.create(OrganizationPlan, {
-        organization: {id: org.id} as Organizations,
-        plan: OrganizationPlanEnum.FREE
-      });
-      await manager.save(orgPlan);
+        const userFreePlan = await measure(
+          'register.find_user_free_plan',
+          async () =>
+            manager.findOne(Plans_catalog, {
+              where: {
+                target_type: PlanTargetType.USER,
+                name: PlanType.FREE,
+              },
+            }),
+        );
 
-      const orgUsage = manager.create(OrganizationUsage, {
-        organization: {id: org.id} as Organizations,
-        daily_bookmark_count: 0,
-        daily_bookmark_reset_at: null
-      })
-      await manager.save(orgUsage);
+        if (!userFreePlan) {
+          throw new Error('User FREE plan not found');
+        }
 
-      const orgMember = manager.create(OrganizationMembers, {
-        organization: { id: org.id } as Organizations,
-        user: { id: user.id } as User,
-        joined_at: new Date(),
-      });
-      await manager.save(orgMember);
+        await measure('register.create_user_plan_and_usage', async () => {
+          const userPlan = manager.create(UserPlan, {
+            user: { id: user.id } as User,
+            plan: { id: userFreePlan.id },
+          });
 
-      const readPermission = await manager.findOne(Permissions, {
-        where: { name: 'Bookmark.Read' },
-      });
-      const writePermission = await manager.findOne(Permissions, {
-        where: { name: 'Bookmark.Write' },
-      });
-      const deletePermission = await manager.findOne(Permissions, {
-        where: { name: 'Bookmark.Delete' },
-      });
+          await manager.save(userPlan);
 
-      if (!readPermission || !writePermission || !deletePermission) {
-        throw new Error('Required permissions not seeded');
-      }
+          const userUsage = manager.create(UserUsage, {
+            user: { id: user.id } as User,
+            daily_article_view_count: 0,
+            daily_article_view_reset_at: null,
+            daily_bookmark_count: 0,
+            daily_bookmark_reset_at: null,
+          });
 
-      const bookmarkViewer = manager.create(Roles, {
-        organization_id: org.id,
-        name: 'Bookmark_Viewer',
-        is_default: true,
-      });
-      await manager.save(bookmarkViewer);
-      const viewerPermission = manager.create(RolePermissions, {
-        role_id: bookmarkViewer.id,
-        permission_id: readPermission.id,
-      });
-      await manager.save(viewerPermission);
+          await manager.save(userUsage);
+        });
 
-      const bookmarkAdmin = manager.create(Roles, {
-        organization_id: org.id,
-        name: 'Bookmark_Admin',
-        is_default: true,
-      });
-      await manager.save(bookmarkAdmin);
-      const adminPermission = [
-        readPermission,
-        writePermission,
-        deletePermission,
-      ].map((val) =>
-        manager.create(RolePermissions, {
-          role_id: bookmarkAdmin.id,
-          permission_id: val.id,
-        }),
-      );
-      await manager.save(adminPermission);
+        await measure('register.create_default_profile', async () => {
+          const newProfile = manager.create(Profile, {
+            user_id: user.id,
+            name: 'Default',
+            is_default: true,
+          });
 
-      const memberRole = manager.create(MemberRoles, {organization_member_id: orgMember.id, role_id: bookmarkAdmin.id})
-      await manager.save(memberRole);
+          await manager.save(newProfile);
+        });
 
-      return user;
-    });
-    
+        const org = await measure('register.create_organization', async () => {
+          const organization = manager.create(Organizations, {
+            owner: { id: user.id } as User,
+            name: `${user.first_name}'s Organization`,
+            is_default: true,
+          });
+
+          return manager.save(organization);
+        });
+
+        const organizationFreePlan = await measure(
+          'register.find_organization_free_plan',
+          async () =>
+            manager.findOne(Plans_catalog, {
+              where: {
+                target_type: PlanTargetType.ORGANIZATION,
+                name: PlanType.FREE,
+              },
+            }),
+        );
+
+        if (!organizationFreePlan) {
+          throw new Error('Organization FREE plan not found');
+        }
+
+        await measure(
+          'register.create_organization_plan_and_usage',
+          async () => {
+            const orgPlan = manager.create(OrganizationPlan, {
+              organization: { id: org.id } as Organizations,
+              plan: { id: organizationFreePlan.id },
+            });
+
+            await manager.save(orgPlan);
+
+            const orgUsage = manager.create(OrganizationUsage, {
+              organization: { id: org.id } as Organizations,
+              daily_bookmark_count: 0,
+              daily_bookmark_reset_at: null,
+            });
+
+            await manager.save(orgUsage);
+          },
+        );
+
+        const orgMember = await measure(
+          'register.create_organization_member',
+          async () => {
+            const member = manager.create(OrganizationMembers, {
+              organization: { id: org.id } as Organizations,
+              user: { id: user.id } as User,
+              joined_at: new Date(),
+            });
+
+            return manager.save(member);
+          },
+        );
+
+        const permissions = await measure(
+          'register.find_bookmark_permissions',
+          async () => {
+            const [readPermission, writePermission, deletePermission] =
+              await Promise.all([
+                manager.findOne(Permissions, {
+                  where: { name: 'Bookmark.Read' },
+                }),
+                manager.findOne(Permissions, {
+                  where: { name: 'Bookmark.Write' },
+                }),
+                manager.findOne(Permissions, {
+                  where: { name: 'Bookmark.Delete' },
+                }),
+              ]);
+
+            if (!readPermission || !writePermission || !deletePermission) {
+              throw new Error('Required permissions not seeded');
+            }
+
+            return {
+              readPermission,
+              writePermission,
+              deletePermission,
+            };
+          },
+        );
+
+        await measure('register.create_bookmark_roles', async () => {
+          const bookmarkViewer = manager.create(Roles, {
+            organization_id: org.id,
+            name: 'Bookmark_Viewer',
+            is_default: true,
+          });
+
+          await manager.save(bookmarkViewer);
+
+          const viewerPermission = manager.create(RolePermissions, {
+            role_id: bookmarkViewer.id,
+            permission_id: permissions.readPermission.id,
+          });
+
+          await manager.save(viewerPermission);
+
+          const bookmarkAdmin = manager.create(Roles, {
+            organization_id: org.id,
+            name: 'Bookmark_Admin',
+            is_default: true,
+          });
+
+          await manager.save(bookmarkAdmin);
+
+          const adminPermissions = [
+            permissions.readPermission,
+            permissions.writePermission,
+            permissions.deletePermission,
+          ].map((permission) =>
+            manager.create(RolePermissions, {
+              role_id: bookmarkAdmin.id,
+              permission_id: permission.id,
+            }),
+          );
+
+          await manager.save(adminPermissions);
+
+          const memberRole = manager.create(MemberRoles, {
+            organization_member_id: orgMember.id,
+            role_id: bookmarkAdmin.id,
+          });
+
+          await manager.save(memberRole);
+        });
+
+        return user;
+      }),
+    );
+
+    // const newUser = await this.datasource.transaction(async (manager) => {
+    //   const user = manager.create(User, {
+    //     ...createUserDto,
+    //     password,
+    //     is_email_verified: false,
+    //     email_verification_otp: hashedOtp,
+    //     email_verification_expires: otpExpires,
+    //   });
+    //   await manager.save(user);
+    //   const userFreePlan = await manager.findOne(Plans_catalog, {
+    //     where: {
+    //       target_type: PlanTargetType.USER,
+    //       name: PlanType.FREE,
+    //     },
+    //   });
+
+    //   if (!userFreePlan) {
+    //     throw new Error('User FREE plan not found');
+    //   }
+
+    //   const userPlan = manager.create(UserPlan, {
+    //     user: { id: user.id } as User,
+    //     plan: { id: userFreePlan.id },
+    //   });
+
+    //   await manager.save(userPlan);
+
+    //   const userUsage = manager.create(UserUsage, {
+    //     user: { id: user.id } as User,
+    //     daily_article_view_count: 0,
+    //     daily_article_view_reset_at: null,
+    //     daily_bookmark_count: 0,
+    //     daily_bookmark_reset_at: null,
+    //   });
+    //   await manager.save(userUsage);
+    //   const newProfile = manager.create(Profile, {
+    //     user_id: user.id,
+    //     name: 'Default',
+    //     is_default: true,
+    //   });
+    //   await manager.save(newProfile);
+
+    //   const org = manager.create(Organizations, {
+    //     owner: { id: user.id } as User,
+    //     name: `${user.first_name}'s Organization`,
+    //     is_default: true,
+    //   });
+    //   await manager.save(org);
+
+    //   const organizationFreePlan = await manager.findOne(Plans_catalog, {
+    //     where: {
+    //       target_type: PlanTargetType.ORGANIZATION,
+    //       name: PlanType.FREE,
+    //     },
+    //   });
+
+    //   if (!organizationFreePlan) {
+    //     throw new Error('Organization FREE plan not found');
+    //   }
+    //   const orgPlan = manager.create(OrganizationPlan, {
+    //     organization: { id: org.id } as Organizations,
+    //     plan: { id: organizationFreePlan.id },
+    //   });
+
+    //   await manager.save(orgPlan);
+
+    //   const orgUsage = manager.create(OrganizationUsage, {
+    //     organization: { id: org.id } as Organizations,
+    //     daily_bookmark_count: 0,
+    //     daily_bookmark_reset_at: null,
+    //   });
+    //   await manager.save(orgUsage);
+
+    //   const orgMember = manager.create(OrganizationMembers, {
+    //     organization: { id: org.id } as Organizations,
+    //     user: { id: user.id } as User,
+    //     joined_at: new Date(),
+    //   });
+    //   await manager.save(orgMember);
+
+    //   const readPermission = await manager.findOne(Permissions, {
+    //     where: { name: 'Bookmark.Read' },
+    //   });
+    //   const writePermission = await manager.findOne(Permissions, {
+    //     where: { name: 'Bookmark.Write' },
+    //   });
+    //   const deletePermission = await manager.findOne(Permissions, {
+    //     where: { name: 'Bookmark.Delete' },
+    //   });
+
+    //   if (!readPermission || !writePermission || !deletePermission) {
+    //     throw new Error('Required permissions not seeded');
+    //   }
+
+    //   const bookmarkViewer = manager.create(Roles, {
+    //     organization_id: org.id,
+    //     name: 'Bookmark_Viewer',
+    //     is_default: true,
+    //   });
+    //   await manager.save(bookmarkViewer);
+    //   const viewerPermission = manager.create(RolePermissions, {
+    //     role_id: bookmarkViewer.id,
+    //     permission_id: readPermission.id,
+    //   });
+    //   await manager.save(viewerPermission);
+
+    //   const bookmarkAdmin = manager.create(Roles, {
+    //     organization_id: org.id,
+    //     name: 'Bookmark_Admin',
+    //     is_default: true,
+    //   });
+    //   await manager.save(bookmarkAdmin);
+    //   const adminPermission = [
+    //     readPermission,
+    //     writePermission,
+    //     deletePermission,
+    //   ].map((val) =>
+    //     manager.create(RolePermissions, {
+    //       role_id: bookmarkAdmin.id,
+    //       permission_id: val.id,
+    //     }),
+    //   );
+    //   await manager.save(adminPermission);
+
+    //   const memberRole = manager.create(MemberRoles, {
+    //     organization_member_id: orgMember.id,
+    //     role_id: bookmarkAdmin.id,
+    //   });
+    //   await manager.save(memberRole);
+
+    //   return user;
+    // });
 
     // const newUser = await this.userService.create({
     //   ...createUserDto,
@@ -170,7 +415,9 @@ export class AuthService {
     //   email_verification_expires: otpExpires,
     // });
 
-    await this.mailService.sendVerificationOtpEmail(newUser.email, otp);
+    // await measure('register.send_verification_email', async () =>
+    //   this.mailService.sendVerificationOtpEmail(newUser.email, otp),
+    // );
     await this.signUpCountService.incrSignUpCount();
     return { message: 'Register successfull! Verify email to check you email' };
   }
@@ -191,10 +438,12 @@ export class AuthService {
       throw new BadRequestException('OTP expired');
     }
 
-    const isValidOtp = await bcrypt.compare(
-      dto.otp,
-      user.email_verification_otp,
-    );
+    // const isValidOtp = await bcrypt.compare(
+    //   dto.otp,
+    //   user.email_verification_otp,
+    // );
+
+    const isValidOtp = verifyOtp(dto.otp, user.email, user.email_verification_otp)
 
     if (!isValidOtp) {
       throw new BadRequestException('Invalid OTP');
@@ -211,8 +460,9 @@ export class AuthService {
       throw new UnauthorizedException('Email and password are required');
     }
 
-    //await this.rateLimitService.checkLoginAttempt(dto.email);
-    const user = await this.userService.findEmailWithPassword(dto.email);
+    const user = await measure('login.find_user', () =>
+      this.userService.findEmailWithPassword(dto.email),
+    );
 
     if (!user) {
       throw new UnauthorizedException('Invalid credantial');
@@ -223,8 +473,10 @@ export class AuthService {
         'Please verify your email address before logging in.',
       );
     }
-    const isPendingDeletion = await this.softDeleteService.isPendingDeletion(
-      user.id,
+
+    const isPendingDeletion = await measure(
+      'login.check_pending_deletion',
+      () => this.softDeleteService.isPendingDeletion(user.id),
     );
 
     if (!user.is_active && !isPendingDeletion) {
@@ -233,49 +485,69 @@ export class AuthService {
       );
     }
 
-    const isPassworValid = await bcrypt.compare(dto.password, user.password);
+    const isPassworValid = await measure(
+      'login.bcrypt_compare',
+      async (span) => {
+        span.setAttribute('bcrypt.rounds', bcrypt.getRounds(user.password));
+
+        return bcrypt.compare(dto.password, user.password);
+      },
+    );
+
     if (!isPassworValid) {
       throw new UnauthorizedException('Invalid credantial');
     }
 
     if (isPendingDeletion) {
-      await this.softDeleteService.cancelDeletion(user.id);
-      await this.activityLogService.logActivity(
-        user.id,
-        'ACCOUNT_DELETE_REQUEST_CANCEL',
-      );
+      await measure('login.cancel_deletion', async () => {
+        await this.softDeleteService.cancelDeletion(user.id);
+
+        await this.activityLogService.logActivity(
+          user.id,
+          'ACCOUNT_DELETE_REQUEST_CANCEL',
+        );
+      });
     }
 
-    // await this.userService.updateLastLogin(user.id);
-    //await this.rateLimitService.resetAttempts(dto.email);
+    const profile = await measure('login.find_default_profile', () =>
+      this.profileService.findDefaultProfile(user.id),
+    );
 
-    const profile = await this.profileService.findDefaultProfile(user.id);
+    await measure('login.activity_log', () =>
+      this.activityLogService.logActivity(user.id, 'LOGIN'),
+    );
 
-    await this.activityLogService.logActivity(user.id, 'LOGIN');
     const payload = {
       id: user.id,
       email: user.email,
       role: user.role,
       profileId: profile.id,
     };
-    const tokens = await this.genrateToken(
-      payload.id,
-      payload.email,
-      payload.role,
-      payload.profileId,
+
+    const tokens = await measure('login.token.generate', () =>
+      this.genrateToken(
+        payload.id,
+        payload.email,
+        payload.role,
+        payload.profileId,
+      ),
     );
 
-    await this.saveRefreshToken(payload.id, tokens.refreshToken);
+    await measure('login.refresh_token.save', () =>
+      this.saveRefreshToken(payload.id, tokens.refreshToken),
+    );
 
-    return plainToInstance(
-      LoginResponseDto,
-      {
-        accessToken: tokens.accessToken,
-        refreshToken: tokens.refreshToken,
-        tokenType: 'Bearer',
-        user,
-      },
-      { excludeExtraneousValues: true },
+    return measure('login.response.serialize', async () =>
+      plainToInstance(
+        LoginResponseDto,
+        {
+          accessToken: tokens.accessToken,
+          refreshToken: tokens.refreshToken,
+          tokenType: 'Bearer',
+          user,
+        },
+        { excludeExtraneousValues: true },
+      ),
     );
   }
 

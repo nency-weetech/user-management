@@ -1,4 +1,4 @@
-import { User } from "./user.entity";
+import { User } from './user.entity';
 export declare class Organizations {
     id: string;
     name: string;
@@ -6,4 +6,5 @@ export declare class Organizations {
     owner: User;
     is_default: Boolean;
     created_at: Date;
+    stripe_customer_id: string | null;
 }

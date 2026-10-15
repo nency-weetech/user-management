@@ -9,4 +9,5 @@ export declare class OrganizationRepository extends BaseAbstractRepostitory<Orga
     findDefaultByUserId(userId: string): Promise<Organizations | null>;
     findOneById(id: any): Promise<Organizations>;
     findIsAdmin(orgId: string, userId: string): Promise<Organizations>;
+    updateStripeCustomerid(orgId: string, customerId: string): Promise<void>;
 }

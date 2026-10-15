@@ -8,7 +8,7 @@ export interface PaymentsInterface extends BaseInterfaceRepository<Payments>{
     createOrgPayment(orgId: string, plan: UserPlanEnum, paymentIntentId: string, amount: number, currency: string): Promise<Payments>;
     findBySessionId(sessionId : string) :Promise<Payments | null>;
     markSucceeded(sessionId: string, paymentIntentId: string): Promise<void>;
-    markExpired(sessionId: string): Promise<void>;
+    markExpired(sessionId: string): Promise<boolean>;
     findStalePending(cutoff: Date): Promise<Payments[]>;
     findAllPaginated(page: number, limit: number, status?: PaymentStatus, plan?: UserPlanEnum): Promise<[Payments[], number]>
 }

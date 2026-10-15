@@ -32,7 +32,7 @@ export class NewsFetchLog {
   triggered_by_user_id!: string | null;
 
   @ManyToOne(() => User, { nullable: true, onDelete: 'SET NULL' })
-  @JoinColumn({ name: 'triggeredByUserId' })
+  @JoinColumn({ name: 'triggered_by_user_id' })
   triggered_by_user!: User | null;
 
   @Column({ default: true })

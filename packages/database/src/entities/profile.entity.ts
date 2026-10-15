@@ -7,7 +7,6 @@ export class Profile {
     @PrimaryGeneratedColumn('uuid')
     id!: string;
 
-    @Index()
     @Column({ type: 'uuid' })
     user_id!: string;
 

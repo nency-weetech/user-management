@@ -21,4 +21,5 @@ export declare class UserRepository extends BaseAbstractRepostitory<User> implem
     cancelPendingDeletion(userId: string): Promise<void>;
     findStaleDeletionRequests(cutoffDate: Date): Promise<User[]>;
     updateCreatedAtForTest(userId: string, date: Date): Promise<void>;
+    updateStripeCustomerid(userId: string, customerId: string): Promise<void>;
 }

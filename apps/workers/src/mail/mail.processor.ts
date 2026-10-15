@@ -6,33 +6,41 @@ import { Inject, Logger } from '@nestjs/common';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 
 @Processor('mailQueue', {
-  concurrency: 1,
+  concurrency: 5,
   limiter: {
     max: 5,
     duration: 60000,
   },
 })
 export class MailProcessor extends WorkerHost {
-  private transporter!: nodemailer.Transporter;
-
   constructor(
     @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
   ) {
     super();
-    this.initTranspoter();
   }
 
-  private async initTranspoter() {
-    const testAccount = await nodemailer.createTestAccount();
-    this.transporter = nodemailer.createTransport({
-      host: 'smtp.ethereal.email',
-      port: 587,
-      secure: false,
-      auth: {
-        user: testAccount.user,
-        pass: testAccount.pass,
-      },
-    });
+  private transporterPromise?: Promise<nodemailer.Transporter>;
+  private getTransporter(): Promise<nodemailer.Transporter> {
+    if (!this.transporterPromise) {
+      this.transporterPromise = (async () => {
+        const testAccount = await nodemailer.createTestAccount();
+        return nodemailer.createTransport({
+          host: 'smtp.ethereal.email',
+          port: 587,
+          secure: false,
+          auth: { user: testAccount.user, pass: testAccount.pass },
+        });
+      })().catch((err) => {
+        this.transporterPromise = undefined;
+        throw err;
+      });
+    }
+    return this.transporterPromise;
+  }
+
+  private async sendMail(options: nodemailer.SendMailOptions) {
+    const transporter = await this.getTransporter();
+    return transporter.sendMail(options);
   }
 
   async process(job: Job<any, any, string>): Promise<any> {
@@ -44,34 +52,25 @@ export class MailProcessor extends WorkerHost {
         attempt: job.attemptsMade,
       },
       async () => {
-        let result;
         switch (job.name) {
           case 'send-verification-OTP':
-            result = this.handleVerifactionOtp(job);
-            break;
+            return this.handleVerifactionOtp(job);
           case 'send-otp-reminder':
-            result = this.handleOtpReminder(job);
-            break;
+            return this.handleOtpReminder(job);
           case 'send-welcome':
-            result = this.welcomeMail(job);
-            break;
+            return this.welcomeMail(job);
           case 'send-reset-pass-otp':
-            result = this.resetPassOtp(job);
-            break;
+            return this.resetPassOtp(job);
           case 'send-weekly-report':
-            result = this.sendWeeklyReportMail(job);
-            break;
-          case 'send-invoice':
-            result = this.sendInvoice(job);
-            break;
+            return this.sendWeeklyReportMail(job);
+          case 'send-invoice-email':
+            return this.sendInvoice(job);
           case 'send-invitation':
-            result = this.sendInvitation(job);
-            break;
+            return this.sendInvitation(job);
           default:
             this.logger.warn(`Unkonown Job type: ${job.name}`);
-            break;
+            return undefined;
         }
-        return result;
       },
     );
   }
@@ -91,7 +90,7 @@ export class MailProcessor extends WorkerHost {
         `,
     };
 
-    const info = await this.transporter.sendMail(mailOption);
+    const info = await this.sendMail(mailOption);
     this.logger.log(`Verifiction email sent to ${toEmail}`);
     this.logger.log(
       `Verifiction Email URL: ${nodemailer.getTestMessageUrl(info)}`,
@@ -112,7 +111,7 @@ export class MailProcessor extends WorkerHost {
             <h3>Please Verify email ${toEmail} with valid OTP</h3>
             `,
     };
-    const info = await this.transporter.sendMail(mailOption);
+    const info = await this.sendMail(mailOption);
     this.logger.log(`reminder mail: ${nodemailer.getTestMessageUrl(info)}`);
   }
 
@@ -126,7 +125,7 @@ export class MailProcessor extends WorkerHost {
             <h3>Welcome ${toEmail} </h3>
             `,
     };
-    const info = await this.transporter.sendMail(mailOption);
+    const info = await this.sendMail(mailOption);
     this.logger.log(`Welcom mail: ${nodemailer.getTestMessageUrl(info)}`);
 
     return { status: 'sent', messageId: info.messageId };
@@ -149,7 +148,7 @@ export class MailProcessor extends WorkerHost {
         `,
     };
 
-    const info = await this.transporter.sendMail(mailOption);
+    const info = await this.sendMail(mailOption);
     this.logger.log(
       `Password Reset URL: ${nodemailer.getTestMessageUrl(info)}`,
     );
@@ -215,16 +214,27 @@ export class MailProcessor extends WorkerHost {
     `,
     };
 
-    const info = await this.transporter.sendMail(mailOption);
+    const info = await this.sendMail(mailOption);
     this.logger.log(
       `weekly signup report: ${nodemailer.getTestMessageUrl(info)}`,
     );
   }
 
   async sendInvoice(
-    job: Job<{ toEmail: string; hostedInvoiceUrl: string; invoicePDF: string }>,
+    job: Job<{
+      toEmail: string;
+      hostedInvoiceUrl: string;
+      invoicePDF?: string | null;
+    }>,
   ) {
     const { toEmail, hostedInvoiceUrl, invoicePDF } = job.data;
+
+    const pdfButton = invoicePDF
+      ? `<a href="${invoicePDF}"
+         style="display: inline-block; padding: 10px 20px; background-color: #f0f0f0; color: #333; text-decoration: none; border-radius: 4px;">
+         Download PDF
+       </a>`
+      : '';
 
     const mailOptions = {
       from: '"App Billing" <no-reply@myapp.com>',
@@ -234,27 +244,23 @@ export class MailProcessor extends WorkerHost {
       <div style="font-family: Arial, sans-serif; margin: 0 auto;">
         <h2 style="color: #333;">Thank you for your payment</h2>
         <p style="color: #555;">Your invoice is ready. You can view or download it using the links below.</p>
-
         <div style="margin: 24px 0;">
           <a href="${hostedInvoiceUrl}"
              style="display: inline-block; padding: 10px 20px; background-color: #4A90E2; color: #fff; text-decoration: none; border-radius: 4px; margin-right: 12px;">
             View Invoice
           </a>
-          <a href="${invoicePDF}"
-             style="display: inline-block; padding: 10px 20px; background-color: #f0f0f0; color: #333; text-decoration: none; border-radius: 4px;">
-            Download PDF
-          </a>
+          ${pdfButton}
         </div>
-
         <p style="color: #999; font-size: 12px;">If the buttons don't work, copy this link into your browser: ${hostedInvoiceUrl}</p>
       </div>
     `,
     };
 
-    const info = await this.transporter.sendMail(mailOptions);
+    const info = await this.sendMail(mailOptions);
     this.logger.log(
       `Invoice mail sent to ${toEmail}: ${nodemailer.getTestMessageUrl(info)}`,
     );
+    return { status: 'sent', messageId: info.messageId };
   }
 
   async sendInvitation(job: Job<{ toEmail: string; orgName: string }>) {
@@ -311,7 +317,7 @@ export class MailProcessor extends WorkerHost {
   `,
     };
 
-    const info = await this.transporter.sendMail(mailOptions);
+    const info = await this.sendMail(mailOptions);
     this.logger.log(
       `Invvitation mail sent to ${toEmail}: ${nodemailer.getTestMessageUrl(info)}`,
     );
