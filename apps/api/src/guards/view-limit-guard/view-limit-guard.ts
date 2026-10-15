@@ -20,6 +20,7 @@ export class ViewLimitGuard implements CanActivate {
     private userUsageRepo: UserUsageRepository,
   ) {}
   async canActivate(context: ExecutionContext) {
+    
     const request = context.switchToHttp().getRequest();
     const { user } = request;
     if (!user) {
@@ -68,7 +69,6 @@ export class ViewLimitGuard implements CanActivate {
         'Daily View limit Reached, Upgrad plan for unlimited access.',
       );
     }
-
     request.remainingViewLimit = dailyLimit - currentCount;
     return true;
   } 

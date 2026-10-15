@@ -152,8 +152,8 @@ export class NewsController {
   @ApiQuery({ name: 'limit', required: false, type: Number })
   @ApiQuery({ name: 'category', required: false, type: String })
   @ApiResponse({ status: 200, description: 'Article return' })
-  @Get()
   @UseGuards(AuthGuard, ViewLimitGuard)
+  @Get()
   async findAll(
     @currentUser() currentUser: { id: string },
     @Query('page') page = 1,
@@ -162,7 +162,7 @@ export class NewsController {
     @Query('category') category?: string,
   ) {
     const remaining = request.remainingViewLimit;
-    return this.newsService.findAll(currentUser.id,Number(page), Number(limit),remaining, category);
+    return this.newsService.findAll(currentUser.id, Number(page), Number(limit),remaining, category);
   }
 
   @ApiOperation({ summary: 'Delete an article by id (admin only)' })
