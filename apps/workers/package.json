@@ -1,0 +1,25 @@
+{
+  "name": "@myapp/workers",
+  "version": "0.0.1",
+  "private": true,
+  "main": "src/index.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/worker-main.js",
+    "start:dev": "ts-node -r tsconfig-paths/register src/worker-main.ts"
+  },
+  "dependencies": {
+    "@myapp/api" : "*",
+    "@myapp/database": "*",
+    "@myapp/shared": "*",
+    "@nestjs/common": "^11.0.1",
+    "@nestjs/bullmq": "^11.0.4",
+    "@nestjs/axios": "^4.0.1",
+    "bullmq": "^5.81.3",
+    "nest-winston": "^1.10.2",
+    "nodemailer": "^9.0.3",
+    "winston": "^3.19.0",
+    "rxjs": "^7.8.1",
+    "@nestjs/core": "^11.0.1"
+  }
+}

@@ -1,0 +1,129 @@
+"use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.PaymentRepository = void 0;
+const typeorm_1 = require("@nestjs/typeorm");
+const base_repository_1 = require("../common/base.repository");
+const payment_entity_1 = require("../entities/payment.entity");
+const typeorm_2 = require("typeorm");
+const payment_status_enum_1 = require("../enums/payment-status.enum");
+const user_repository_1 = require("./user.repository");
+let PaymentRepository = class PaymentRepository extends base_repository_1.BaseAbstractRepostitory {
+    paymentsRepo;
+    userRepository;
+    constructor(paymentsRepo, userRepository) {
+        super(paymentsRepo);
+        this.paymentsRepo = paymentsRepo;
+        this.userRepository = userRepository;
+    }
+    invoiceColumns(extra) {
+        if (!extra)
+            return {};
+        return {
+            stripe_invoice_id: extra.invoiceId,
+            invoice_status: 'open',
+            subtotal_amount: extra.subtotal,
+            discount_amount: extra.discount,
+            tax_amount: extra.tax,
+            coupon_code: extra.couponCode,
+        };
+    }
+    createPayment(userId, planId, paymentIntentId, amount, currency, extra) {
+        const userPayment = this.paymentsRepo.create({
+            user_id: userId,
+            stripe_payment_intent_id: paymentIntentId,
+            plan_id: planId,
+            amount,
+            currency,
+            status: payment_status_enum_1.PaymentStatus.PENDING,
+            ...this.invoiceColumns(extra),
+        });
+        return this.paymentsRepo.save(userPayment);
+    }
+    createOrgPayment(orgId, planId, paymentIntentId, amount, currency, extra) {
+        const orgPayment = this.paymentsRepo.create({
+            organization: { id: orgId },
+            stripe_payment_intent_id: paymentIntentId,
+            plan_id: planId,
+            amount,
+            currency,
+            status: payment_status_enum_1.PaymentStatus.PENDING,
+            ...this.invoiceColumns(extra),
+        });
+        return this.paymentsRepo.save(orgPayment);
+    }
+    findBySessionId(sessionId) {
+        return this.paymentsRepo.findOneBy({
+            stripe_checkout_session_id: sessionId,
+        });
+    }
+    findByPaymentIntentId(paymentIntentId) {
+        return this.paymentsRepo.findOneBy({
+            stripe_payment_intent_id: paymentIntentId,
+        });
+    }
+    async markSucceeded(paymentIntentId) {
+        await this.paymentsRepo.update({ stripe_payment_intent_id: paymentIntentId }, {
+            status: payment_status_enum_1.PaymentStatus.SUCCEEDED,
+        });
+    }
+    async markExpired(paymentIntentId) {
+        const res = await this.paymentsRepo.update({
+            stripe_payment_intent_id: paymentIntentId,
+            status: payment_status_enum_1.PaymentStatus.PENDING, // SUCCEEDED ko kabhi overwrite nahi karega
+        }, { status: payment_status_enum_1.PaymentStatus.EXPIRED });
+        return !!res.affected;
+    }
+    findStalePending(cutoff, limit = 50) {
+        return this.paymentsRepo.find({
+            where: { status: payment_status_enum_1.PaymentStatus.PENDING, created_at: (0, typeorm_2.LessThan)(cutoff) },
+            order: { created_at: 'ASC' },
+            take: limit,
+        });
+    }
+    async findAllPaginated(page, limit, status, plan) {
+        const skip = (page - 1) * limit;
+        const query = this.paymentsRepo.createQueryBuilder('payment');
+        if (status) {
+            query.andWhere('payment.status = :status', { status });
+        }
+        if (plan) {
+            query.andWhere('payment.plan = :plan', { plan });
+        }
+        query.orderBy('payment.createdAt', 'DESC').skip(skip).take(limit);
+        const [payments, total] = await query.getManyAndCount();
+        const userIds = payments.map((p) => p.user_id);
+        const users = await this.userRepository.findManyByCondition({
+            where: { id: (0, typeorm_2.In)(userIds) },
+            select: {
+                id: true,
+                email: true,
+                first_name: true,
+                last_name: true,
+            },
+        });
+        const userMap = new Map(users.map((u) => [u.id, u]));
+        const enrichPayment = payments.map((p) => ({
+            ...p,
+            user: userMap.get(p.user_id) || null,
+        }));
+        return [enrichPayment, total];
+    }
+};
+exports.PaymentRepository = PaymentRepository;
+exports.PaymentRepository = PaymentRepository = __decorate([
+    __param(0, (0, typeorm_1.InjectRepository)(payment_entity_1.Payments)),
+    __metadata("design:paramtypes", [typeorm_2.Repository,
+        user_repository_1.UserRepository])
+], PaymentRepository);

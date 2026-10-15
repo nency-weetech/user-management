@@ -1,0 +1,325 @@
+import { Processor, WorkerHost } from '@nestjs/bullmq';
+import { Job } from 'bullmq';
+import * as nodemailer from 'nodemailer';
+import { runWithJobContext } from '@myapp/shared';
+import { Inject, Logger } from '@nestjs/common';
+import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
+
+@Processor('mailQueue', {
+  concurrency: 5,
+  limiter: {
+    max: 5,
+    duration: 60000,
+  },
+})
+export class MailProcessor extends WorkerHost {
+  constructor(
+    @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
+  ) {
+    super();
+  }
+
+  private transporterPromise?: Promise<nodemailer.Transporter>;
+  private getTransporter(): Promise<nodemailer.Transporter> {
+    if (!this.transporterPromise) {
+      this.transporterPromise = (async () => {
+        const testAccount = await nodemailer.createTestAccount();
+        return nodemailer.createTransport({
+          host: 'smtp.ethereal.email',
+          port: 587,
+          secure: false,
+          auth: { user: testAccount.user, pass: testAccount.pass },
+        });
+      })().catch((err) => {
+        this.transporterPromise = undefined;
+        throw err;
+      });
+    }
+    return this.transporterPromise;
+  }
+
+  private async sendMail(options: nodemailer.SendMailOptions) {
+    const transporter = await this.getTransporter();
+    return transporter.sendMail(options);
+  }
+
+  async process(job: Job<any, any, string>): Promise<any> {
+    return runWithJobContext(
+      {
+        jobName: job.name,
+        queueName: 'mailQueue',
+        jobId: String(job.id),
+        attempt: job.attemptsMade,
+      },
+      async () => {
+        switch (job.name) {
+          case 'send-verification-OTP':
+            return this.handleVerifactionOtp(job);
+          case 'send-otp-reminder':
+            return this.handleOtpReminder(job);
+          case 'send-welcome':
+            return this.welcomeMail(job);
+          case 'send-reset-pass-otp':
+            return this.resetPassOtp(job);
+          case 'send-weekly-report':
+            return this.sendWeeklyReportMail(job);
+          case 'send-invoice-email':
+            return this.sendInvoice(job);
+          case 'send-invitation':
+            return this.sendInvitation(job);
+          default:
+            this.logger.warn(`Unkonown Job type: ${job.name}`);
+            return undefined;
+        }
+      },
+    );
+  }
+
+  async handleVerifactionOtp(job: Job<{ toEmail: string; otp: string }>) {
+    const { toEmail, otp } = job.data;
+
+    const mailOption = {
+      from: '"App Security" <no-reply@myapp.com>',
+      to: toEmail,
+      subject: 'Verify Your Email Address',
+      html: `
+        <h3>Welcome to our App!</h3>
+        <p>Your email verification code is:</p>
+        <h2 style="color: blue; letter-spacing: 2px;">${otp}</h2>
+        <p>This code expires in 15 minutes.</p>
+        `,
+    };
+
+    const info = await this.sendMail(mailOption);
+    this.logger.log(`Verifiction email sent to ${toEmail}`);
+    this.logger.log(
+      `Verifiction Email URL: ${nodemailer.getTestMessageUrl(info)}`,
+    );
+
+    return { status: 'sent', messageId: info.messageId };
+  }
+
+  async handleOtpReminder(job: Job<{ toEmail: string }>) {
+    const { toEmail } = job.data;
+
+    this.logger.log(`⏰ Sending OTP reminder to: ${toEmail}`);
+    const mailOption = {
+      from: '"App Security" <no-reply@myapp.com>',
+      to: toEmail,
+      subject: 'Verify Email Reminder',
+      html: `
+            <h3>Please Verify email ${toEmail} with valid OTP</h3>
+            `,
+    };
+    const info = await this.sendMail(mailOption);
+    this.logger.log(`reminder mail: ${nodemailer.getTestMessageUrl(info)}`);
+  }
+
+  async welcomeMail(job: Job<{ toEmail: string }>) {
+    const { toEmail } = job.data;
+    const mailOption = {
+      from: '"App Security" <no-reply@myapp.com>',
+      to: toEmail,
+      subject: 'Verify Your Email Address',
+      html: `
+            <h3>Welcome ${toEmail} </h3>
+            `,
+    };
+    const info = await this.sendMail(mailOption);
+    this.logger.log(`Welcom mail: ${nodemailer.getTestMessageUrl(info)}`);
+
+    return { status: 'sent', messageId: info.messageId };
+  }
+
+  async resetPassOtp(job: Job<{ toEmail: string; otp: string }>) {
+    const { toEmail, otp } = job.data;
+    const mailOption = {
+      from: '"App Security" <no-reply@myapp.com>',
+      to: toEmail,
+      subject: 'Your Password Reset OTP',
+      html: `
+        <div style="font-family: Arial, sans-serif; padding: 20px;">
+          <h2>Password Reset Request</h2>
+          <p>Your one-time verification code is:</p>
+          <h1 style="letter-spacing: 5px; color: #4A90E2;">${otp}</h1>
+          <p>This code is valid for <strong>10 minutes</strong>.</p>
+          <p>If you did not request this, please ignore this email.</p>
+        </div>
+        `,
+    };
+
+    const info = await this.sendMail(mailOption);
+    this.logger.log(
+      `Password Reset URL: ${nodemailer.getTestMessageUrl(info)}`,
+    );
+  }
+
+  async sendWeeklyReportMail(
+    job: Job<{
+      toEmail: string;
+      count: number;
+      users: { email: string; createdAt: Date }[];
+    }>,
+  ) {
+    const { toEmail, count, users } = job.data;
+    const rows = users
+      .map((user) => {
+        const day = new Date(user.createdAt).toLocaleDateString('en-US', {
+          weekday: 'long',
+          month: 'short',
+          day: 'numeric',
+        });
+
+        return `
+        <tr>
+          <td style="padding: 10px; border-bottom: 1px solid #eee;">
+            <a href="mailto:${user.email}" style="color: #4A90E2; text-decoration: none;">
+              ${user.email}
+            </a>
+          </td>
+          <td style="padding: 10px; border-bottom: 1px solid #eee; color: #555;">
+            ${day}
+          </td>
+        </tr>
+      `;
+      })
+      .join('');
+
+    const mailOption = {
+      from: '"App Security" <no-reply@myapp.com>',
+      to: toEmail,
+      subject: 'Weekly Signup Report',
+      html: `
+      <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #333;">Weekly Signup Report</h2>
+        <p style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #4A90E2; margin: 10px 0;">
+          ${count}
+        </p>
+        <p style="color: #555; margin-bottom: 20px;">
+          new user${count !== 1 ? 's' : ''} joined this week
+        </p>
+
+        <table style="width: 100%; border-collapse: collapse;">
+          <thead>
+            <tr style="background-color: #f5f5f5; text-align: left;">
+              <th style="padding: 10px; border-bottom: 2px solid #ddd;">Email</th>
+              <th style="padding: 10px; border-bottom: 2px solid #ddd;">Signed Up</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows || '<tr><td colspan="2" style="padding: 10px;">No new signups this week.</td></tr>'}
+          </tbody>
+        </table>
+      </div>
+    `,
+    };
+
+    const info = await this.sendMail(mailOption);
+    this.logger.log(
+      `weekly signup report: ${nodemailer.getTestMessageUrl(info)}`,
+    );
+  }
+
+  async sendInvoice(
+    job: Job<{
+      toEmail: string;
+      hostedInvoiceUrl: string;
+      invoicePDF?: string | null;
+    }>,
+  ) {
+    const { toEmail, hostedInvoiceUrl, invoicePDF } = job.data;
+
+    const pdfButton = invoicePDF
+      ? `<a href="${invoicePDF}"
+         style="display: inline-block; padding: 10px 20px; background-color: #f0f0f0; color: #333; text-decoration: none; border-radius: 4px;">
+         Download PDF
+       </a>`
+      : '';
+
+    const mailOptions = {
+      from: '"App Billing" <no-reply@myapp.com>',
+      to: toEmail,
+      subject: 'Your payment invoice',
+      html: `
+      <div style="font-family: Arial, sans-serif; margin: 0 auto;">
+        <h2 style="color: #333;">Thank you for your payment</h2>
+        <p style="color: #555;">Your invoice is ready. You can view or download it using the links below.</p>
+        <div style="margin: 24px 0;">
+          <a href="${hostedInvoiceUrl}"
+             style="display: inline-block; padding: 10px 20px; background-color: #4A90E2; color: #fff; text-decoration: none; border-radius: 4px; margin-right: 12px;">
+            View Invoice
+          </a>
+          ${pdfButton}
+        </div>
+        <p style="color: #999; font-size: 12px;">If the buttons don't work, copy this link into your browser: ${hostedInvoiceUrl}</p>
+      </div>
+    `,
+    };
+
+    const info = await this.sendMail(mailOptions);
+    this.logger.log(
+      `Invoice mail sent to ${toEmail}: ${nodemailer.getTestMessageUrl(info)}`,
+    );
+    return { status: 'sent', messageId: info.messageId };
+  }
+
+  async sendInvitation(job: Job<{ toEmail: string; orgName: string }>) {
+    const { toEmail, orgName } = job.data;
+
+    const mailOptions = {
+      from: '"MyApp" <no-reply@myapp.com>',
+      to: toEmail,
+      subject: `You've been added to ${orgName}`,
+      html: `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; color: #333;">
+      <h2 style="margin-bottom: 20px;">
+        You've joined ${orgName}
+      </h2>
+
+      <p style="font-size: 16px; line-height: 1.6;">
+        You have been added as a member of
+        <strong>${orgName}</strong>.
+      </p>
+
+      <p style="font-size: 16px; line-height: 1.6;">
+        You can now access the organization and its resources
+        according to your assigned permissions.
+      </p>
+
+      <div style="margin: 30px 0;">
+        <a
+          href="http://localhost:3000/organizations"
+          style="
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #2563eb;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 15px;
+          "
+        >
+          Open Organization
+        </a>
+      </div>
+
+      <p style="font-size: 14px; color: #777; line-height: 1.5;">
+        If you believe this was done by mistake, please contact your
+        organization administrator.
+      </p>
+
+      <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;" />
+
+      <p style="font-size: 12px; color: #999;">
+        This is an automated email from MyApp. Please do not reply to this email.
+      </p>
+    </div>
+  `,
+    };
+
+    const info = await this.sendMail(mailOptions);
+    this.logger.log(
+      `Invvitation mail sent to ${toEmail}: ${nodemailer.getTestMessageUrl(info)}`,
+    );
+  }
+}
