@@ -33,6 +33,7 @@ import {
 import { NewsQueueService } from './news.queue.service';
 import { ViewLimitGuard } from '../guards/view-limit-guard/view-limit-guard';
 import { FetchLimitGuard } from '../guards/fetch-limit/fetch-limit.guard';
+import { KeycloakAuthGuard } from '@myapp/keyclock-auth';
 
 @ApiTags('News')
 @Controller('news')

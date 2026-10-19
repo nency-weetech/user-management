@@ -12,4 +12,5 @@ export * from './pdf/pdf.storage.service';
 export * from './pdf/pdf-cleanup.service';
 export * from './storage/storage.module';
 export * from './storage/storage.service';
+export * from './comman/with-span';
 //# sourceMappingURL=index.d.ts.map

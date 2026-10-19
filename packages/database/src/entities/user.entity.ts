@@ -55,6 +55,9 @@ export class User {
   })
   is_active!: boolean;
 
+  @Column({ name: 'keycloak_id', type: 'uuid', nullable: true, unique: true })
+  keycloakId?: string;
+
   @Column({
     type: 'boolean',
     default: false,

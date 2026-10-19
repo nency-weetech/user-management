@@ -11,6 +11,7 @@ export declare class User {
     last_name: string;
     role: UserRole;
     is_active: boolean;
+    keycloakId?: string;
     is_email_verified: boolean;
     room_memberships: RoomMember[];
     messages: Message[];

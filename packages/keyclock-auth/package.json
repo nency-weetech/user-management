@@ -1,0 +1,20 @@
+{
+  "name": "@myapp/keyclock-auth",
+  "version": "0.0.1",
+  "private": true,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@nestjs/passport": "^12.0.0",
+    "@nestjs/typeorm": "^11.0.3",
+    "dotenv": "^17.4.2",
+    "jwks-rsa": "^4.1.0",
+    "passport": "^0.7.0",
+    "passport-jwt": "^4.0.1",
+    "pg": "^8.22.0",
+    "typeorm": "^1.1.0"
+  }
+}

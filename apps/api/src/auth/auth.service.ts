@@ -44,7 +44,7 @@ import { PlanTargetType } from '@myapp/database/dist/enums/plan-target-type.enum
 import { PlanType } from '@myapp/database/dist/enums/plan.enum';
 
 import { SpanStatusCode, trace } from '@opentelemetry/api';
-import { measure } from '../comman/with-span';
+import { measure } from '@myapp/shared';
 import { hashOtp, verifyOtp } from './otp.util';
 const tracer = trace.getTracer('auth-service');
 @Injectable()

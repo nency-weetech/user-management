@@ -25,6 +25,7 @@ let User = class User {
     last_name;
     role;
     is_active;
+    keycloakId;
     is_email_verified;
     room_memberships;
     messages;
@@ -87,6 +88,10 @@ __decorate([
     }),
     __metadata("design:type", Boolean)
 ], User.prototype, "is_active", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'keycloak_id', type: 'uuid', nullable: true, unique: true }),
+    __metadata("design:type", String)
+], User.prototype, "keycloakId", void 0);
 __decorate([
     (0, typeorm_1.Column)({
         type: 'boolean',

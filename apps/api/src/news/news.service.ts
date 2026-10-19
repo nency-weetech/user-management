@@ -8,7 +8,7 @@ import {
 import { UpdateArticleDto } from './dtos/update-article.dto';
 import { Article } from '@myapp/database';
 import { PlanType } from '@myapp/database/dist/enums/plan.enum';
-import { measure } from '../comman/with-span';
+import { measure } from '@myapp/shared';
 
 @Injectable()
 export class NewsService {

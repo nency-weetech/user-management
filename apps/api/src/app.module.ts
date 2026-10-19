@@ -40,6 +40,8 @@ import { BookmarkModule } from './bookmark/bookmark.module';
 import { OrganizationModule } from './organization/organization.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { PgledgerModule } from './benchmark/pgledger/pgledger.module';
+import { KeycloakAuthModule } from '@myapp/keyclock-auth';
+import { KeycloakAuthController } from './keyclock-auth/keycloak-auth.controller';
 
 const disableThrottler =
   process.env.NODE_ENV === 'test' && process.env.DISABLE_THROTTLER !== 'false';
@@ -106,8 +108,9 @@ const disableThrottler =
     OrganizationModule,
     AnalyticsModule,
     PgledgerModule,
+    KeycloakAuthModule
   ],
-  controllers: [AppController],
+  controllers: [AppController, KeycloakAuthController],
   providers: [
     AppService,
     RateLimitService,
