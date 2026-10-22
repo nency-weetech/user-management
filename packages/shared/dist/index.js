@@ -29,4 +29,5 @@ __exportStar(require("./pdf/pdf-cleanup.service"), exports);
 __exportStar(require("./storage/storage.module"), exports);
 __exportStar(require("./storage/storage.service"), exports);
 __exportStar(require("./comman/with-span"), exports);
+__exportStar(require("./otp/otp.utils"), exports);
 //# sourceMappingURL=index.js.map

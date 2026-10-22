@@ -11,9 +11,8 @@ import { NewsProcessor } from './news/news.fetcher.processor';
 import { ConfigModule } from '@nestjs/config';
 import { datasourceOptions } from '@myapp/database';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { NewsQueueService, UsersService } from '@myapp/api';
-import { NewsService } from '@myapp/api/src/news/news.service';
-import { NewsRefreshCorn } from './news/news-refresh.cron';
+// import { NewsQueueService, UsersService } from '@myapp/api';
+// import { NewsRefreshCorn } from './news/news-refresh.cron';
 import { NewsFetchLog } from '@myapp/database';
 import { Article } from '@myapp/database';
 import { BrowserService, LoggerModule, PdfCleanupService, PdfRenderService, PdfStorage, StorageService } from '@myapp/shared';
@@ -24,6 +23,11 @@ import { StripeInvoiceService } from './billing/stripe-invoice.service';
 import { Plans_catalog } from '@myapp/database/dist/entities/plans.entity';
 import { PdfProcessor } from './pdf/pdf.processor';
 import { PdfCleanupCorn } from './pdf/pdf-cleanup.corn';
+import { WMailService } from './mail/mail.service';
+import { MailKafkaController } from './mail/mail-kafka.controller';
+import { BullBoardModule } from '@bull-board/nestjs';
+import { ExpressAdapter } from '@bull-board/express';
+import { UserEventModule } from './user-event/user-event.module';
 @Module({
   imports: [
    ConfigModule.forRoot({
@@ -33,17 +37,23 @@ import { PdfCleanupCorn } from './pdf/pdf-cleanup.corn';
         path.resolve(process.cwd(), '../../.env'),
       ],
     }),
+    BullBoardModule.forRoot({
+      route: '/queues',
+      adapter: ExpressAdapter,
+    }),
     LoggerModule,
     TypeOrmModule.forRoot(datasourceOptions),
     TypeOrmModule.forFeature([Article, NewsFetchLog, User, Payments, UserPlan, OrganizationPlan, Plans_catalog, PdfJob]),
     RedisModule,
     HttpModule,
     BullModule.registerQueue({ name: 'newsQueue' }, { name: 'mailQueue' }, {name: 'billingQueue'}, {name: 'pdfQueue'}),
-    
+    UserEventModule,
   ],
+  
   providers: [
     PdfStorage,
-    MailProcessor,
+    //WMailService,
+   MailProcessor,
     PaymentEventProcessor,
     PdfCleanupService,
     PdfProcessor,
@@ -61,9 +71,10 @@ import { PdfCleanupCorn } from './pdf/pdf-cleanup.corn';
     ArticleRepository,
     NewsFetchLogRepository,
     NewsFetcherService,
-    NewsQueueService,
+   // NewsQueueService,
     NewsProcessor,
-    NewsRefreshCorn,
+    // NewsRefreshCorn,
   ],
+  //controllers: [MailKafkaController],
 })
 export class WorkerModule {}

@@ -50,45 +50,45 @@
 //   sleep(1);
 // }
 
-// import http from 'k6/http';
-// import { check, sleep } from 'k6';
+import http from 'k6/http';
+import { check, sleep } from 'k6';
 
-// const BASE = __ENV.BASE_URL || 'http://localhost:3100';
+const BASE = __ENV.BASE_URL || 'http://localhost:3100';
 
-// export const options = {
-//   stages: [
-    // Load test 
-    // { duration: '1m', target: 5 },   // Ramp-up to 5 virtual users over 1 minutes
-    // { duration: '5m', target: 5 },   // hold for 5 minutes
-    // { duration: '1m', target: 0 },
+export const options = {
+  stages: [
+    //Load test 
+    { duration: '1m', target: 5 },   // Ramp-up to 5 virtual users over 1 minutes
+    { duration: '5m', target: 5 },   // hold for 5 minutes
+    { duration: '1m', target: 0 },
 
-    //Stress test 
-    //{ duration: '2m', target: 50 },   // Ramp-up to 50 virtual users over 2 minutes
-    //{ duration: '5m', target: 100 },  // Increase to 100 VUs and hold for 5 minutes
-    //{ duration: '5m', target: 200 },  // Push to peak stress (200 VUs) for 5 minutes
-    //{ duration: '2m', target: 0 },  
+    // Stress test 
+    // { duration: '2m', target: 50 },   // Ramp-up to 50 virtual users over 2 minutes
+    // { duration: '5m', target: 100 },  // Increase to 100 VUs and hold for 5 minutes
+    // { duration: '5m', target: 200 },  // Push to peak stress (200 VUs) for 5 minutes
+    // { duration: '2m', target: 0 },  
 
-//     { duration: '1m', target: 10 },  { duration: '2m', target: 10 },
-//     { duration: '1m', target: 25 },  { duration: '2m', target: 25 },
-//     { duration: '1m', target: 50 },  { duration: '2m', target: 50 },
-//     { duration: '1m', target: 100 }, { duration: '2m', target: 100 },
-//     { duration: '1m', target: 5 },   { duration: '4m', target: 5 }, 
-//   ],
-//   thresholds: {
-//     http_req_duration: ['p(95)<500'],
-//     http_req_failed: ['rate<0.01'],
-//   },
-// };
+    // { duration: '1m', target: 10 },  { duration: '2m', target: 10 },
+    // { duration: '1m', target: 25 },  { duration: '2m', target: 25 },
+    // { duration: '1m', target: 50 },  { duration: '2m', target: 50 },
+    // { duration: '1m', target: 100 }, { duration: '2m', target: 100 },
+    // { duration: '1m', target: 5 },   { duration: '4m', target: 5 }, 
+  ],
+  thresholds: {
+    http_req_duration: ['p(95)<500'],
+    http_req_failed: ['rate<0.01'],
+  },
+};
 
-// function level(name, vus, startTime) {
-//   return {
-//     executor: 'constant-vus',
-//     vus,
-//     duration: '3m',
-//     startTime,
-//     tags: { level: name },
-//   };
-// }
+function level(name, vus, startTime) {
+  return {
+    executor: 'constant-vus',
+    vus,
+    duration: '3m',
+    startTime,
+    tags: { level: name },
+  };
+}
 
 // export const options = {
 //   scenarios: {
@@ -116,60 +116,60 @@
 //   },
 // };
 
-// export default function () {
-//   const userNum = `${__VU}_${__ITER}`;
-
-//   const payload = JSON.stringify({
-//     first_name: 'Load',
-//     last_name: 'Test',
-//     email: `loaduser_${userNum}@example.com`,
-//     password: 'Passw0rd!123',
-//   });
-
-//   const res = http.post(`${BASE}/auth/signUp`, payload, {
-//     headers: { 'Content-Type': 'application/json' },
-//   });
-
-//   check(res, { 'status 201': (r) => r.status === 201 });
-//   if (res.status !== 201) {
-//     console.log(`FAIL status=${res.status} body=${res.body}`);
-//   }
-//   sleep(0.1);
-// }
-import http from 'k6/http';
-import exec from 'k6/execution';
-
-const BASE_URL = __ENV.BASE_URL || 'http://localhost:3100';
-const PASSWORD = 'Test@1234';
-
-const NAMES = [];
-for (let i = 1; i <= 5; i++) NAMES.push(`maxuser_${i}`);
-for (let i = 1; i <= 30; i++) NAMES.push(`prouser_${i}`);
-NAMES.push('freeuser_1');
-
-export const options = {
-  scenarios: {
-    create: {
-      executor: 'shared-iterations',
-      vus: 1,
-      iterations: NAMES.length,
-      maxDuration: '5m',
-    },
-  },
-};
-
 export default function () {
-  const name = NAMES[exec.scenario.iterationInTest];
-  const res = http.post(
-    `${BASE_URL}/auth/signUp`,
-    JSON.stringify({
-      email: `${name}@example.com`,
-      password: PASSWORD,
-     first_name: 'test',
-     last_name : 'user'
-    }),
-    { headers: { 'Content-Type': 'application/json' }, timeout: '30s' },
-  );
-  const bad = res.status >= 400 && res.status !== 409;
-  console.log(`${name} -> ${res.status}${bad ? ' ' + String(res.body).slice(0, 150) : ''}`);
+  const userNum = `${__VU}_${__ITER}`;
+
+  const payload = JSON.stringify({
+    first_name: 'Load',
+    last_name: 'Test',
+    email: `testuser${userNum}@example.com`,
+    password: 'Passw0rd!123',
+  });
+
+  const res = http.post(`${BASE}/auth/signUp`, payload, {
+    headers: { 'Content-Type': 'application/json' },
+  });
+
+  check(res, { 'status 201': (r) => r.status === 201 });
+  if (res.status !== 201) {
+    console.log(`FAIL status=${res.status} body=${res.body}`);
+  }
+  sleep(0.1);
 }
+// import http from 'k6/http';
+// import exec from 'k6/execution';
+
+// const BASE_URL = __ENV.BASE_URL || 'http://localhost:3100';
+// const PASSWORD = 'Test@1234';
+
+// const NAMES = [];
+// for (let i = 1; i <= 5; i++) NAMES.push(`maxuser_${i}`);
+// for (let i = 1; i <= 30; i++) NAMES.push(`prouser_${i}`);
+// NAMES.push('freeuser_1');
+
+// export const options = {
+//   scenarios: {
+//     create: {
+//       executor: 'shared-iterations',
+//       vus: 1,
+//       iterations: NAMES.length,
+//       maxDuration: '2m',
+//     },
+//   },
+// };
+
+// export default function () {
+//   const name = NAMES[exec.scenario.iterationInTest];
+//   const res = http.post(
+//     `${BASE_URL}/auth/signUp`,
+//     JSON.stringify({
+//       email: `${name}@example.com`,
+//       password: PASSWORD,
+//      first_name: 'test',
+//      last_name : 'user'
+//     }),
+//     { headers: { 'Content-Type': 'application/json' }, timeout: '30s' },
+//   );
+//   const bad = res.status >= 400 && res.status !== 409;
+//   console.log(`${name} -> ${res.status}${bad ? ' ' + String(res.body).slice(0, 150) : ''}`);
+// }

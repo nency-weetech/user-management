@@ -75,12 +75,6 @@ export class AuthService {
       bcrypt.hash(createUserDto.password, saltRound),
     );
 
-    const otp = crypto.randomInt(100000, 999999).toString();
-    const hashedOtp = await measure('register.otp_hash', async () =>
-      hashOtp(otp, createUserDto.email),
-    );
-    const otpExpires = new Date(Date.now() + 15 * 60 * 1000);
-
     const newUser = await measure('register.database_transaction', async () =>
       this.datasource.transaction(async (manager) => {
         const user = await measure('register.create_user', async () => {
@@ -88,8 +82,6 @@ export class AuthService {
             ...createUserDto,
             password,
             is_email_verified: false,
-            email_verification_otp: hashedOtp,
-            email_verification_expires: otpExpires,
           });
 
           return manager.save(entity);
@@ -269,6 +261,14 @@ export class AuthService {
 
           await manager.save(memberRole);
         });
+
+        await manager.save(manager.create('outbox', {
+          aggregate_type : 'user_onboarding',
+          aggregate_id: user.id,
+          event_type: 'user_register.v1',
+          payload: {userId: user.id, email: user.email},
+          trace_id: null
+        }))
 
         return user;
       }),
