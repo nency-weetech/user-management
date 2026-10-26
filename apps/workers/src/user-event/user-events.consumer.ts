@@ -1,6 +1,6 @@
 import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
 import { Kafka, Consumer, KafkaMessage, logLevel } from 'kafkajs';
-import { ParsedEvent } from './parse-event';
+import { ParsedEvent } from '@myapp/shared';
 import { UserEventHandler } from './user-event.handler';
 
 @Injectable()
@@ -32,6 +32,7 @@ export class UserEventConsumer implements OnModuleInit, OnModuleDestroy {
     await this.consumer.run({
       eachMessage: async ({ topic, partition, message }) => {
         const evt = ParsedEvent(topic, partition, message);
+        console.log(evt)
         await this.eventHandler.handler(evt);
         this.log.log(`done ${evt.eventId} user=${evt.payload.userId} email=${evt.payload.email}`);
       },

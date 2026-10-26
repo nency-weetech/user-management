@@ -19,7 +19,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CreateRoomDto } from './dtos/create-room-dto';
 import { DataSource } from 'typeorm';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { RoomType } from '@myapp/database/dist/enums/room-type-enum';
+import { RoomType } from '@myapp/database';
 
 @Injectable()
 export class RoomsService {
@@ -30,6 +30,7 @@ export class RoomsService {
     private readonly roomMemberRepository: RoomMemberRepository,
     private readonly roomJoinRequestRepo: JoinRequestRepository,
     private readonly userRepository : UserRepository,
+    
   ) {}
 
   private async assertIsRoomAdmin(userId: string, roomId): Promise<void> {
@@ -54,6 +55,7 @@ export class RoomsService {
       const room = roomRepo.create({
         name: dto.name,
         description: dto.description,
+        type: dto.type,
         owner_id: ownerId,
       });
 

@@ -1,3 +1,4 @@
+import { RoomType } from '@myapp/database';
 import { IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
 
 export class CreateRoomDto {
@@ -10,4 +11,8 @@ export class CreateRoomDto {
   @IsString()
   @MaxLength(500)
   description?: string;
+
+  @IsOptional()
+  @IsString()
+  type?: RoomType;
 }

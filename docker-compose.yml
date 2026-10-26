@@ -105,6 +105,19 @@ services:
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
       DYNAMIC_CONFIG_ENABLED: 'true'
 
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:${OTEL_IMAGE_TAG}
+    container_name: otel-collector
+    restart: unless-stopped
+    command: ["--config=/etc/otelcol-contrib/config.yaml"]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otelcol-contrib/config.yaml:ro
+    ports:
+      - "4320:4317"   
+      - "4319:4318"   
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
 volumes:
   chat_pg_data:
     name: user_mngmt_db_data  

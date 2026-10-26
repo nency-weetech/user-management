@@ -2,7 +2,7 @@ import { InjectQueue } from '@nestjs/bullmq';
 import { Injectable, Logger } from '@nestjs/common';
 import { Queue } from 'bullmq';
 import { DataSource } from 'typeorm';
-import { ParsedEvent, PoissionMessageError } from './parse-event';
+import { ParsedEvent, PoissionMessageError } from '@myapp/shared';
 import { WMailService } from '../mail/mail.service';
 import { generateOtp, hashOtp, OTP_TTL_MS } from '@myapp/shared';
 

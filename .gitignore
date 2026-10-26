@@ -61,4 +61,5 @@ apps/*/dist/
 
 
 modules/redis/dist/
-modules/*/dist/
+modules/*/dist/clickhouse-data/
+clickhouse-data/

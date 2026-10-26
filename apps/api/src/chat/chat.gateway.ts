@@ -24,6 +24,7 @@ import { OnEvent } from '@nestjs/event-emitter';
 import { ChatService } from './chat.service';
 import Redis from 'ioredis';
 import { ChatStorage } from '../minio/minio.service';
+import { ChatMessageEvent } from '@myapp/shared';
 
 @WebSocketGateway({
   cors: {
@@ -186,24 +187,24 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         data.fileType,
       );
 
-      let fileUrl = null;
-      if (saved.file_key) {
-        fileUrl = await this.minioService.getDownloadUrl(saved.file_key);
-      }
+      // let fileUrl = null;
+      // if (saved.file_key) {
+      //   fileUrl = await this.minioService.getDownloadUrl(saved.file_key);
+      // }
 
-      const messageData = {
-        id: saved.id,
-        senderId: saved.sender_id,
-        senderName: client.data.firstName,
-        roomId: saved.room_id,
-        message: saved.content,
-        fileUrl,
-        fileName: saved.file_name,
-        fileType: saved.file_type,
-        created_at: saved.created_at,
-      };
-
-      this.server.to(data.roomId).emit('new_message', messageData);
+      // const messageData = {
+      //   id: saved.id,
+      //   senderId: saved.sender_id,
+      //   senderName: client.data.firstName,
+      //   roomId: saved.room_id,
+      //   message: saved.content,
+      //   fileUrl,
+      //   fileName: saved.file_name,
+      //   fileType: saved.file_type,
+      //   created_at: saved.created_at,
+      // };
+       return { ok: true, id: saved.id, created_at: saved.created_at };
+      //this.server.to(data.roomId).emit('new_message', messageData);
     } catch (error) {
       client.emit('send_message_error', {
         roomId: data.roomId,
@@ -306,10 +307,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
   ) {
     try {
-      const room = await this.roomsService.startDirectMessage(client.data.userId, data.otherUserId);
-      client.emit('direct_message_ready', {roomId: room.id})
+      const room = await this.roomsService.startDirectMessage(
+        client.data.userId,
+        data.otherUserId,
+      );
+      client.emit('direct_message_ready', { roomId: room.id });
     } catch (error) {
-      client.emit('direct_message_error', {message : error.message})
+      client.emit('direct_message_error', { message: error.message });
     }
   }
 
@@ -365,4 +369,29 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       });
     }
   }
+
+  async broadcast(evt: ChatMessageEvent) {
+  const sender = await this.userRepository.findOne({ where: { id: evt.senderId } });
+
+  let fileUrl: string | null = null;
+  if (evt.fileKey) {
+    try {
+      fileUrl = await this.minioService.getDownloadUrl(evt.fileKey);
+    } catch (e) {
+      this.logger.warn(`fileUrl failed for ${evt.messageId}: ${(e as Error).message}`);
+    } 
+  }
+
+  this.server.to(evt.roomId).emit('new_message', {
+    id: evt.messageId,
+    senderId: evt.senderId,
+    senderName: sender?.first_name ?? 'Unknown',
+    roomId: evt.roomId,
+    message: evt.content,
+    fileUrl,
+    fileName: evt.fileName,
+    fileType: evt.fileType,
+    created_at: evt.createdAt,
+  });
+}
 }

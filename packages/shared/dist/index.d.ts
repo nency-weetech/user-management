@@ -14,4 +14,6 @@ export * from './storage/storage.module';
 export * from './storage/storage.service';
 export * from './comman/with-span';
 export * from './otp/otp.utils';
+export * from './chat-event/parse-event';
+export * from './chat-event/parse-chat-event';
 //# sourceMappingURL=index.d.ts.map

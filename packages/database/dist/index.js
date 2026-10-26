@@ -46,6 +46,7 @@ __exportStar(require("./enums/join-request-status.dto"), exports);
 __exportStar(require("./enums/organization.plan.enum"), exports);
 __exportStar(require("./enums/plan-target-type.enum"), exports);
 __exportStar(require("./enums/plan.enum"), exports);
+__exportStar(require("./enums/room-type-enum"), exports);
 __exportStar(require("./config/data-source"), exports);
 __exportStar(require("./config/plan.config"), exports);
 __exportStar(require("./config/organization.plan.config"), exports);

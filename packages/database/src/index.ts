@@ -32,6 +32,7 @@ export * from './enums/join-request-status.dto';
 export * from './enums/organization.plan.enum';
 export * from './enums/plan-target-type.enum';
 export * from './enums/plan.enum';
+export * from './enums/room-type-enum';
 
 export * from './config/data-source';
 export * from './config/plan.config';
