@@ -19,14 +19,21 @@ export class MailProcessor extends WorkerHost {
     super();
   }
 
+  
   private transporterPromise?: Promise<nodemailer.Transporter>;
+
   private getTransporter(): Promise<nodemailer.Transporter> {
     if (!this.transporterPromise) {
       this.transporterPromise = (async () => {
+        if (process.env.MAIL_MOCK === 'true') {
+          // load test: koi network call nahi, sirf message banta hai
+          return nodemailer.createTransport({ jsonTransport: true });
+        }
+
         const testAccount = await nodemailer.createTestAccount();
         return nodemailer.createTransport({
-          host: 'smtp.ethereal.email',
-          port: 587,
+          host: process.env.SMTP_HOST ?? 'smtp.ethereal.email',
+          port: Number(process.env.SMTP_PORT ?? 587),
           secure: false,
           auth: { user: testAccount.user, pass: testAccount.pass },
         });
