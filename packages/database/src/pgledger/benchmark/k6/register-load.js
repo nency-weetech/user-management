@@ -136,40 +136,116 @@
 //   }
 //   sleep(0.1);
 // }
+
+
+// import http from 'k6/http';
+// import exec from 'k6/execution';
+
+// const BASE_URL = __ENV.BASE_URL || 'http://localhost:3100';
+// const PASSWORD = 'Test@1234';
+
+// const NAMES = [];
+// for (let i = 1; i <= 5; i++) NAMES.push(`maxuser_${i}`);
+// for (let i = 1; i <= 30; i++) NAMES.push(`prouser_${i}`);
+// NAMES.push('freeuser_1');
+
+// export const options = {
+//   scenarios: {
+//     create: {
+//       executor: 'shared-iterations',
+//       vus: 1,
+//       iterations: NAMES.length,
+//       maxDuration: '5m',
+//     },
+//   },
+// };
+
+// export default function () {
+//   const name = NAMES[exec.scenario.iterationInTest];
+//   const res = http.post(
+//     `${BASE_URL}/auth/signUp`,
+//     JSON.stringify({
+//       email: `${name}@example.com`,
+//       password: PASSWORD,
+//      first_name: 'test',
+//      last_name : 'user'
+//     }),
+//     { headers: { 'Content-Type': 'application/json' }, timeout: '30s' },
+//   );
+//   const bad = res.status >= 400 && res.status !== 409;
+//   console.log(`${name} -> ${res.status}${bad ? ' ' + String(res.body).slice(0, 150) : ''}`);
+// }
+
+
+/* stress test */ 
 import http from 'k6/http';
 import exec from 'k6/execution';
+import { Counter } from 'k6/metrics';
 
-const BASE_URL = __ENV.BASE_URL || 'http://localhost:3100';
-const PASSWORD = 'Test@1234';
+const BASE = __ENV.BASE_URL || 'http://localhost:3100';
+const TIMEOUT = __ENV.TIMEOUT || '10s'; // isse zyada lage to user ke liye error
+const RATES = [20, 40, 60, 80, 100, 150, 200, 300]; // req/s, apne hisaab se badlo
+const LEVEL_SEC = 60;
+const GAP_SEC = 30; // pichhle level ka backlog drain hone ke liye
 
-const NAMES = [];
-for (let i = 1; i <= 5; i++) NAMES.push(`maxuser_${i}`);
-for (let i = 1; i <= 30; i++) NAMES.push(`prouser_${i}`);
-NAMES.push('freeuser_1');
+const ok = new Counter('resp_201');
+const c4xx = new Counter('resp_4xx');
+const c5xx = new Counter('resp_5xx');
+const timeouts = new Counter('resp_timeout');
+
+const scenarios = {};
+const thresholds = {};
+RATES.forEach((rate, i) => {
+  const name = `r${rate}`;
+  scenarios[name] = {
+    executor: 'constant-arrival-rate',
+    rate,
+    timeUnit: '1s',
+    duration: `${LEVEL_SEC}s`,
+    startTime: `${i * (LEVEL_SEC + GAP_SEC)}s`,
+    preAllocatedVUs: Math.min(Math.max(50, rate * 2), 600),
+    maxVUs: 2000,
+    gracefulStop: '30s',
+    tags: { level: name },
+  };
+  // dummy thresholds (hamesha pass), sirf isliye ki per-level numbers summary mein dikhein
+  thresholds[`http_req_duration{level:${name}}`] = ['p(95)>=0'];
+  thresholds[`http_req_failed{level:${name}}`] = ['rate>=0'];
+  thresholds[`resp_201{level:${name}}`] = ['count>=0'];
+  thresholds[`resp_4xx{level:${name}}`] = ['count>=0'];
+  thresholds[`resp_5xx{level:${name}}`] = ['count>=0'];
+  thresholds[`resp_timeout{level:${name}}`] = ['count>=0'];
+});
 
 export const options = {
-  scenarios: {
-    create: {
-      executor: 'shared-iterations',
-      vus: 1,
-      iterations: NAMES.length,
-      maxDuration: '5m',
-    },
-  },
+  scenarios,
+  thresholds,
+  summaryTrendStats: ['avg', 'med', 'p(90)', 'p(95)', 'p(99)', 'max'],
 };
 
 export default function () {
-  const name = NAMES[exec.scenario.iterationInTest];
+  const level = exec.scenario.name;
+  const id = `${level}-${exec.scenario.iterationInTest}-${Date.now()}`;
+
   const res = http.post(
-    `${BASE_URL}/auth/signUp`,
+    `${BASE}/auth/signUp`,
     JSON.stringify({
-      email: `${name}@example.com`,
-      password: PASSWORD,
-     first_name: 'test',
-     last_name : 'user'
+      first_name: 'Load',
+      last_name: 'Test',
+      email: `loadtest+${id}@example.com`,
+      password: 'Passw0rd!123',
     }),
-    { headers: { 'Content-Type': 'application/json' }, timeout: '30s' },
+    { headers: { 'Content-Type': 'application/json' }, timeout: TIMEOUT },
   );
-  const bad = res.status >= 400 && res.status !== 409;
-  console.log(`${name} -> ${res.status}${bad ? ' ' + String(res.body).slice(0, 150) : ''}`);
+
+  // 0 add karne se bhi us level ka metric summary mein dikhta hai
+  const t = { level };
+  ok.add(res.status === 201 ? 1 : 0, t);
+  c4xx.add(res.status >= 400 && res.status < 500 ? 1 : 0, t);
+  c5xx.add(res.status >= 500 ? 1 : 0, t);
+  timeouts.add(res.status === 0 ? 1 : 0, t);
+
+  if (res.status !== 201 && __ITER % 50 === 0) {
+    console.log(`[${level}] status=${res.status} body=${String(res.body).slice(0, 120)}`);
+  }
 }
