@@ -415,9 +415,9 @@ export class AuthService {
     //   email_verification_expires: otpExpires,
     // });
 
-    // await measure('register.send_verification_email', async () =>
-    //   this.mailService.sendVerificationOtpEmail(newUser.email, otp),
-    // );
+    await measure('register.send_verification_email', async () =>
+      this.mailService.sendVerificationOtpEmail(newUser.email, otp),
+    );
     await this.signUpCountService.incrSignUpCount();
     return { message: 'Register successfull! Verify email to check you email' };
   }
