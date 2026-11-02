@@ -1,0 +1,1 @@
+DROP TABLE IF EXISTS bg_request_log;

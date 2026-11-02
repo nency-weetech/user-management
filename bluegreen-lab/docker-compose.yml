@@ -1,0 +1,66 @@
+x-app: &app
+  build:
+    context: ./app
+  image: bg-app:lab
+  env_file: [./app.env]
+  depends_on: [pgbouncer]
+  networks: [bg-net]
+  healthcheck:
+    test: ["CMD", "node", "-e", "require('net').connect(3000,'127.0.0.1').on('connect',()=>process.exit(0)).on('error',()=>process.exit(1))"]
+    interval: 5s
+    timeout: 3s
+    retries: 10
+services:
+  lab-postgres:
+    image: postgres:17        
+    container_name: bg-lab-postgres
+    environment:
+      POSTGRES_USER: ${LAB_DB_USER}
+      POSTGRES_PASSWORD: ${LAB_DB_PASSWORD}
+      POSTGRES_DB: ${LAB_DB_NAME}
+    ports:
+      - "5434:5432"
+    volumes:
+      - bg-lab-pgdata:/var/lib/postgresql/data
+    networks: [bg-net]
+
+  pgbouncer:
+    image: edoburu/pgbouncer:latest
+    container_name: bg-pgbouncer
+    depends_on: [lab-postgres]
+    volumes:
+      - ./pgbouncer/pgbouncer.ini:/etc/pgbouncer/pgbouncer.ini:ro
+      - ./pgbouncer/userlist.txt:/etc/pgbouncer/userlist.txt:ro
+    ports:
+      - "6432:6432"
+    networks: [bg-net]
+
+  nginx:
+    image: nginx:1.27
+    container_name: bg-nginx
+    depends_on: [blue, green]
+    ports: ["8088:80"]
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d
+    networks: [bg-net]
+  blue:
+    <<: *app
+    container_name: bg-blue
+    environment:
+      SERVER_NAME: blue
+      HOST_PORT: "4001"
+    ports: ["4001:3000"]
+
+  green:
+    <<: *app
+    container_name: bg-green
+    environment:
+      SERVER_NAME: green
+      HOST_PORT: "4002"
+    ports: ["4002:3000"]
+    
+volumes:
+  bg-lab-pgdata:
+networks:
+  bg-net:

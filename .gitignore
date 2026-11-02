@@ -63,3 +63,9 @@ apps/*/dist/
 modules/redis/dist/
 modules/*/dist/clickhouse-data/
 clickhouse-data/
+bluegreen-lab/results/
+bluegreen-lab/.env
+bluegreen-lab/app.env
+bluegreen-lab/app/node_modules/
+bluegreen-lab/results/
+bluegreen-lab/sql/*.dump
