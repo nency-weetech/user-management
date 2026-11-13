@@ -1,23 +1,18 @@
-import fs from 'fs'
-import path from 'path';
-import { Readline } from 'readline/promises';
-import { stdin, stdout } from 'process';
-import { runCommand } from './command';
-import { checkHealth, checkTraffic, sleep } from './health-check';
-import { deploy, getVersions } from './deployment';
-import { runMigration } from './migration';
-import { startK6 } from './k6-runner';
+import fs from 'node:fs';
+import path from 'node:path';
+import readline from 'node:readline/promises';
+import { stdin, stdout } from 'node:process';
+import { runCommand } from './command.js';
+import { checkHealth, checkTraffic, sleep } from './health-check.js';
+import { deploy, getVersions } from './deployment.js';
+import { runMigration } from './migration.js';
+import { startK6 } from './k6-runner.js';
 
 const RESULTS_DIR = path.join(process.cwd(), 'results');
 
-const LOG_FILE = path.join(
-  RESULTS_DIR,
-  'orchestration.jsonl'
-);
+const LOG_FILE = path.join(RESULTS_DIR, 'orchestration.jsonl');
 
-const DRAIN_SECONDS = Number(
-  process.env.DRAIN_SECONDS || 15
-);
+const DRAIN_SECONDS = Number(process.env.DRAIN_SECONDS || 15);
 
 let k6Process = null;
 
@@ -29,10 +24,7 @@ function logPhase(phase, status, details = {}) {
     ...details,
   };
 
-  fs.appendFileSync(
-    LOG_FILE,
-    JSON.stringify(entry) + '\n'
-  );
+  fs.appendFileSync(LOG_FILE, JSON.stringify(entry) + '\n');
 
   console.log('\n', entry);
 }
@@ -80,10 +72,18 @@ async function preflight() {
 
   await runCommand('docker', ['compose', 'ps']);
 
-  await runCommand(
-    'docker',
-    ['exec', 'bg-nginx', 'nginx', '-t']
-  );
+  await runCommand('docker', ['exec', 'bg-nginx', 'nginx', '-t']);
+  await runCommand('docker', [
+    'exec',
+    'bg-lab-postgres',
+    'psql',
+    '-U',
+    'lab',
+    '-d',
+    'labdb',
+    '-c',
+    'TRUNCATE TABLE bg_request_log;',
+  ]);
 
   await checkHealth('blue');
   await checkHealth('green');
@@ -94,18 +94,13 @@ async function preflight() {
 }
 
 async function switchTraffic(target) {
-  await runCommand(
-    'bash',
-    ['scripts/switch.sh', target]
-  );
+  await runCommand('bash', ['scripts/switch.sh', target]);
 
   await checkTraffic(target);
 }
 
 async function waitForDrain(oldTarget) {
-  console.log(
-    `Waiting ${DRAIN_SECONDS}s before retiring ${oldTarget}`
-  );
+  console.log(`Waiting ${DRAIN_SECONDS}s before retiring ${oldTarget}`);
 
   await sleep(DRAIN_SECONDS * 1000);
 
@@ -118,9 +113,7 @@ async function approveContract() {
   const versions = getVersions();
 
   if (versions.blue !== 'V3' || versions.green !== 'V3') {
-    throw new Error(
-      'Contract blocked: both applications must run V3'
-    );
+    throw new Error('Contract blocked: both applications must run V3');
   }
 
   await checkHealth('blue');
@@ -131,9 +124,7 @@ async function approveContract() {
   console.log('The contract migration will permanently drop request_id.');
 
   if (!stdin.isTTY) {
-    throw new Error(
-      'Contract approval requires an interactive terminal.'
-    );
+    throw new Error('Contract approval requires an interactive terminal.');
   }
 
   const rl = readline.createInterface({
@@ -142,10 +133,8 @@ async function approveContract() {
   });
 
   try {
-    const answer = await rl.question(
-      '\nType CONTRACT to approve: '
-    );
-    console.log("orch contract answer : ",answer)
+    const answer = await rl.question('\nType CONTRACT to approve: ');
+    console.log('orch contract answer : ', answer);
     if (answer.trim() !== 'CONTRACT') {
       throw new Error('Contract approval rejected');
     }
@@ -175,7 +164,7 @@ async function runFlow() {
     await runMigration('expand');
   });
 
-   await sleep(4000);
+  await sleep(4000);
   // 2. Deploy Green V2 while Blue serves traffic.
   await phase('DEPLOY_GREEN_V2', async () => {
     await deploy('green', 'V2');
@@ -186,7 +175,6 @@ async function runFlow() {
     await switchTraffic('green');
     await waitForDrain('blue');
   });
-
 
   // 4. Backfill and verify.
   await phase('BACKFILL', async () => {
@@ -231,9 +219,7 @@ async function runFlow() {
 
   // 9. Observe the system after contract.
   await phase('POST_MIGRATION_OBSERVATION', async () => {
-    const seconds = Number(
-      process.env.POST_CONTRACT_OBSERVATION_SECONDS || 30
-    );
+    const seconds = Number(process.env.POST_CONTRACT_OBSERVATION_SECONDS || 30);
 
     console.log(`Observing system for ${seconds} seconds`);
 
@@ -242,6 +228,10 @@ async function runFlow() {
     await checkTraffic('green');
   });
 
+  if (k6Process) {
+    console.log('\nWaiting for k6 load test to complete remaining duration...');
+    await k6Process.done;
+  }
   console.log('\nALL MIGRATION PHASES COMPLETED');
 }
 

@@ -34,7 +34,7 @@ const BASE_URL = process.env.BASE_URL || 'http://localhost:8088';
 
 export function getServedByServer() {
   return new Promise((resolve, reject) => {
-    const req = http.get(`${BASE_URL}/bg-test/ping`, (res) => {
+    const req = http.get(`${BASE_URL}/healthz`, (res) => {
       const server = res.headers['x-served-by'];
 
       res.resume(); 

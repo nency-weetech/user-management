@@ -1,5 +1,7 @@
-require('dotenv').config();
-const { Client } = require('pg');
+import 'dotenv/config';
+import pg from 'pg';
+const { Client } = pg;
+
 const MIGRATION_DATABASE_URL = process.env.MIGRATION_DATABASE_URL;
 if (!MIGRATION_DATABASE_URL) {
   throw new Error('MIGRATION_DATABASE_URL is required');
@@ -75,15 +77,13 @@ async function backfill() {
           AND target.payload IS NULL
         RETURNING target.id
         `,
-        [BATCH_SIZE]
+        [BATCH_SIZE],
       );
 
       const updated = result.rowCount;
       totalUpdated += updated;
 
-      console.log(
-        `Backfill batch: ${updated} rows | Total: ${totalUpdated}`
-      );
+      console.log(`Backfill batch: ${updated} rows | Total: ${totalUpdated}`);
 
       if (updated === 0) {
         break;
@@ -97,7 +97,7 @@ async function backfill() {
   });
 }
 
-//VERIFY 
+//VERIFY
 async function verify() {
   await withClient(async (client) => {
     const result = await client.query(`
@@ -120,13 +120,8 @@ async function verify() {
 
     console.log('Verification result:', stats);
 
-    if (
-      Number(stats.null_payload) > 0 ||
-      Number(stats.mismatched_ids) > 0
-    ) {
-      throw new Error(
-        'Verification failed. Do not proceed to V3 or Contract.'
-      );
+    if (Number(stats.null_payload) > 0 || Number(stats.mismatched_ids) > 0) {
+      throw new Error('Verification failed. Do not proceed to V3 or Contract.');
     }
 
     console.log('VERIFY passed');
@@ -137,7 +132,7 @@ async function verify() {
 async function contract() {
   if (process.env.CONFIRM_CONTRACT !== 'true') {
     throw new Error(
-      'Set CONFIRM_CONTRACT=true only after both Blue and Green run V3.'
+      'Set CONFIRM_CONTRACT=true only after both Blue and Green run V3.',
     );
   }
 
@@ -168,13 +163,8 @@ async function contract() {
 
       const stats = result.rows[0];
 
-      if (
-        Number(stats.null_payload) > 0 ||
-        Number(stats.mismatched_ids) > 0
-      ) {
-        throw new Error(
-          'Contract blocked: payload verification failed.'
-        );
+      if (Number(stats.null_payload) > 0 || Number(stats.mismatched_ids) > 0) {
+        throw new Error('Contract blocked: payload verification failed.');
       }
 
       await client.query(`
@@ -192,8 +182,8 @@ async function contract() {
   });
 }
 
-async function main(){
-    const command = process.argv[2];
+async function main() {
+  const command = process.argv[2];
 
   switch (command) {
     case 'expand':

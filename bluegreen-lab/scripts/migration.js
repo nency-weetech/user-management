@@ -1,29 +1,27 @@
-const { runCommand } = require('./command');
+import { runCommand } from './command.js';
 
-async function runMigration(phase) {
-  const allowed = ['expand', 'backfill', 'verify', 'contract'];
+    export async function runMigration(phase) {
+      const allowed = ['expand', 'backfill', 'verify', 'contract'];
 
-  if (!allowed.includes(phase)) {
-    throw new Error(`Unknown migration phase: ${phase}`);
-  }
+      if (!allowed.includes(phase)) {
+        throw new Error(`Unknown migration phase: ${phase}`);
+      }
 
-  console.log(`\n========== ${phase.toUpperCase()} MIGRATION ==========`);
+      console.log(`\n========== ${phase.toUpperCase()} MIGRATION ==========`);
 
-  const env = {
-    ...process.env,
-  };
+      const env = {
+        ...process.env,
+      };
 
-  if (phase === 'contract') {
-    env.CONFIRM_CONTRACT = 'true';
-  }
+      if (phase === 'contract') {
+        env.CONFIRM_CONTRACT = 'true';
+      }
 
-  await runCommand(
-    'node',
-    ['migration/migrate.js', phase],
-    { env }
-  );
+      await runCommand(
+        'node',
+        ['migration/migrate.js', phase],
+        { env }
+      );
 
-  console.log(`${phase.toUpperCase()} completed successfully`);
-}
-
-module.exports = { runMigration };
+      console.log(`${phase.toUpperCase()} completed successfully`);
+    }
