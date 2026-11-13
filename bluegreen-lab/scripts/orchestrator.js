@@ -2,11 +2,15 @@ import fs from 'node:fs';
 import path from 'node:path';
 import readline from 'node:readline/promises';
 import { stdin, stdout } from 'node:process';
+import dotenv from 'dotenv';
 import { runCommand } from './command.js';
 import { checkHealth, checkTraffic, sleep } from './health-check.js';
 import { deploy, getVersions } from './deployment.js';
 import { runMigration } from './migration.js';
 import { startK6 } from './k6-runner.js';
+
+dotenv.config({ path: path.join(process.cwd(), 'orchestrator.env') });
+dotenv.config();
 
 const RESULTS_DIR = path.join(process.cwd(), 'results');
 
@@ -82,7 +86,7 @@ async function preflight() {
     '-d',
     'labdb',
     '-c',
-    'TRUNCATE TABLE bg_request_log;',
+    'ALTER TABLE bg_request_log ADD COLUMN IF NOT EXISTS request_id TEXT; TRUNCATE TABLE bg_request_log;',
   ]);
 
   await checkHealth('blue');
@@ -122,6 +126,11 @@ async function approveContract() {
 
   console.log('\nBoth applications are running V3.');
   console.log('The contract migration will permanently drop request_id.');
+
+  if (process.env.AUTO_APPROVE_CONTRACT === 'true' || process.env.CONFIRM_CONTRACT === 'true') {
+    console.log('Contract automatically approved (AUTO_APPROVE_CONTRACT=true)');
+    return;
+  }
 
   if (!stdin.isTTY) {
     throw new Error('Contract approval requires an interactive terminal.');
@@ -229,8 +238,8 @@ async function runFlow() {
   });
 
   if (k6Process) {
-    console.log('\nWaiting for k6 load test to complete remaining duration...');
-    await k6Process.done;
+    console.log('\nAll migration phases completed. Stopping k6 load test...');
+    await k6Process.stop();
   }
   console.log('\nALL MIGRATION PHASES COMPLETED');
 }

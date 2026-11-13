@@ -128,9 +128,15 @@ app.get('/bg-test/ping', async (req, res) => {
 app.get('/bg-test/slow', async (req, res) => {
   try {
     await pool.query('SELECT pg_sleep(2)');
-    res
-      .set('X-Served-By', SERVER_NAME)
-      .json(await log(req.get('x-request-id')));
+    const requestId = req.get('x-request-id') || randomUUID();
+    const row = await logRequest(requestId);
+    res.set('X-Served-By', SERVER_NAME).json({
+      success: true,
+      requestId,
+      server: SERVER_NAME,
+      version: APP_VERSION,
+      databaseRow: row,
+    });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
