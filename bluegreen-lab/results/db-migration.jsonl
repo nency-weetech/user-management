@@ -1,0 +1,159 @@
+{"timestamp":"2026-11-17T04:01:57.165Z","phase":"PREFLIGHT","status":"FAILED","error":"bg-db-a is not running"}
+{"timestamp":"2026-11-17T04:02:19.643Z","phase":"PREFLIGHT","status":"FAILED","error":"Command failed: curl -fsS http://localhost:8084/connectors/bg-db-a-source/status\ncurl: (56) Recv failure: Connection reset by peer\n"}
+{"timestamp":"2026-11-17T04:09:21.053Z","phase":"PREFLIGHT","status":"SUCCESS"}
+{"timestamp":"2026-11-17T04:22:22.872Z","phase":"PREFLIGHT","status":"SUCCESS"}
+{"timestamp":"2026-11-17T04:22:25.875Z","phase":"K6_TRAFFIC","status":"STARTED","rate":"20","duration":"30m","baseUrl":"http://127.0.0.1:8088"}
+{"timestamp":"2026-11-17T04:22:25.876Z","phase":"ORCHESTRATOR","status":"RUNNING","message":"Preflight passed and k6 traffic started"}
+{"timestamp":"2026-11-17T04:24:42.098Z","phase":"PREFLIGHT","status":"SUCCESS"}
+{"timestamp":"2026-11-17T04:24:45.102Z","phase":"K6_TRAFFIC","status":"STARTED","rate":"20","duration":"30m","baseUrl":"http://127.0.0.1:8088"}
+{"timestamp":"2026-11-17T04:24:45.103Z","phase":"ORCHESTRATOR","status":"RUNNING","message":"Preflight passed and k6 traffic started"}
+{"timestamp":"2026-11-17T04:26:10.549Z","phase":"PREFLIGHT","status":"SUCCESS"}
+{"timestamp":"2026-11-17T04:26:13.553Z","phase":"K6_TRAFFIC","status":"STARTED","rate":"3","duration":"1m","baseUrl":"http://127.0.0.1:8088"}
+{"timestamp":"2026-11-17T04:26:13.554Z","phase":"ORCHESTRATOR","status":"RUNNING","message":"Preflight passed and k6 traffic started"}
+{"timestamp":"2026-11-17T04:27:11.149Z","phase":"K6_TRAFFIC","status":"COMPLETED"}
+{"timestamp":"2026-11-17T04:43:53.510Z","phase":"PREFLIGHT","status":"FAILED","error":"args is not defined"}
+{"timestamp":"2026-11-17T04:44:43.467Z","phase":"PREFLIGHT","status":"FAILED","error":"args is not defined"}
+{"timestamp":"2026-11-17T04:44:46.375Z","phase":"PREFLIGHT","status":"FAILED","error":"args is not defined"}
+{"timestamp":"2026-11-17T04:45:15.011Z","phase":"PREFLIGHT","status":"FAILED","error":"args is not defined"}
+{"timestamp":"2026-11-17T04:46:18.432Z","phase":"PREFLIGHT","status":"FAILED","error":"docker inspect --format {{range .NetworkSetting.Networks}}{{.IPAddress}}{{end}} bg-db-a failed: template parsing error: template: :1:23: executing \"\" at <.NetworkSetting.Networks>: map has no entry for key \"NetworkSetting\"\n"}
+{"timestamp":"2026-11-17T04:46:51.660Z","phase":"PREFLIGHT","status":"FAILED","error":"PgBouncer backend mismatch. Expected bg-db-a (172.28.0.3), received 172.28.0.3/32"}
+{"timestamp":"2026-11-17T04:47:38.918Z","phase":"PGBOUNCER_POOLS","status":"SUCCESS","output":"labdb|lab|0|0|0|0|0|0|0|1|0|0|0|0|0|transaction|\npgbouncer|pgbouncer|1|0|0|0|0|0|0|0|0|0|0|0|0|statement|"}
+{"timestamp":"2026-11-17T04:47:40.126Z","phase":"PREFLIGHT","status":"SUCCESS"}
+{"timestamp":"2026-11-17T04:47:43.129Z","phase":"K6_TRAFFIC","status":"STARTED","rate":"3","duration":"1m","baseUrl":"http://127.0.0.1:8088"}
+{"timestamp":"2026-11-17T04:47:43.130Z","phase":"ORCHESTRATOR","status":"RUNNING","message":"Preflight passed and k6 traffic started"}
+{"timestamp":"2026-11-17T04:48:40.738Z","phase":"K6_TRAFFIC","status":"COMPLETED"}
+{"timestamp":"2026-11-17T04:50:16.622Z","phase":"PGBOUNCER_POOLS","status":"SUCCESS","output":"labdb|lab|0|0|0|0|0|0|0|1|0|0|0|0|0|transaction|\npgbouncer|pgbouncer|1|0|0|0|0|0|0|0|0|0|0|0|0|statement|"}
+{"timestamp":"2026-11-17T04:50:17.802Z","phase":"PREFLIGHT","status":"SUCCESS"}
+{"timestamp":"2026-11-17T04:50:20.805Z","phase":"K6_TRAFFIC","status":"STARTED","rate":"3","duration":"1m","baseUrl":"http://127.0.0.1:8088"}
+{"timestamp":"2026-11-17T04:50:20.806Z","phase":"ORCHESTRATOR","status":"RUNNING","message":"Preflight passed and k6 traffic started"}
+{"timestamp":"2026-11-17T04:51:18.483Z","phase":"K6_TRAFFIC","status":"COMPLETED"}
+{"timestamp":"2026-11-17T05:26:32.600Z","phase":"PGBOUNCER_POOLS","status":"SUCCESS","output":"labdb|lab|0|0|0|0|0|0|0|1|0|0|0|0|0|transaction|\npgbouncer|pgbouncer|1|0|0|0|0|0|0|0|0|0|0|0|0|statement|"}
+{"timestamp":"2026-11-17T05:26:33.931Z","phase":"WAL_CHECKPOINT","status":"CAPTURED","lsn":"0/1AAD3F0"}
+{"timestamp":"2026-11-17T05:26:34.031Z","phase":"PREFLIGHT","status":"SUCCESS"}
+{"timestamp":"2026-11-17T05:26:37.037Z","phase":"K6_TRAFFIC","status":"STARTED","rate":"3","duration":"1m","baseUrl":"http://127.0.0.1:8088"}
+{"timestamp":"2026-11-17T05:26:37.037Z","phase":"ORCHESTRATOR","status":"RUNNING","message":"Preflight passed and k6 traffic started"}
+{"timestamp":"2026-11-17T05:27:34.671Z","phase":"K6_TRAFFIC","status":"COMPLETED"}
+{"timestamp":"2026-11-17T05:40:33.352Z","phase":"PGBOUNCER_POOLS","status":"SUCCESS","output":"labdb|lab|0|0|0|0|0|0|0|1|0|0|0|0|0|transaction|\npgbouncer|pgbouncer|1|0|0|0|0|0|0|0|0|0|0|0|0|statement|"}
+{"timestamp":"2026-11-17T05:40:34.538Z","phase":"PREFLIGHT","status":"SUCCESS"}
+{"timestamp":"2026-11-17T05:40:37.541Z","phase":"K6_TRAFFIC","status":"STARTED","rate":"3","duration":"1m","baseUrl":"http://127.0.0.1:8088"}
+{"timestamp":"2026-11-17T05:40:37.541Z","phase":"ORCHESTRATOR","status":"RUNNING","message":"Preflight passed and k6 traffic started"}
+{"timestamp":"2026-11-17T05:40:37.542Z","phase":"MIGRATION","status":"STARTED"}
+{"timestamp":"2026-11-17T05:41:35.215Z","phase":"K6_TRAFFIC","status":"COMPLETED"}
+{"timestamp":"2026-11-17T05:41:35.216Z","phase":"ORCHESTRATOR","status":"SUCCESS"}
+{"timestamp":"2026-11-17T05:43:07.499Z","phase":"PGBOUNCER_POOLS","status":"SUCCESS","output":"labdb|lab|0|0|0|0|0|0|0|1|0|0|0|0|0|transaction|\npgbouncer|pgbouncer|1|0|0|0|0|0|0|0|0|0|0|0|0|statement|"}
+{"timestamp":"2026-11-17T05:43:08.702Z","phase":"PREFLIGHT","status":"SUCCESS"}
+{"timestamp":"2026-11-17T05:43:11.705Z","phase":"K6_TRAFFIC","status":"STARTED","rate":"3","duration":"1m","baseUrl":"http://127.0.0.1:8088"}
+{"timestamp":"2026-11-17T05:43:11.706Z","phase":"ORCHESTRATOR","status":"RUNNING","message":"Preflight passed and k6 traffic started"}
+{"timestamp":"2026-11-17T05:43:11.707Z","phase":"MIGRATION","status":"STARTED"}
+{"timestamp":"2026-11-17T05:44:09.376Z","phase":"K6_TRAFFIC","status":"COMPLETED"}
+{"timestamp":"2026-11-17T05:44:09.376Z","phase":"ORCHESTRATOR","status":"SUCCESS"}
+{"timestamp":"2026-11-17T06:11:38.408Z","phase":"PGBOUNCER_BACKEND","status":"VERIFIED","expectedContainer":"bg-db-a","expectedIp":"172.28.0.3","actualIp":"172.28.0.3"}
+{"timestamp":"2026-11-17T06:11:39.691Z","phase":"PREFLIGHT","status":"SUCCESS"}
+{"timestamp":"2026-11-17T06:11:42.694Z","phase":"K6_TRAFFIC","status":"STARTED","rate":"3","duration":"1m","baseUrl":"http://127.0.0.1:8088"}
+{"timestamp":"2026-11-17T06:11:42.695Z","phase":"ORCHESTRATOR","status":"RUNNING"}
+{"timestamp":"2026-11-17T06:11:42.841Z","phase":"WRITE_BARRIER","status":"PAUSED","database":"labdb","output":"PAUSE"}
+{"timestamp":"2026-11-17T06:11:42.922Z","phase":"PGBOUNCER_POOLS","status":"SUCCESS","output":"labdb|lab|0|1|0|0|0|0|0|0|0|0|0|0|54684|transaction|\npgbouncer|pgbouncer|1|0|0|0|0|0|0|0|0|0|0|0|0|statement|"}
+{"timestamp":"2026-11-17T06:11:42.922Z","phase":"MIGRATION","status":"WRITE_BARRIER_ESTABLISHED"}
+{"timestamp":"2026-11-17T06:11:43.005Z","phase":"WAL_CHECKPOINT","status":"CAPTURED","lsn":"0/1AF2108"}
+{"timestamp":"2026-11-17T06:12:43.226Z","phase":"MIGRATION","status":"FAILED","error":"Replication slot did not acknowledge 0/1AF2108","dbAStopped":false,"configChanged":false,"pgbouncerResumedToB":false}
+{"timestamp":"2026-11-17T06:12:43.338Z","phase":"WRITE_BARRIER","status":"RESUMED","database":"labdb","output":"RESUME"}
+{"timestamp":"2026-11-17T06:12:43.434Z","phase":"PGBOUNCER_BACKEND","status":"VERIFIED","expectedContainer":"bg-db-a","expectedIp":"172.28.0.3","actualIp":"172.28.0.3"}
+{"timestamp":"2026-11-17T06:12:43.435Z","phase":"RECOVERY","status":"APPLICATION_DATABASE_RESTORED","backend":"db-a"}
+{"timestamp":"2026-11-17T06:12:43.435Z","phase":"ORCHESTRATOR","status":"FAILED","error":"Replication slot did not acknowledge 0/1AF2108"}
+{"timestamp":"2026-11-17T06:29:40.708Z","phase":"PGBOUNCER_BACKEND","status":"VERIFIED","expectedContainer":"bg-db-a","expectedIp":"172.28.0.3","actualIp":"172.28.0.3"}
+{"timestamp":"2026-11-17T06:29:41.980Z","phase":"PREFLIGHT","status":"SUCCESS"}
+{"timestamp":"2026-11-17T06:29:44.983Z","phase":"K6_TRAFFIC","status":"STARTED","rate":"3","duration":"2m","baseUrl":"http://127.0.0.1:8088"}
+{"timestamp":"2026-11-17T06:29:44.984Z","phase":"ORCHESTRATOR","status":"RUNNING"}
+{"timestamp":"2026-11-17T06:29:45.138Z","phase":"WRITE_BARRIER","status":"PAUSED","database":"labdb","output":"PAUSE"}
+{"timestamp":"2026-11-17T06:29:45.220Z","phase":"PGBOUNCER_POOLS","status":"SUCCESS","output":"labdb|lab|0|1|0|0|0|0|0|0|0|0|0|0|23095|transaction|\npgbouncer|pgbouncer|1|0|0|0|0|0|0|0|0|0|0|0|0|statement|"}
+{"timestamp":"2026-11-17T06:29:45.220Z","phase":"MIGRATION","status":"WRITE_BARRIER_ESTABLISHED"}
+{"timestamp":"2026-11-17T06:29:45.301Z","phase":"WAL_CHECKPOINT","status":"CAPTURED","lsn":"0/1B0FC48"}
+{"timestamp":"2026-11-17T06:30:34.470Z","phase":"REPLICATION_SLOT","status":"CAUGHT_UP","targetLsn":"0/1B0FC48","confirmedFlushLsn":"0/1B0FC48","currentWalLsn":"0/1B0FC80","elapsedMs":49169}
+{"timestamp":"2026-11-17T06:30:34.668Z","phase":"DATA_CONSISTENCY","status":"SUCCESS","fingerprint":"9:48d154618b302665edc59a6a89ffc503"}
+{"timestamp":"2026-11-17T06:30:36.940Z","phase":"DATA_CONSISTENCY","status":"SUCCESS","fingerprint":"9:48d154618b302665edc59a6a89ffc503"}
+{"timestamp":"2026-11-17T06:30:39.175Z","phase":"DATA_CONSISTENCY","status":"SUCCESS","fingerprint":"9:48d154618b302665edc59a6a89ffc503"}
+{"timestamp":"2026-11-17T06:30:39.175Z","phase":"CDC_CATCHUP","status":"SUCCESS","elapsedMs":4705,"stableMatches":3,"fingerprint":"9:48d154618b302665edc59a6a89ffc503"}
+{"timestamp":"2026-11-17T06:30:39.338Z","phase":"DATA_CONSISTENCY","status":"SUCCESS","fingerprint":"9:48d154618b302665edc59a6a89ffc503"}
+{"timestamp":"2026-11-17T06:30:39.338Z","phase":"FINAL_CDC_SYNC","status":"SUCCESS","targetLsn":"0/1B0FC48","fingerprint":"9:48d154618b302665edc59a6a89ffc503"}
+{"timestamp":"2026-11-17T06:30:39.364Z","phase":"CONNECTOR_PAUSED","status":"SUCCESS","name":"bg-db-b-sink"}
+{"timestamp":"2026-11-17T06:30:40.418Z","phase":"CONNECTOR_PAUSED","status":"SUCCESS","name":"bg-db-a-source"}
+{"timestamp":"2026-11-17T06:30:40.419Z","phase":"CDC_CONNECTORS","status":"PAUSED"}
+{"timestamp":"2026-11-17T06:30:40.558Z","phase":"DB_B_PREPARATION","status":"SUCCESS"}
+{"timestamp":"2026-11-17T06:30:40.650Z","phase":"DB_B_VERIFICATION","status":"SUCCESS","dataType":"timestamp with time zone","sequence":3829,"maximumId":3829}
+{"timestamp":"2026-11-17T06:30:40.821Z","phase":"DATA_CONSISTENCY","status":"SUCCESS","fingerprint":"9:48d154618b302665edc59a6a89ffc503"}
+{"timestamp":"2026-11-17T06:30:40.821Z","phase":"DB_B","status":"READY_FOR_CUTOVER","targetLsn":"0/1B0FC48"}
+{"timestamp":"2026-11-17T06:30:50.966Z","phase":"DB_A_WRITE_FENCE","status":"STOPPED"}
+{"timestamp":"2026-11-17T06:30:50.967Z","phase":"PGBOUNCER_CONFIG","status":"UPDATED","target":"db-b"}
+{"timestamp":"2026-11-17T06:30:51.122Z","phase":"PGBOUNCER_CONFIG","status":"RELOADED"}
+{"timestamp":"2026-11-17T06:30:51.200Z","phase":"WRITE_BARRIER","status":"RESUMED","database":"labdb","output":"RESUME"}
+{"timestamp":"2026-11-17T06:30:51.200Z","phase":"DATABASE_CUTOVER","status":"COMMITTED","targetLsn":"0/1B0FC48"}
+{"timestamp":"2026-11-17T06:31:51.581Z","phase":"MIGRATION","status":"FAILED","error":"docker exec -e PGPASSWORD=lab123 bg-db-b psql -h pgbouncer -p 6432 -U lab -d labdb -Atc SELECT host(inet_server_addr()); failed: psql: error: connection to server at \"pgbouncer\" (172.28.0.6), port 6432 failed: FATAL:  client_login_timeout (server down)\n","dbAStopped":true,"configChanged":true,"pgbouncerResumedToB":true,"cdcPaused":true}
+{"timestamp":"2026-11-17T06:31:51.581Z","phase":"RECOVERY","status":"FORWARD_RECOVERY_REQUIRED","activeDatabase":"db-b"}
+{"timestamp":"2026-11-17T06:31:51.581Z","phase":"ORCHESTRATOR","status":"FAILED","error":"docker exec -e PGPASSWORD=lab123 bg-db-b psql -h pgbouncer -p 6432 -U lab -d labdb -Atc SELECT host(inet_server_addr()); failed: psql: error: connection to server at \"pgbouncer\" (172.28.0.6), port 6432 failed: FATAL:  client_login_timeout (server down)\n"}
+{"timestamp":"2026-11-17T06:36:32.202Z","phase":"ORCHESTRATOR","status":"FAILED","error":"Expected initial PgBouncer backend to be DB-A."}
+{"timestamp":"2026-11-17T06:38:01.708Z","phase":"PGBOUNCER_BACKEND","status":"VERIFIED","expectedContainer":"bg-db-a","expectedIp":"172.28.0.3","actualIp":"172.28.0.3"}
+{"timestamp":"2026-11-17T06:38:01.736Z","phase":"CONNECTOR_RESUMED","status":"SUCCESS","name":"bg-db-b-sink"}
+{"timestamp":"2026-11-17T06:38:01.761Z","phase":"CONNECTOR_RESUMED","status":"SUCCESS","name":"bg-db-a-source"}
+{"timestamp":"2026-11-17T06:38:03.038Z","phase":"PREFLIGHT","status":"SUCCESS"}
+{"timestamp":"2026-11-17T06:38:06.040Z","phase":"K6_TRAFFIC","status":"STARTED","rate":"3","duration":"2m","baseUrl":"http://127.0.0.1:8088"}
+{"timestamp":"2026-11-17T06:38:06.041Z","phase":"ORCHESTRATOR","status":"RUNNING"}
+{"timestamp":"2026-11-17T06:38:06.193Z","phase":"WRITE_BARRIER","status":"PAUSED","database":"labdb","output":"PAUSE"}
+{"timestamp":"2026-11-17T06:38:06.273Z","phase":"PGBOUNCER_POOLS","status":"SUCCESS","output":"labdb|lab|0|1|0|0|0|0|0|0|0|0|0|0|59163|transaction|\npgbouncer|pgbouncer|1|0|0|0|0|0|0|0|0|0|0|0|0|statement|"}
+{"timestamp":"2026-11-17T06:38:06.273Z","phase":"MIGRATION","status":"WRITE_BARRIER_ESTABLISHED"}
+{"timestamp":"2026-11-17T06:38:06.357Z","phase":"WAL_CHECKPOINT","status":"CAPTURED","lsn":"0/1B34E20"}
+{"timestamp":"2026-11-17T06:38:35.007Z","phase":"REPLICATION_SLOT","status":"CAUGHT_UP","targetLsn":"0/1B34E20","confirmedFlushLsn":"0/1B34E20","currentWalLsn":"0/1B34F60","elapsedMs":28650}
+{"timestamp":"2026-11-17T06:47:06.877Z","phase":"ORCHESTRATOR","status":"FAILED","error":"docker exec -e PGPASSWORD=lab123 bg-db-b psql -h pgbouncer -p 6432 -U lab -d labdb -Atc SELECT host(inet_server_addr()); failed: FATAL:  query_wait_timeout\nserver closed the connection unexpectedly\n\tThis probably means the server terminated abnormally\n\tbefore or while processing the request.\nconnection to server was lost\n"}
+{"timestamp":"2026-11-17T06:49:44.548Z","phase":"ORCHESTRATOR","status":"FAILED","error":"docker exec -e PGPASSWORD=lab123 bg-db-b psql -h pgbouncer -p 6432 -U lab -d labdb -Atc SELECT host(inet_server_addr()); failed: FATAL:  query_wait_timeout\nserver closed the connection unexpectedly\n\tThis probably means the server terminated abnormally\n\tbefore or while processing the request.\nconnection to server was lost\n"}
+{"timestamp":"2026-11-17T06:53:56.954Z","phase":"PGBOUNCER_BACKEND","status":"VERIFIED","expectedContainer":"bg-db-a","expectedIp":"172.28.0.3","actualIp":"172.28.0.3"}
+{"timestamp":"2026-11-17T06:54:00.828Z","phase":"PGBOUNCER_BACKEND","status":"VERIFIED","expectedContainer":"bg-db-a","expectedIp":"172.28.0.3","actualIp":"172.28.0.3"}
+{"timestamp":"2026-11-17T06:54:27.746Z","phase":"ORCHESTRATOR","status":"FAILED","error":"bg-db-b-sink did not reach RUNNING state."}
+{"timestamp":"2026-11-17T06:54:31.605Z","phase":"ORCHESTRATOR","status":"FAILED","error":"bg-db-b-sink did not reach RUNNING state."}
+{"timestamp":"2026-11-17T06:56:54.078Z","phase":"PGBOUNCER_BACKEND","status":"VERIFIED","expectedContainer":"bg-db-a","expectedIp":"172.28.0.3","actualIp":"172.28.0.3"}
+{"timestamp":"2026-11-17T06:56:54.101Z","phase":"ORCHESTRATOR","status":"FAILED","error":"ENOENT: no such file or directory, open '/home/nency/Desktop/Workspace/POCs/user-management/bluegreen-lab/kafka-connect/bg-db-b-sink.json'"}
+{"timestamp":"2026-11-17T06:57:10.263Z","phase":"PGBOUNCER_BACKEND","status":"VERIFIED","expectedContainer":"bg-db-a","expectedIp":"172.28.0.3","actualIp":"172.28.0.3"}
+{"timestamp":"2026-11-17T06:57:10.284Z","phase":"ORCHESTRATOR","status":"FAILED","error":"curl -fsS http://localhost:8084/connectors/bg-db-b-sink/status failed: curl: (22) The requested URL returned error: 404\n"}
+{"timestamp":"2026-11-17T06:57:34.081Z","phase":"PGBOUNCER_BACKEND","status":"VERIFIED","expectedContainer":"bg-db-a","expectedIp":"172.28.0.3","actualIp":"172.28.0.3"}
+{"timestamp":"2026-11-17T06:58:04.708Z","phase":"ORCHESTRATOR","status":"FAILED","error":"bg-db-b-sink did not reach RUNNING state."}
+{"timestamp":"2026-11-17T06:58:56.063Z","phase":"PGBOUNCER_BACKEND","status":"VERIFIED","expectedContainer":"bg-db-a","expectedIp":"172.28.0.3","actualIp":"172.28.0.3"}
+{"timestamp":"2026-11-17T06:58:56.112Z","phase":"CONNECTOR_RESUMED","status":"SUCCESS","name":"bg-db-b-sink","recovered":true}
+{"timestamp":"2026-11-17T06:58:57.400Z","phase":"PREFLIGHT","status":"SUCCESS"}
+{"timestamp":"2026-11-17T06:59:00.405Z","phase":"K6_TRAFFIC","status":"STARTED","rate":"3","duration":"2m","baseUrl":"http://127.0.0.1:8088"}
+{"timestamp":"2026-11-17T06:59:00.405Z","phase":"ORCHESTRATOR","status":"RUNNING"}
+{"timestamp":"2026-11-17T06:59:00.498Z","phase":"WRITE_BARRIER","status":"PAUSED","database":"labdb","output":"PAUSE"}
+{"timestamp":"2026-11-17T06:59:00.578Z","phase":"PGBOUNCER_POOLS","status":"SUCCESS","output":"labdb|lab|1|0|0|0|0|0|0|0|0|0|0|0|0|transaction|\npgbouncer|pgbouncer|1|0|0|0|0|0|0|0|0|0|0|0|0|statement|"}
+{"timestamp":"2026-11-17T06:59:00.578Z","phase":"MIGRATION","status":"WRITE_BARRIER_ESTABLISHED"}
+{"timestamp":"2026-11-17T06:59:00.669Z","phase":"WAL_CHECKPOINT","status":"CAPTURED","lsn":"0/1B3F6B8"}
+{"timestamp":"2026-11-17T06:59:34.877Z","phase":"REPLICATION_SLOT","status":"CAUGHT_UP","targetLsn":"0/1B3F6B8","confirmedFlushLsn":"0/1B3F6B8","currentWalLsn":"0/1B3F6F0","elapsedMs":34207}
+{"timestamp":"2026-11-17T07:08:26.621Z","phase":"ORCHESTRATOR","status":"FAILED","error":"docker exec -e PGPASSWORD=lab123 bg-db-b psql -h pgbouncer -p 6432 -U lab -d labdb -Atc SELECT host(inet_server_addr()); failed: FATAL:  query_wait_timeout\nserver closed the connection unexpectedly\n\tThis probably means the server terminated abnormally\n\tbefore or while processing the request.\nconnection to server was lost\n"}
+{"timestamp":"2026-11-17T07:41:11.920Z","phase":"PGBOUNCER_BACKEND","status":"VERIFIED","expectedContainer":"bg-db-a","expectedIp":"172.28.0.3","actualIp":"172.28.0.3"}
+{"timestamp":"2026-11-17T07:41:13.193Z","phase":"PREFLIGHT","status":"SUCCESS"}
+{"timestamp":"2026-11-17T07:41:16.195Z","phase":"K6_TRAFFIC","status":"STARTED","rate":"3","duration":"1m","baseUrl":"http://127.0.0.1:8088"}
+{"timestamp":"2026-11-17T07:41:16.196Z","phase":"ORCHESTRATOR","status":"RUNNING"}
+{"timestamp":"2026-11-17T07:41:16.309Z","phase":"WRITE_BARRIER","status":"PAUSED","database":"labdb","output":"PAUSE"}
+{"timestamp":"2026-11-17T07:41:16.388Z","phase":"PGBOUNCER_POOLS","status":"SUCCESS","output":"labdb|lab|1|0|0|0|0|0|0|0|0|0|0|0|0|transaction|\npgbouncer|pgbouncer|1|0|0|0|0|0|0|0|0|0|0|0|0|statement|"}
+{"timestamp":"2026-11-17T07:41:16.389Z","phase":"MIGRATION","status":"WRITE_BARRIER_ESTABLISHED"}
+{"timestamp":"2026-11-17T07:41:16.472Z","phase":"WAL_CHECKPOINT","status":"CAPTURED","lsn":"0/1B39400"}
+{"timestamp":"2026-11-17T07:44:16.546Z","phase":"REPLICATION_SLOT","status":"TIMEOUT","targetLsn":"0/1B39400","confirmedFlushLsn":"0/1B356E0","currentWalLsn":"0/1B39540","timeoutMs":180000}
+{"timestamp":"2026-11-17T07:44:16.547Z","phase":"MIGRATION","status":"FAILED","error":"Replication slot timeout. Target=0/1B39400, confirmed=0/1B356E0, current=0/1B39540, timeout=180000ms","dbAStopped":false,"configChanged":false,"pgbouncerResumedToB":false,"cdcPaused":false}
+{"timestamp":"2026-11-17T07:44:16.663Z","phase":"WRITE_BARRIER","status":"RESUMED","database":"labdb","output":"RESUME"}
+{"timestamp":"2026-11-17T07:44:16.790Z","phase":"PGBOUNCER_BACKEND","status":"VERIFIED","expectedContainer":"bg-db-a","expectedIp":"172.28.0.3","actualIp":"172.28.0.3"}
+{"timestamp":"2026-11-17T07:44:16.790Z","phase":"RECOVERY","status":"APPLICATION_DATABASE_RESTORED","backend":"db-a"}
+{"timestamp":"2026-11-17T07:44:16.790Z","phase":"ORCHESTRATOR","status":"FAILED","error":"Replication slot timeout. Target=0/1B39400, confirmed=0/1B356E0, current=0/1B39540, timeout=180000ms"}
+{"timestamp":"2026-11-17T09:39:07.005Z","phase":"PGBOUNCER_BACKEND","status":"VERIFIED","expectedContainer":"bg-db-a","expectedIp":"172.28.0.2","actualIp":"172.28.0.2"}
+{"timestamp":"2026-11-17T09:39:08.309Z","phase":"PREFLIGHT","status":"SUCCESS"}
+{"timestamp":"2026-11-17T09:39:11.311Z","phase":"K6_TRAFFIC","status":"STARTED","rate":"3","duration":"1m","baseUrl":"http://127.0.0.1:8088"}
+{"timestamp":"2026-11-17T09:39:11.312Z","phase":"ORCHESTRATOR","status":"RUNNING"}
+{"timestamp":"2026-11-17T09:39:24.909Z","phase":"DATA_CONSISTENCY","status":"SUCCESS","fingerprint":"49:adb9ea9db4e2eef313ac35a54ddcabbd"}
+{"timestamp":"2026-11-17T09:39:33.870Z","phase":"DATA_CONSISTENCY","status":"SUCCESS","fingerprint":"76:276dd914f97878022c9a9d0f726836b7"}
+{"timestamp":"2026-11-17T09:39:38.334Z","phase":"DATA_CONSISTENCY","status":"SUCCESS","fingerprint":"90:d9f7f855479d4ff4142129e13174371a"}
+{"timestamp":"2026-11-17T09:39:40.517Z","phase":"DATA_CONSISTENCY","status":"SUCCESS","fingerprint":"96:d6c82393838aeeac835b8a834d2815ee"}
+{"timestamp":"2026-11-17T09:40:07.482Z","phase":"DATA_CONSISTENCY","status":"SUCCESS","fingerprint":"177:10a73206d653095cd926122addf631e3"}
+{"timestamp":"2026-11-17T09:40:09.728Z","phase":"DATA_CONSISTENCY","status":"SUCCESS","fingerprint":"181:a848659b26fd235a135618b39bf9f4a4"}
+{"timestamp":"2026-11-17T09:40:11.914Z","phase":"DATA_CONSISTENCY","status":"SUCCESS","fingerprint":"181:a848659b26fd235a135618b39bf9f4a4"}
+{"timestamp":"2026-11-17T09:40:14.105Z","phase":"DATA_CONSISTENCY","status":"SUCCESS","fingerprint":"181:a848659b26fd235a135618b39bf9f4a4"}
+{"timestamp":"2026-11-17T09:40:14.106Z","phase":"CDC_CATCHUP","status":"SUCCESS","elapsedMs":62792,"stableMatches":3,"fingerprint":"181:a848659b26fd235a135618b39bf9f4a4"}
+{"timestamp":"2026-11-17T09:40:14.183Z","phase":"WRITE_BARRIER","status":"PAUSED","database":"labdb","output":"PAUSE"}
+{"timestamp":"2026-11-17T09:40:14.263Z","phase":"PGBOUNCER_POOLS","status":"SUCCESS","output":"labdb|lab|1|0|0|0|0|0|0|0|0|0|0|0|0|transaction|\npgbouncer|pgbouncer|1|0|0|0|0|0|0|0|0|0|0|0|0|statement|"}
+{"timestamp":"2026-11-17T09:40:18.845Z","phase":"TRANSACTION_DRAIN","status":"SUCCESS","elapsedMs":4582,"activeClients":0,"waitingClients":0,"activeServers":0}
+{"timestamp":"2026-11-17T09:40:18.845Z","phase":"MIGRATION","status":"WRITE_BARRIER_ESTABLISHED"}
+{"timestamp":"2026-11-17T09:40:18.929Z","phase":"WAL_CHECKPOINT","status":"CAPTURED","lsn":"0/1B61F70"}

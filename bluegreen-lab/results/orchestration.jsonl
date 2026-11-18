@@ -1,0 +1,856 @@
+{"timestamp":"2026-11-05T05:39:48.549Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-05T05:39:48.550Z","phase":"PREFLIGHT","status":"FAILED","error":"Required file not found: migrate.js"}
+{"timestamp":"2026-11-05T05:39:48.557Z","phase":"ORCHESTRATION","status":"FAILED","error":"Required file not found: migrate.js"}
+{"timestamp":"2026-11-05T05:41:01.842Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-05T05:41:02.014Z","phase":"PREFLIGHT","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-05T05:41:02.014Z","phase":"START_K6","status":"STARTED"}
+{"timestamp":"2026-11-05T05:41:05.016Z","phase":"START_K6","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-05T05:41:05.017Z","phase":"EXPAND","status":"STARTED"}
+{"timestamp":"2026-11-05T05:41:05.085Z","phase":"EXPAND","status":"FAILED","error":"node failed. Exit code: 1, signal: null"}
+{"timestamp":"2026-11-05T05:41:05.085Z","phase":"ORCHESTRATION","status":"FAILED","error":"node failed. Exit code: 1, signal: null"}
+{"timestamp":"2026-11-05T05:44:15.487Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-05T05:44:15.651Z","phase":"PREFLIGHT","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-05T05:44:15.651Z","phase":"START_K6","status":"STARTED"}
+{"timestamp":"2026-11-05T05:44:18.654Z","phase":"START_K6","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-05T05:44:18.655Z","phase":"EXPAND","status":"STARTED"}
+{"timestamp":"2026-11-05T05:44:18.792Z","phase":"EXPAND","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-05T05:44:18.793Z","phase":"DEPLOY_GREEN_V2","status":"STARTED"}
+{"timestamp":"2026-11-05T05:44:21.345Z","phase":"DEPLOY_GREEN_V2","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-05T05:44:21.346Z","phase":"SWITCH_TO_GREEN_V2","status":"STARTED"}
+{"timestamp":"2026-11-05T05:44:21.542Z","phase":"SWITCH_TO_GREEN_V2","status":"FAILED","error":"Expected traffic on green, received blue"}
+{"timestamp":"2026-11-05T05:44:21.542Z","phase":"ORCHESTRATION","status":"FAILED","error":"Expected traffic on green, received blue"}
+{"timestamp":"2026-11-05T06:06:32.113Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-05T06:06:32.267Z","phase":"PREFLIGHT","status":"FAILED","error":"getServedByServer is not defined"}
+{"timestamp":"2026-11-05T06:06:32.267Z","phase":"ORCHESTRATION","status":"FAILED","error":"getServedByServer is not defined"}
+{"timestamp":"2026-11-05T06:06:56.573Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-05T06:06:56.714Z","phase":"PREFLIGHT","status":"FAILED","error":"getServedByServer is not defined"}
+{"timestamp":"2026-11-05T06:06:56.715Z","phase":"ORCHESTRATION","status":"FAILED","error":"getServedByServer is not defined"}
+{"timestamp":"2026-11-05T06:07:19.362Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-05T06:07:19.517Z","phase":"PREFLIGHT","status":"FAILED","error":"Expected traffic on blue, received green"}
+{"timestamp":"2026-11-05T06:07:19.517Z","phase":"ORCHESTRATION","status":"FAILED","error":"Expected traffic on blue, received green"}
+{"timestamp":"2026-11-05T06:07:54.800Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-05T06:07:54.956Z","phase":"PREFLIGHT","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-05T06:07:54.956Z","phase":"START_K6","status":"STARTED"}
+{"timestamp":"2026-11-05T06:07:57.958Z","phase":"START_K6","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-05T06:07:57.959Z","phase":"EXPAND","status":"STARTED"}
+{"timestamp":"2026-11-05T06:07:58.075Z","phase":"EXPAND","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-05T06:07:58.075Z","phase":"DEPLOY_GREEN_V2","status":"STARTED"}
+{"timestamp":"2026-11-05T06:08:00.567Z","phase":"DEPLOY_GREEN_V2","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-05T06:08:00.568Z","phase":"SWITCH_TO_GREEN_V2","status":"STARTED"}
+{"timestamp":"2026-11-05T06:08:00.762Z","phase":"SWITCH_TO_GREEN_V2","status":"FAILED","error":"Expected traffic on green, received blue"}
+{"timestamp":"2026-11-05T06:08:00.762Z","phase":"ORCHESTRATION","status":"FAILED","error":"Expected traffic on green, received blue"}
+{"timestamp":"2026-11-05T06:12:19.812Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-05T06:12:20.010Z","phase":"PREFLIGHT","status":"FAILED","error":"Expected traffic on blue, received green"}
+{"timestamp":"2026-11-05T06:12:20.010Z","phase":"ORCHESTRATION","status":"FAILED","error":"Expected traffic on blue, received green"}
+{"timestamp":"2026-11-05T06:12:46.955Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-05T06:12:47.109Z","phase":"PREFLIGHT","status":"FAILED","error":"Expected traffic on blue, received green"}
+{"timestamp":"2026-11-05T06:12:47.109Z","phase":"ORCHESTRATION","status":"FAILED","error":"Expected traffic on blue, received green"}
+{"timestamp":"2026-11-05T06:13:19.544Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-05T06:13:19.695Z","phase":"PREFLIGHT","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-05T06:13:19.695Z","phase":"START_K6","status":"STARTED"}
+{"timestamp":"2026-11-05T06:13:22.697Z","phase":"START_K6","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-05T06:13:22.698Z","phase":"EXPAND","status":"STARTED"}
+{"timestamp":"2026-11-05T06:13:22.816Z","phase":"EXPAND","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-05T06:13:22.816Z","phase":"DEPLOY_GREEN_V2","status":"STARTED"}
+{"timestamp":"2026-11-05T06:13:25.303Z","phase":"DEPLOY_GREEN_V2","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-05T06:13:25.304Z","phase":"SWITCH_TO_GREEN_V2","status":"STARTED"}
+{"timestamp":"2026-11-05T06:13:25.558Z","phase":"SWITCH_TO_GREEN_V2","status":"FAILED","error":"Expected traffic on green, received blue"}
+{"timestamp":"2026-11-05T06:13:25.558Z","phase":"ORCHESTRATION","status":"FAILED","error":"Expected traffic on green, received blue"}
+{"timestamp":"2026-11-05T06:32:55.710Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-05T06:33:05.936Z","phase":"PREFLIGHT","status":"FAILED","error":"Traffic switch to blue not verified. Last server: green"}
+{"timestamp":"2026-11-05T06:33:05.937Z","phase":"ORCHESTRATION","status":"FAILED","error":"Traffic switch to blue not verified. Last server: green"}
+{"timestamp":"2026-11-05T06:33:32.606Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-05T06:33:33.797Z","phase":"PREFLIGHT","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-05T06:33:33.798Z","phase":"START_K6","status":"STARTED"}
+{"timestamp":"2026-11-05T06:33:36.806Z","phase":"START_K6","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-05T06:33:36.807Z","phase":"EXPAND","status":"STARTED"}
+{"timestamp":"2026-11-05T06:33:36.920Z","phase":"EXPAND","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-05T06:33:36.921Z","phase":"DEPLOY_GREEN_V2","status":"STARTED"}
+{"timestamp":"2026-11-05T06:33:39.408Z","phase":"DEPLOY_GREEN_V2","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-05T06:33:39.409Z","phase":"SWITCH_TO_GREEN_V2","status":"STARTED"}
+{"timestamp":"2026-11-05T06:33:55.903Z","phase":"SWITCH_TO_GREEN_V2","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-05T06:33:55.903Z","phase":"BACKFILL","status":"STARTED"}
+{"timestamp":"2026-11-05T06:33:56.121Z","phase":"BACKFILL","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-05T06:33:56.121Z","phase":"VERIFY_AFTER_BACKFILL","status":"STARTED"}
+{"timestamp":"2026-11-05T06:33:56.231Z","phase":"VERIFY_AFTER_BACKFILL","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-05T06:33:56.231Z","phase":"DEPLOY_BLUE_V3","status":"STARTED"}
+{"timestamp":"2026-11-05T06:33:58.712Z","phase":"DEPLOY_BLUE_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V2"}}
+{"timestamp":"2026-11-05T06:33:58.713Z","phase":"SWITCH_TO_BLUE_V3","status":"STARTED"}
+{"timestamp":"2026-11-05T06:34:15.269Z","phase":"SWITCH_TO_BLUE_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V2"}}
+{"timestamp":"2026-11-05T06:34:15.269Z","phase":"DEPLOY_GREEN_V3","status":"STARTED"}
+{"timestamp":"2026-11-05T06:34:17.818Z","phase":"DEPLOY_GREEN_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-05T06:34:17.818Z","phase":"SWITCH_TO_GREEN_V3","status":"STARTED"}
+{"timestamp":"2026-11-05T06:34:34.297Z","phase":"SWITCH_TO_GREEN_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-05T06:34:34.297Z","phase":"FINAL_VERIFY","status":"STARTED"}
+{"timestamp":"2026-11-05T06:34:34.418Z","phase":"FINAL_VERIFY","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-05T06:34:34.419Z","phase":"CONTRACT_APPROVAL","status":"STARTED"}
+{"timestamp":"2026-11-05T06:39:48.818Z","phase":"CONTRACT_APPROVAL","status":"FAILED","error":"Aborted with Ctrl+C"}
+{"timestamp":"2026-11-05T06:39:48.821Z","phase":"ORCHESTRATION","status":"FAILED","error":"Aborted with Ctrl+C"}
+{"timestamp":"2026-11-05T06:41:55.272Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-05T06:41:56.476Z","phase":"PREFLIGHT","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-05T06:41:56.477Z","phase":"START_K6","status":"STARTED"}
+{"timestamp":"2026-11-05T06:41:59.483Z","phase":"START_K6","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-05T06:41:59.484Z","phase":"EXPAND","status":"STARTED"}
+{"timestamp":"2026-11-05T06:41:59.599Z","phase":"EXPAND","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-05T06:41:59.599Z","phase":"DEPLOY_GREEN_V2","status":"STARTED"}
+{"timestamp":"2026-11-05T06:42:02.085Z","phase":"DEPLOY_GREEN_V2","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-05T06:42:02.085Z","phase":"SWITCH_TO_GREEN_V2","status":"STARTED"}
+{"timestamp":"2026-11-05T06:42:18.590Z","phase":"SWITCH_TO_GREEN_V2","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-05T06:42:18.591Z","phase":"BACKFILL","status":"STARTED"}
+{"timestamp":"2026-11-05T06:42:18.668Z","phase":"BACKFILL","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-05T06:42:18.669Z","phase":"VERIFY_AFTER_BACKFILL","status":"STARTED"}
+{"timestamp":"2026-11-05T06:42:18.749Z","phase":"VERIFY_AFTER_BACKFILL","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-05T06:42:18.749Z","phase":"DEPLOY_BLUE_V3","status":"STARTED"}
+{"timestamp":"2026-11-05T06:42:21.300Z","phase":"DEPLOY_BLUE_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V2"}}
+{"timestamp":"2026-11-05T06:42:21.301Z","phase":"SWITCH_TO_BLUE_V3","status":"STARTED"}
+{"timestamp":"2026-11-05T06:42:37.829Z","phase":"SWITCH_TO_BLUE_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V2"}}
+{"timestamp":"2026-11-05T06:42:37.830Z","phase":"DEPLOY_GREEN_V3","status":"STARTED"}
+{"timestamp":"2026-11-05T06:42:40.430Z","phase":"DEPLOY_GREEN_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-05T06:42:40.431Z","phase":"SWITCH_TO_GREEN_V3","status":"STARTED"}
+{"timestamp":"2026-11-05T06:42:56.968Z","phase":"SWITCH_TO_GREEN_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-05T06:42:56.968Z","phase":"FINAL_VERIFY","status":"STARTED"}
+{"timestamp":"2026-11-05T06:42:57.083Z","phase":"FINAL_VERIFY","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-05T06:42:57.083Z","phase":"CONTRACT_APPROVAL","status":"STARTED"}
+{"timestamp":"2026-11-05T06:42:58.140Z","phase":"CONTRACT_APPROVAL","status":"FAILED","error":"Contract approval rejected"}
+{"timestamp":"2026-11-05T06:42:58.142Z","phase":"ORCHESTRATION","status":"FAILED","error":"Contract approval rejected"}
+{"timestamp":"2026-11-05T06:52:03.791Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-05T06:52:14.255Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-05T06:52:15.446Z","phase":"PREFLIGHT","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-05T06:52:15.447Z","phase":"START_K6","status":"STARTED"}
+{"timestamp":"2026-11-05T06:52:18.454Z","phase":"START_K6","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-05T06:52:18.455Z","phase":"EXPAND","status":"STARTED"}
+{"timestamp":"2026-11-05T06:52:18.579Z","phase":"EXPAND","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-05T06:52:18.579Z","phase":"DEPLOY_GREEN_V2","status":"STARTED"}
+{"timestamp":"2026-11-05T06:52:21.039Z","phase":"DEPLOY_GREEN_V2","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-05T06:52:21.039Z","phase":"SWITCH_TO_GREEN_V2","status":"STARTED"}
+{"timestamp":"2026-11-05T06:52:37.532Z","phase":"SWITCH_TO_GREEN_V2","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-05T06:52:37.532Z","phase":"BACKFILL","status":"STARTED"}
+{"timestamp":"2026-11-05T06:52:37.656Z","phase":"BACKFILL","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-05T06:52:37.656Z","phase":"VERIFY_AFTER_BACKFILL","status":"STARTED"}
+{"timestamp":"2026-11-05T06:52:37.743Z","phase":"VERIFY_AFTER_BACKFILL","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-05T06:52:37.743Z","phase":"DEPLOY_BLUE_V3","status":"STARTED"}
+{"timestamp":"2026-11-05T06:52:40.241Z","phase":"DEPLOY_BLUE_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V2"}}
+{"timestamp":"2026-11-05T06:52:40.241Z","phase":"SWITCH_TO_BLUE_V3","status":"STARTED"}
+{"timestamp":"2026-11-05T06:52:56.776Z","phase":"SWITCH_TO_BLUE_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V2"}}
+{"timestamp":"2026-11-05T06:52:56.776Z","phase":"DEPLOY_GREEN_V3","status":"STARTED"}
+{"timestamp":"2026-11-05T06:52:59.320Z","phase":"DEPLOY_GREEN_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-05T06:52:59.320Z","phase":"SWITCH_TO_GREEN_V3","status":"STARTED"}
+{"timestamp":"2026-11-05T06:53:15.867Z","phase":"SWITCH_TO_GREEN_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-05T06:53:15.867Z","phase":"FINAL_VERIFY","status":"STARTED"}
+{"timestamp":"2026-11-05T06:53:15.997Z","phase":"FINAL_VERIFY","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-05T06:53:15.997Z","phase":"CONTRACT_APPROVAL","status":"STARTED"}
+{"timestamp":"2026-11-05T06:57:33.493Z","phase":"CONTRACT_APPROVAL","status":"FAILED","error":"Aborted with Ctrl+C"}
+{"timestamp":"2026-11-05T06:57:33.495Z","phase":"ORCHESTRATION","status":"FAILED","error":"Aborted with Ctrl+C"}
+{"timestamp":"2026-11-05T07:24:26.900Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-05T07:24:27.112Z","phase":"PREFLIGHT","status":"FAILED","error":"Health request failed: 500"}
+{"timestamp":"2026-11-05T07:24:27.113Z","phase":"ORCHESTRATION","status":"FAILED","error":"Health request failed: 500"}
+{"timestamp":"2026-11-05T07:24:46.362Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-05T07:24:46.520Z","phase":"PREFLIGHT","status":"FAILED","error":"Health request failed: 500"}
+{"timestamp":"2026-11-05T07:24:46.520Z","phase":"ORCHESTRATION","status":"FAILED","error":"Health request failed: 500"}
+{"timestamp":"2026-11-05T07:25:20.305Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-05T07:25:21.526Z","phase":"PREFLIGHT","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-05T07:25:21.526Z","phase":"START_K6","status":"STARTED"}
+{"timestamp":"2026-11-05T07:25:24.531Z","phase":"START_K6","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-05T07:25:24.532Z","phase":"EXPAND","status":"STARTED"}
+{"timestamp":"2026-11-05T07:25:24.655Z","phase":"EXPAND","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-05T07:25:28.657Z","phase":"DEPLOY_GREEN_V2","status":"STARTED"}
+{"timestamp":"2026-11-05T07:25:31.215Z","phase":"DEPLOY_GREEN_V2","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-05T07:25:31.215Z","phase":"SWITCH_TO_GREEN_V2","status":"STARTED"}
+{"timestamp":"2026-11-05T07:25:47.814Z","phase":"SWITCH_TO_GREEN_V2","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-05T07:25:47.814Z","phase":"BACKFILL","status":"STARTED"}
+{"timestamp":"2026-11-05T07:25:48.062Z","phase":"BACKFILL","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-05T07:25:48.063Z","phase":"VERIFY_AFTER_BACKFILL","status":"STARTED"}
+{"timestamp":"2026-11-05T07:25:48.163Z","phase":"VERIFY_AFTER_BACKFILL","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-05T07:25:48.163Z","phase":"DEPLOY_BLUE_V3","status":"STARTED"}
+{"timestamp":"2026-11-05T07:25:50.596Z","phase":"DEPLOY_BLUE_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V2"}}
+{"timestamp":"2026-11-05T07:25:50.596Z","phase":"SWITCH_TO_BLUE_V3","status":"STARTED"}
+{"timestamp":"2026-11-05T07:26:07.083Z","phase":"SWITCH_TO_BLUE_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V2"}}
+{"timestamp":"2026-11-05T07:26:07.084Z","phase":"DEPLOY_GREEN_V3","status":"STARTED"}
+{"timestamp":"2026-11-05T07:26:09.631Z","phase":"DEPLOY_GREEN_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-05T07:26:09.632Z","phase":"SWITCH_TO_GREEN_V3","status":"STARTED"}
+{"timestamp":"2026-11-05T07:26:26.115Z","phase":"SWITCH_TO_GREEN_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-05T07:26:26.116Z","phase":"FINAL_VERIFY","status":"STARTED"}
+{"timestamp":"2026-11-05T07:26:26.240Z","phase":"FINAL_VERIFY","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-05T07:26:26.240Z","phase":"CONTRACT_APPROVAL","status":"STARTED"}
+{"timestamp":"2026-11-05T07:27:32.939Z","phase":"CONTRACT_APPROVAL","status":"FAILED","error":"Contract approval rejected"}
+{"timestamp":"2026-11-05T07:27:32.940Z","phase":"ORCHESTRATION","status":"FAILED","error":"Contract approval rejected"}
+{"timestamp":"2026-11-05T07:29:13.490Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-05T07:29:13.650Z","phase":"PREFLIGHT","status":"FAILED","error":"Health request failed: 500"}
+{"timestamp":"2026-11-05T07:29:13.651Z","phase":"ORCHESTRATION","status":"FAILED","error":"Health request failed: 500"}
+{"timestamp":"2026-11-05T07:29:30.542Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-05T07:29:40.732Z","phase":"PREFLIGHT","status":"FAILED","error":"Traffic switch to blue not verified. Last server: green"}
+{"timestamp":"2026-11-05T07:29:40.734Z","phase":"ORCHESTRATION","status":"FAILED","error":"Traffic switch to blue not verified. Last server: green"}
+{"timestamp":"2026-11-05T07:30:25.456Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-05T07:30:26.657Z","phase":"PREFLIGHT","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-05T07:30:26.657Z","phase":"START_K6","status":"STARTED"}
+{"timestamp":"2026-11-05T07:30:29.661Z","phase":"START_K6","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-05T07:30:29.661Z","phase":"EXPAND","status":"STARTED"}
+{"timestamp":"2026-11-05T07:30:29.777Z","phase":"EXPAND","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-05T07:30:33.779Z","phase":"DEPLOY_GREEN_V2","status":"STARTED"}
+{"timestamp":"2026-11-05T07:30:36.314Z","phase":"DEPLOY_GREEN_V2","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-05T07:30:36.314Z","phase":"SWITCH_TO_GREEN_V2","status":"STARTED"}
+{"timestamp":"2026-11-05T07:30:52.863Z","phase":"SWITCH_TO_GREEN_V2","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-05T07:30:52.863Z","phase":"BACKFILL","status":"STARTED"}
+{"timestamp":"2026-11-05T07:30:53.065Z","phase":"BACKFILL","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-05T07:30:53.066Z","phase":"VERIFY_AFTER_BACKFILL","status":"STARTED"}
+{"timestamp":"2026-11-05T07:30:53.172Z","phase":"VERIFY_AFTER_BACKFILL","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-05T07:30:53.172Z","phase":"DEPLOY_BLUE_V3","status":"STARTED"}
+{"timestamp":"2026-11-05T07:30:55.670Z","phase":"DEPLOY_BLUE_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V2"}}
+{"timestamp":"2026-11-05T07:30:55.670Z","phase":"SWITCH_TO_BLUE_V3","status":"STARTED"}
+{"timestamp":"2026-11-05T07:31:12.169Z","phase":"SWITCH_TO_BLUE_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V2"}}
+{"timestamp":"2026-11-05T07:31:12.169Z","phase":"DEPLOY_GREEN_V3","status":"STARTED"}
+{"timestamp":"2026-11-05T07:31:14.747Z","phase":"DEPLOY_GREEN_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-05T07:31:14.748Z","phase":"SWITCH_TO_GREEN_V3","status":"STARTED"}
+{"timestamp":"2026-11-05T07:31:31.263Z","phase":"SWITCH_TO_GREEN_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-05T07:31:31.263Z","phase":"FINAL_VERIFY","status":"STARTED"}
+{"timestamp":"2026-11-05T07:31:31.264Z","phase":"FINAL_VERIFY","status":"FAILED","error":"k6 exited before the migration sequence finished"}
+{"timestamp":"2026-11-05T07:31:31.265Z","phase":"ORCHESTRATION","status":"FAILED","error":"k6 exited before the migration sequence finished"}
+{"timestamp":"2026-11-05T07:33:17.616Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-05T07:33:17.784Z","phase":"PREFLIGHT","status":"FAILED","error":"Health request failed: 500"}
+{"timestamp":"2026-11-05T07:33:17.785Z","phase":"ORCHESTRATION","status":"FAILED","error":"Health request failed: 500"}
+{"timestamp":"2026-11-05T07:33:31.531Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-05T07:33:41.725Z","phase":"PREFLIGHT","status":"FAILED","error":"Traffic switch to blue not verified. Last server: green"}
+{"timestamp":"2026-11-05T07:33:41.727Z","phase":"ORCHESTRATION","status":"FAILED","error":"Traffic switch to blue not verified. Last server: green"}
+{"timestamp":"2026-11-05T07:34:33.494Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-05T07:34:34.737Z","phase":"PREFLIGHT","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-05T07:34:34.738Z","phase":"START_K6","status":"STARTED"}
+{"timestamp":"2026-11-05T07:34:37.745Z","phase":"START_K6","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-05T07:34:37.746Z","phase":"EXPAND","status":"STARTED"}
+{"timestamp":"2026-11-05T07:34:37.872Z","phase":"EXPAND","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-05T07:34:41.875Z","phase":"DEPLOY_GREEN_V2","status":"STARTED"}
+{"timestamp":"2026-11-05T07:34:44.432Z","phase":"DEPLOY_GREEN_V2","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-05T07:34:44.432Z","phase":"SWITCH_TO_GREEN_V2","status":"STARTED"}
+{"timestamp":"2026-11-05T07:35:00.964Z","phase":"SWITCH_TO_GREEN_V2","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-05T07:35:00.965Z","phase":"BACKFILL","status":"STARTED"}
+{"timestamp":"2026-11-05T07:35:01.201Z","phase":"BACKFILL","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-05T07:35:01.202Z","phase":"VERIFY_AFTER_BACKFILL","status":"STARTED"}
+{"timestamp":"2026-11-05T07:35:01.309Z","phase":"VERIFY_AFTER_BACKFILL","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-05T07:35:01.309Z","phase":"DEPLOY_BLUE_V3","status":"STARTED"}
+{"timestamp":"2026-11-05T07:35:03.824Z","phase":"DEPLOY_BLUE_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V2"}}
+{"timestamp":"2026-11-05T07:35:03.824Z","phase":"SWITCH_TO_BLUE_V3","status":"STARTED"}
+{"timestamp":"2026-11-05T07:35:20.310Z","phase":"SWITCH_TO_BLUE_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V2"}}
+{"timestamp":"2026-11-05T07:35:20.310Z","phase":"DEPLOY_GREEN_V3","status":"STARTED"}
+{"timestamp":"2026-11-05T07:35:22.886Z","phase":"DEPLOY_GREEN_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-05T07:35:22.887Z","phase":"SWITCH_TO_GREEN_V3","status":"STARTED"}
+{"timestamp":"2026-11-05T07:35:39.397Z","phase":"SWITCH_TO_GREEN_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-05T07:35:39.397Z","phase":"FINAL_VERIFY","status":"STARTED"}
+{"timestamp":"2026-11-05T07:35:39.397Z","phase":"FINAL_VERIFY","status":"FAILED","error":"k6 exited before the migration sequence finished"}
+{"timestamp":"2026-11-05T07:35:39.398Z","phase":"ORCHESTRATION","status":"FAILED","error":"k6 exited before the migration sequence finished"}
+{"timestamp":"2026-11-05T07:36:29.997Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-05T07:36:31.215Z","phase":"PREFLIGHT","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-05T07:36:31.216Z","phase":"START_K6","status":"STARTED"}
+{"timestamp":"2026-11-05T07:36:34.220Z","phase":"START_K6","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-05T07:36:34.221Z","phase":"EXPAND","status":"STARTED"}
+{"timestamp":"2026-11-05T07:36:34.342Z","phase":"EXPAND","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-05T07:36:38.345Z","phase":"DEPLOY_GREEN_V2","status":"STARTED"}
+{"timestamp":"2026-11-05T07:36:40.859Z","phase":"DEPLOY_GREEN_V2","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-05T07:36:40.859Z","phase":"SWITCH_TO_GREEN_V2","status":"STARTED"}
+{"timestamp":"2026-11-05T07:36:57.348Z","phase":"SWITCH_TO_GREEN_V2","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-05T07:36:57.348Z","phase":"BACKFILL","status":"STARTED"}
+{"timestamp":"2026-11-05T07:36:57.566Z","phase":"BACKFILL","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-05T07:36:57.566Z","phase":"VERIFY_AFTER_BACKFILL","status":"STARTED"}
+{"timestamp":"2026-11-05T07:36:57.646Z","phase":"VERIFY_AFTER_BACKFILL","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-05T07:36:57.646Z","phase":"DEPLOY_BLUE_V3","status":"STARTED"}
+{"timestamp":"2026-11-05T07:37:00.149Z","phase":"DEPLOY_BLUE_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V2"}}
+{"timestamp":"2026-11-05T07:37:00.149Z","phase":"SWITCH_TO_BLUE_V3","status":"STARTED"}
+{"timestamp":"2026-11-05T07:37:16.717Z","phase":"SWITCH_TO_BLUE_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V2"}}
+{"timestamp":"2026-11-05T07:37:16.718Z","phase":"DEPLOY_GREEN_V3","status":"STARTED"}
+{"timestamp":"2026-11-05T07:37:19.292Z","phase":"DEPLOY_GREEN_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-05T07:37:19.292Z","phase":"SWITCH_TO_GREEN_V3","status":"STARTED"}
+{"timestamp":"2026-11-05T07:37:35.842Z","phase":"SWITCH_TO_GREEN_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-05T07:37:35.842Z","phase":"FINAL_VERIFY","status":"STARTED"}
+{"timestamp":"2026-11-05T07:37:35.969Z","phase":"FINAL_VERIFY","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-05T07:37:35.969Z","phase":"CONTRACT_APPROVAL","status":"STARTED"}
+{"timestamp":"2026-11-05T07:39:34.732Z","phase":"CONTRACT_APPROVAL","status":"FAILED","error":"Contract approval rejected"}
+{"timestamp":"2026-11-05T07:39:34.734Z","phase":"ORCHESTRATION","status":"FAILED","error":"Contract approval rejected"}
+{"timestamp":"2026-11-05T07:40:20.568Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-05T07:40:21.797Z","phase":"PREFLIGHT","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-05T07:40:21.798Z","phase":"START_K6","status":"STARTED"}
+{"timestamp":"2026-11-05T07:40:24.807Z","phase":"START_K6","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-05T07:40:24.808Z","phase":"EXPAND","status":"STARTED"}
+{"timestamp":"2026-11-05T07:40:24.930Z","phase":"EXPAND","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-05T07:40:28.933Z","phase":"DEPLOY_GREEN_V2","status":"STARTED"}
+{"timestamp":"2026-11-05T07:40:31.437Z","phase":"DEPLOY_GREEN_V2","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-05T07:40:31.437Z","phase":"SWITCH_TO_GREEN_V2","status":"STARTED"}
+{"timestamp":"2026-11-05T07:40:47.973Z","phase":"SWITCH_TO_GREEN_V2","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-05T07:40:47.974Z","phase":"BACKFILL","status":"STARTED"}
+{"timestamp":"2026-11-05T07:40:48.218Z","phase":"BACKFILL","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-05T07:40:48.218Z","phase":"VERIFY_AFTER_BACKFILL","status":"STARTED"}
+{"timestamp":"2026-11-05T07:40:48.332Z","phase":"VERIFY_AFTER_BACKFILL","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-05T07:40:48.332Z","phase":"DEPLOY_BLUE_V3","status":"STARTED"}
+{"timestamp":"2026-11-05T07:40:50.847Z","phase":"DEPLOY_BLUE_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V2"}}
+{"timestamp":"2026-11-05T07:40:50.847Z","phase":"SWITCH_TO_BLUE_V3","status":"STARTED"}
+{"timestamp":"2026-11-05T07:41:07.327Z","phase":"SWITCH_TO_BLUE_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V2"}}
+{"timestamp":"2026-11-05T07:41:07.328Z","phase":"DEPLOY_GREEN_V3","status":"STARTED"}
+{"timestamp":"2026-11-05T07:41:09.944Z","phase":"DEPLOY_GREEN_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-05T07:41:09.944Z","phase":"SWITCH_TO_GREEN_V3","status":"STARTED"}
+{"timestamp":"2026-11-05T07:41:26.492Z","phase":"SWITCH_TO_GREEN_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-05T07:41:26.492Z","phase":"FINAL_VERIFY","status":"STARTED"}
+{"timestamp":"2026-11-05T07:41:26.606Z","phase":"FINAL_VERIFY","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-05T07:41:26.606Z","phase":"CONTRACT_APPROVAL","status":"STARTED"}
+{"timestamp":"2026-11-05T07:42:10.692Z","phase":"CONTRACT_APPROVAL","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-05T07:42:10.693Z","phase":"CONTRACT","status":"STARTED"}
+{"timestamp":"2026-11-05T07:42:10.807Z","phase":"CONTRACT","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-05T07:42:10.808Z","phase":"POST_MIGRATION_OBSERVATION","status":"STARTED"}
+{"timestamp":"2026-11-05T07:42:42.883Z","phase":"POST_MIGRATION_OBSERVATION","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-05T07:42:42.883Z","phase":"ORCHESTRATION","status":"SUCCESS"}
+{"timestamp":"2026-11-13T04:50:19.307Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-13T04:50:19.308Z","phase":"PREFLIGHT","status":"FAILED","error":"spawn is not defined"}
+{"timestamp":"2026-11-13T04:50:19.309Z","phase":"ORCHESTRATION","status":"FAILED","error":"spawn is not defined"}
+{"timestamp":"2026-11-13T04:50:53.548Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-13T04:50:54.889Z","phase":"PREFLIGHT","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-13T04:50:54.889Z","phase":"START_K6","status":"STARTED"}
+{"timestamp":"2026-11-13T04:50:57.897Z","phase":"START_K6","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-13T04:50:57.898Z","phase":"EXPAND","status":"STARTED"}
+{"timestamp":"2026-11-13T04:50:58.042Z","phase":"EXPAND","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-13T04:51:02.044Z","phase":"DEPLOY_GREEN_V2","status":"STARTED"}
+{"timestamp":"2026-11-13T04:51:04.600Z","phase":"DEPLOY_GREEN_V2","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-13T04:51:04.600Z","phase":"SWITCH_TO_GREEN_V2","status":"STARTED"}
+{"timestamp":"2026-11-13T04:51:21.131Z","phase":"SWITCH_TO_GREEN_V2","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-13T04:51:21.132Z","phase":"BACKFILL","status":"STARTED"}
+{"timestamp":"2026-11-13T04:51:21.378Z","phase":"BACKFILL","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-13T04:51:21.379Z","phase":"VERIFY_AFTER_BACKFILL","status":"STARTED"}
+{"timestamp":"2026-11-13T04:51:21.489Z","phase":"VERIFY_AFTER_BACKFILL","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-13T04:51:21.489Z","phase":"DEPLOY_BLUE_V3","status":"STARTED"}
+{"timestamp":"2026-11-13T04:51:23.982Z","phase":"DEPLOY_BLUE_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V2"}}
+{"timestamp":"2026-11-13T04:51:23.982Z","phase":"SWITCH_TO_BLUE_V3","status":"STARTED"}
+{"timestamp":"2026-11-13T04:51:40.556Z","phase":"SWITCH_TO_BLUE_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V2"}}
+{"timestamp":"2026-11-13T04:51:40.557Z","phase":"DEPLOY_GREEN_V3","status":"STARTED"}
+{"timestamp":"2026-11-13T04:51:43.149Z","phase":"DEPLOY_GREEN_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-13T04:51:43.150Z","phase":"SWITCH_TO_GREEN_V3","status":"STARTED"}
+{"timestamp":"2026-11-13T04:51:59.675Z","phase":"SWITCH_TO_GREEN_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-13T04:51:59.676Z","phase":"FINAL_VERIFY","status":"STARTED"}
+{"timestamp":"2026-11-13T04:51:59.799Z","phase":"FINAL_VERIFY","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-13T04:51:59.799Z","phase":"CONTRACT_APPROVAL","status":"STARTED"}
+{"timestamp":"2026-11-13T04:52:00.825Z","phase":"CONTRACT_APPROVAL","status":"FAILED","error":"readline is not defined"}
+{"timestamp":"2026-11-13T04:52:00.826Z","phase":"ORCHESTRATION","status":"FAILED","error":"readline is not defined"}
+{"timestamp":"2026-11-13T04:59:57.341Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-13T04:59:57.518Z","phase":"PREFLIGHT","status":"FAILED","error":"Health request failed: 500"}
+{"timestamp":"2026-11-13T04:59:57.519Z","phase":"ORCHESTRATION","status":"FAILED","error":"Health request failed: 500"}
+{"timestamp":"2026-11-13T05:04:36.407Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-13T05:04:36.562Z","phase":"PREFLIGHT","status":"FAILED","error":"Health request failed: 500"}
+{"timestamp":"2026-11-13T05:04:36.563Z","phase":"ORCHESTRATION","status":"FAILED","error":"Health request failed: 500"}
+{"timestamp":"2026-11-13T05:17:25.066Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-13T05:17:25.249Z","phase":"PREFLIGHT","status":"FAILED","error":"Health request failed: 500"}
+{"timestamp":"2026-11-13T05:17:25.250Z","phase":"ORCHESTRATION","status":"FAILED","error":"Health request failed: 500"}
+{"timestamp":"2026-11-13T05:19:13.928Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-13T05:19:14.083Z","phase":"PREFLIGHT","status":"FAILED","error":"Health request failed: 500"}
+{"timestamp":"2026-11-13T05:19:14.084Z","phase":"ORCHESTRATION","status":"FAILED","error":"Health request failed: 500"}
+{"timestamp":"2026-11-13T05:24:48.458Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-13T05:24:58.637Z","phase":"PREFLIGHT","status":"FAILED","error":"Traffic switch to blue not verified. Last server: green"}
+{"timestamp":"2026-11-13T05:24:58.639Z","phase":"ORCHESTRATION","status":"FAILED","error":"Traffic switch to blue not verified. Last server: green"}
+{"timestamp":"2026-11-13T05:26:32.447Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-13T05:26:33.632Z","phase":"PREFLIGHT","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-13T05:26:33.632Z","phase":"START_K6","status":"STARTED"}
+{"timestamp":"2026-11-13T05:26:36.636Z","phase":"START_K6","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-13T05:26:36.636Z","phase":"EXPAND","status":"STARTED"}
+{"timestamp":"2026-11-13T05:26:36.754Z","phase":"EXPAND","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-13T05:26:40.756Z","phase":"DEPLOY_GREEN_V2","status":"STARTED"}
+{"timestamp":"2026-11-13T05:26:43.323Z","phase":"DEPLOY_GREEN_V2","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-13T05:26:43.323Z","phase":"SWITCH_TO_GREEN_V2","status":"STARTED"}
+{"timestamp":"2026-11-13T05:26:59.907Z","phase":"SWITCH_TO_GREEN_V2","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-13T05:26:59.907Z","phase":"BACKFILL","status":"STARTED"}
+{"timestamp":"2026-11-13T05:27:00.094Z","phase":"BACKFILL","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-13T05:27:00.094Z","phase":"VERIFY_AFTER_BACKFILL","status":"STARTED"}
+{"timestamp":"2026-11-13T05:27:00.173Z","phase":"VERIFY_AFTER_BACKFILL","status":"FAILED","error":"node failed. Exit code: 1, signal: null"}
+{"timestamp":"2026-11-13T05:27:00.173Z","phase":"ORCHESTRATION","status":"FAILED","error":"node failed. Exit code: 1, signal: null"}
+{"timestamp":"2026-11-13T05:29:51.257Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-13T05:30:01.471Z","phase":"PREFLIGHT","status":"FAILED","error":"Traffic switch to blue not verified. Last server: green"}
+{"timestamp":"2026-11-13T05:30:01.473Z","phase":"ORCHESTRATION","status":"FAILED","error":"Traffic switch to blue not verified. Last server: green"}
+{"timestamp":"2026-11-13T05:30:17.836Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-13T05:30:19.051Z","phase":"PREFLIGHT","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-13T05:30:19.051Z","phase":"START_K6","status":"STARTED"}
+{"timestamp":"2026-11-13T05:30:22.057Z","phase":"START_K6","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-13T05:30:22.058Z","phase":"EXPAND","status":"STARTED"}
+{"timestamp":"2026-11-13T05:30:22.165Z","phase":"EXPAND","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-13T05:30:26.167Z","phase":"DEPLOY_GREEN_V2","status":"STARTED"}
+{"timestamp":"2026-11-13T05:30:28.759Z","phase":"DEPLOY_GREEN_V2","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-13T05:30:28.760Z","phase":"SWITCH_TO_GREEN_V2","status":"STARTED"}
+{"timestamp":"2026-11-13T05:30:45.363Z","phase":"SWITCH_TO_GREEN_V2","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-13T05:30:45.363Z","phase":"BACKFILL","status":"STARTED"}
+{"timestamp":"2026-11-13T05:30:45.567Z","phase":"BACKFILL","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-13T05:30:45.568Z","phase":"VERIFY_AFTER_BACKFILL","status":"STARTED"}
+{"timestamp":"2026-11-13T05:30:45.682Z","phase":"VERIFY_AFTER_BACKFILL","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-13T05:30:45.682Z","phase":"DEPLOY_BLUE_V3","status":"STARTED"}
+{"timestamp":"2026-11-13T05:30:48.184Z","phase":"DEPLOY_BLUE_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V2"}}
+{"timestamp":"2026-11-13T05:30:48.185Z","phase":"SWITCH_TO_BLUE_V3","status":"STARTED"}
+{"timestamp":"2026-11-13T05:31:04.757Z","phase":"SWITCH_TO_BLUE_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V2"}}
+{"timestamp":"2026-11-13T05:31:04.757Z","phase":"DEPLOY_GREEN_V3","status":"STARTED"}
+{"timestamp":"2026-11-13T05:31:07.329Z","phase":"DEPLOY_GREEN_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-13T05:31:07.329Z","phase":"SWITCH_TO_GREEN_V3","status":"STARTED"}
+{"timestamp":"2026-11-13T05:31:23.876Z","phase":"SWITCH_TO_GREEN_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-13T05:31:23.877Z","phase":"FINAL_VERIFY","status":"STARTED"}
+{"timestamp":"2026-11-13T05:31:23.990Z","phase":"FINAL_VERIFY","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-13T05:31:23.990Z","phase":"CONTRACT_APPROVAL","status":"STARTED"}
+{"timestamp":"2026-11-13T05:32:28.642Z","phase":"CONTRACT_APPROVAL","status":"FAILED","error":"Contract approval rejected"}
+{"timestamp":"2026-11-13T05:32:28.644Z","phase":"ORCHESTRATION","status":"FAILED","error":"Contract approval rejected"}
+{"timestamp":"2026-11-13T05:37:28.563Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-13T05:37:29.791Z","phase":"PREFLIGHT","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-13T05:37:29.792Z","phase":"START_K6","status":"STARTED"}
+{"timestamp":"2026-11-13T05:37:32.799Z","phase":"START_K6","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-13T05:37:32.800Z","phase":"EXPAND","status":"STARTED"}
+{"timestamp":"2026-11-13T05:37:32.922Z","phase":"EXPAND","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-13T05:37:36.924Z","phase":"DEPLOY_GREEN_V2","status":"STARTED"}
+{"timestamp":"2026-11-13T05:37:39.561Z","phase":"DEPLOY_GREEN_V2","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-13T05:37:39.562Z","phase":"SWITCH_TO_GREEN_V2","status":"STARTED"}
+{"timestamp":"2026-11-13T05:37:56.110Z","phase":"SWITCH_TO_GREEN_V2","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-13T05:37:56.111Z","phase":"BACKFILL","status":"STARTED"}
+{"timestamp":"2026-11-13T05:37:56.347Z","phase":"BACKFILL","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-13T05:37:56.347Z","phase":"VERIFY_AFTER_BACKFILL","status":"STARTED"}
+{"timestamp":"2026-11-13T05:37:56.431Z","phase":"VERIFY_AFTER_BACKFILL","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-13T05:37:56.431Z","phase":"DEPLOY_BLUE_V3","status":"STARTED"}
+{"timestamp":"2026-11-13T05:37:58.961Z","phase":"DEPLOY_BLUE_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V2"}}
+{"timestamp":"2026-11-13T05:37:58.961Z","phase":"SWITCH_TO_BLUE_V3","status":"STARTED"}
+{"timestamp":"2026-11-13T05:38:15.500Z","phase":"SWITCH_TO_BLUE_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V2"}}
+{"timestamp":"2026-11-13T05:38:15.500Z","phase":"DEPLOY_GREEN_V3","status":"STARTED"}
+{"timestamp":"2026-11-13T05:38:18.046Z","phase":"DEPLOY_GREEN_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-13T05:38:18.046Z","phase":"SWITCH_TO_GREEN_V3","status":"STARTED"}
+{"timestamp":"2026-11-13T05:38:34.595Z","phase":"SWITCH_TO_GREEN_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-13T05:38:34.596Z","phase":"FINAL_VERIFY","status":"STARTED"}
+{"timestamp":"2026-11-13T05:38:34.711Z","phase":"FINAL_VERIFY","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-13T05:38:34.711Z","phase":"CONTRACT_APPROVAL","status":"STARTED"}
+{"timestamp":"2026-11-13T05:38:52.098Z","phase":"CONTRACT_APPROVAL","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-13T05:38:52.099Z","phase":"CONTRACT","status":"STARTED"}
+{"timestamp":"2026-11-13T05:38:52.215Z","phase":"CONTRACT","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-13T05:38:52.215Z","phase":"POST_MIGRATION_OBSERVATION","status":"STARTED"}
+{"timestamp":"2026-11-13T05:39:24.261Z","phase":"POST_MIGRATION_OBSERVATION","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-13T05:39:24.261Z","phase":"ORCHESTRATION","status":"SUCCESS"}
+{"timestamp":"2026-11-13T05:55:46.875Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-13T05:55:47.082Z","phase":"PREFLIGHT","status":"FAILED","error":"Health request failed: 500"}
+{"timestamp":"2026-11-13T05:55:47.082Z","phase":"ORCHESTRATION","status":"FAILED","error":"Health request failed: 500"}
+{"timestamp":"2026-11-13T05:55:58.079Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-13T05:55:58.237Z","phase":"PREFLIGHT","status":"FAILED","error":"Health request failed: 500"}
+{"timestamp":"2026-11-13T05:55:58.238Z","phase":"ORCHESTRATION","status":"FAILED","error":"Health request failed: 500"}
+{"timestamp":"2026-11-13T05:56:03.318Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-13T05:56:03.539Z","phase":"PREFLIGHT","status":"FAILED","error":"Health request failed: 500"}
+{"timestamp":"2026-11-13T05:56:03.540Z","phase":"ORCHESTRATION","status":"FAILED","error":"Health request failed: 500"}
+{"timestamp":"2026-11-13T05:56:17.816Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-13T05:56:17.991Z","phase":"PREFLIGHT","status":"FAILED","error":"Health request failed: 500"}
+{"timestamp":"2026-11-13T05:56:17.992Z","phase":"ORCHESTRATION","status":"FAILED","error":"Health request failed: 500"}
+{"timestamp":"2026-11-13T05:59:23.977Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-13T05:59:25.171Z","phase":"PREFLIGHT","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-13T05:59:25.172Z","phase":"START_K6","status":"STARTED"}
+{"timestamp":"2026-11-13T05:59:28.175Z","phase":"START_K6","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-13T05:59:28.176Z","phase":"EXPAND","status":"STARTED"}
+{"timestamp":"2026-11-13T05:59:28.294Z","phase":"EXPAND","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-13T05:59:32.296Z","phase":"DEPLOY_GREEN_V2","status":"STARTED"}
+{"timestamp":"2026-11-13T05:59:34.952Z","phase":"DEPLOY_GREEN_V2","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-13T05:59:34.953Z","phase":"SWITCH_TO_GREEN_V2","status":"STARTED"}
+{"timestamp":"2026-11-13T05:59:51.476Z","phase":"SWITCH_TO_GREEN_V2","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-13T05:59:51.477Z","phase":"BACKFILL","status":"STARTED"}
+{"timestamp":"2026-11-13T05:59:51.725Z","phase":"BACKFILL","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-13T05:59:51.725Z","phase":"VERIFY_AFTER_BACKFILL","status":"STARTED"}
+{"timestamp":"2026-11-13T05:59:51.828Z","phase":"VERIFY_AFTER_BACKFILL","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-13T05:59:51.828Z","phase":"DEPLOY_BLUE_V3","status":"STARTED"}
+{"timestamp":"2026-11-13T05:59:54.341Z","phase":"DEPLOY_BLUE_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V2"}}
+{"timestamp":"2026-11-13T05:59:54.341Z","phase":"SWITCH_TO_BLUE_V3","status":"STARTED"}
+{"timestamp":"2026-11-13T06:00:10.913Z","phase":"SWITCH_TO_BLUE_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V2"}}
+{"timestamp":"2026-11-13T06:00:10.913Z","phase":"DEPLOY_GREEN_V3","status":"STARTED"}
+{"timestamp":"2026-11-13T06:00:13.404Z","phase":"DEPLOY_GREEN_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-13T06:00:13.404Z","phase":"SWITCH_TO_GREEN_V3","status":"STARTED"}
+{"timestamp":"2026-11-13T06:00:29.887Z","phase":"SWITCH_TO_GREEN_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-13T06:00:29.888Z","phase":"FINAL_VERIFY","status":"STARTED"}
+{"timestamp":"2026-11-13T06:00:30.018Z","phase":"FINAL_VERIFY","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-13T06:00:30.018Z","phase":"CONTRACT_APPROVAL","status":"STARTED"}
+{"timestamp":"2026-11-13T06:01:54.116Z","phase":"CONTRACT_APPROVAL","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-13T06:01:54.116Z","phase":"CONTRACT","status":"STARTED"}
+{"timestamp":"2026-11-13T06:01:54.117Z","phase":"CONTRACT","status":"FAILED","error":"k6 exited before the migration sequence finished"}
+{"timestamp":"2026-11-13T06:01:54.119Z","phase":"ORCHESTRATION","status":"FAILED","error":"k6 exited before the migration sequence finished"}
+{"timestamp":"2026-11-13T06:04:18.231Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-13T06:04:19.437Z","phase":"PREFLIGHT","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-13T06:04:19.438Z","phase":"START_K6","status":"STARTED"}
+{"timestamp":"2026-11-13T06:04:22.441Z","phase":"START_K6","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-13T06:04:22.442Z","phase":"EXPAND","status":"STARTED"}
+{"timestamp":"2026-11-13T06:04:22.557Z","phase":"EXPAND","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-13T06:04:26.559Z","phase":"DEPLOY_GREEN_V2","status":"STARTED"}
+{"timestamp":"2026-11-13T06:04:29.138Z","phase":"DEPLOY_GREEN_V2","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-13T06:04:29.139Z","phase":"SWITCH_TO_GREEN_V2","status":"STARTED"}
+{"timestamp":"2026-11-13T06:05:13.561Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-13T06:05:14.761Z","phase":"PREFLIGHT","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-13T06:05:14.762Z","phase":"START_K6","status":"STARTED"}
+{"timestamp":"2026-11-13T06:05:17.767Z","phase":"START_K6","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-13T06:05:17.768Z","phase":"EXPAND","status":"STARTED"}
+{"timestamp":"2026-11-13T06:05:17.863Z","phase":"EXPAND","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-13T06:05:21.865Z","phase":"DEPLOY_GREEN_V2","status":"STARTED"}
+{"timestamp":"2026-11-13T06:05:24.396Z","phase":"DEPLOY_GREEN_V2","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-13T06:05:24.397Z","phase":"SWITCH_TO_GREEN_V2","status":"STARTED"}
+{"timestamp":"2026-11-13T06:05:40.908Z","phase":"SWITCH_TO_GREEN_V2","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-13T06:05:40.909Z","phase":"BACKFILL","status":"STARTED"}
+{"timestamp":"2026-11-13T06:05:41.138Z","phase":"BACKFILL","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-13T06:05:41.138Z","phase":"VERIFY_AFTER_BACKFILL","status":"STARTED"}
+{"timestamp":"2026-11-13T06:05:41.229Z","phase":"VERIFY_AFTER_BACKFILL","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-13T06:05:41.229Z","phase":"DEPLOY_BLUE_V3","status":"STARTED"}
+{"timestamp":"2026-11-13T06:05:43.706Z","phase":"DEPLOY_BLUE_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V2"}}
+{"timestamp":"2026-11-13T06:05:43.707Z","phase":"SWITCH_TO_BLUE_V3","status":"STARTED"}
+{"timestamp":"2026-11-13T06:06:00.236Z","phase":"SWITCH_TO_BLUE_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V2"}}
+{"timestamp":"2026-11-13T06:06:00.236Z","phase":"DEPLOY_GREEN_V3","status":"STARTED"}
+{"timestamp":"2026-11-13T06:06:02.885Z","phase":"DEPLOY_GREEN_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-13T06:06:02.885Z","phase":"SWITCH_TO_GREEN_V3","status":"STARTED"}
+{"timestamp":"2026-11-13T06:06:19.455Z","phase":"SWITCH_TO_GREEN_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-13T06:06:19.456Z","phase":"FINAL_VERIFY","status":"STARTED"}
+{"timestamp":"2026-11-13T06:06:19.570Z","phase":"FINAL_VERIFY","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-13T06:06:19.570Z","phase":"CONTRACT_APPROVAL","status":"STARTED"}
+{"timestamp":"2026-11-13T06:06:35.556Z","phase":"CONTRACT_APPROVAL","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-13T06:06:35.556Z","phase":"CONTRACT","status":"STARTED"}
+{"timestamp":"2026-11-13T06:06:35.665Z","phase":"CONTRACT","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-13T06:06:35.665Z","phase":"POST_MIGRATION_OBSERVATION","status":"STARTED"}
+{"timestamp":"2026-11-13T06:07:07.724Z","phase":"POST_MIGRATION_OBSERVATION","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-13T06:07:07.724Z","phase":"ORCHESTRATION","status":"SUCCESS"}
+{"timestamp":"2026-11-13T06:16:20.894Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-13T06:16:21.058Z","phase":"PREFLIGHT","status":"FAILED","error":"Health request failed: 500"}
+{"timestamp":"2026-11-13T06:16:21.059Z","phase":"ORCHESTRATION","status":"FAILED","error":"Health request failed: 500"}
+{"timestamp":"2026-11-13T06:16:31.617Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-13T06:16:31.777Z","phase":"PREFLIGHT","status":"FAILED","error":"Health request failed: 500"}
+{"timestamp":"2026-11-13T06:16:31.778Z","phase":"ORCHESTRATION","status":"FAILED","error":"Health request failed: 500"}
+{"timestamp":"2026-11-13T06:17:07.007Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-13T06:17:08.209Z","phase":"PREFLIGHT","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-13T06:17:08.209Z","phase":"START_K6","status":"STARTED"}
+{"timestamp":"2026-11-13T06:17:11.212Z","phase":"START_K6","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-13T06:17:11.212Z","phase":"EXPAND","status":"STARTED"}
+{"timestamp":"2026-11-13T06:17:11.339Z","phase":"EXPAND","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-13T06:17:15.341Z","phase":"DEPLOY_GREEN_V2","status":"STARTED"}
+{"timestamp":"2026-11-13T06:17:17.906Z","phase":"DEPLOY_GREEN_V2","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-13T06:17:17.906Z","phase":"SWITCH_TO_GREEN_V2","status":"STARTED"}
+{"timestamp":"2026-11-13T06:17:34.477Z","phase":"SWITCH_TO_GREEN_V2","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-13T06:17:34.478Z","phase":"BACKFILL","status":"STARTED"}
+{"timestamp":"2026-11-13T06:17:34.712Z","phase":"BACKFILL","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-13T06:17:34.712Z","phase":"VERIFY_AFTER_BACKFILL","status":"STARTED"}
+{"timestamp":"2026-11-13T06:17:34.815Z","phase":"VERIFY_AFTER_BACKFILL","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-13T06:17:34.816Z","phase":"DEPLOY_BLUE_V3","status":"STARTED"}
+{"timestamp":"2026-11-13T06:17:37.319Z","phase":"DEPLOY_BLUE_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V2"}}
+{"timestamp":"2026-11-13T06:17:37.320Z","phase":"SWITCH_TO_BLUE_V3","status":"STARTED"}
+{"timestamp":"2026-11-13T06:17:53.858Z","phase":"SWITCH_TO_BLUE_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V2"}}
+{"timestamp":"2026-11-13T06:17:53.858Z","phase":"DEPLOY_GREEN_V3","status":"STARTED"}
+{"timestamp":"2026-11-13T06:17:56.403Z","phase":"DEPLOY_GREEN_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-13T06:17:56.403Z","phase":"SWITCH_TO_GREEN_V3","status":"STARTED"}
+{"timestamp":"2026-11-13T06:18:12.944Z","phase":"SWITCH_TO_GREEN_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-13T06:18:12.945Z","phase":"FINAL_VERIFY","status":"STARTED"}
+{"timestamp":"2026-11-13T06:18:13.062Z","phase":"FINAL_VERIFY","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-13T06:18:13.062Z","phase":"CONTRACT_APPROVAL","status":"STARTED"}
+{"timestamp":"2026-11-13T06:19:11.853Z","phase":"CONTRACT_APPROVAL","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-13T06:19:11.853Z","phase":"CONTRACT","status":"STARTED"}
+{"timestamp":"2026-11-13T06:19:11.854Z","phase":"CONTRACT","status":"FAILED","error":"k6 exited before the migration sequence finished"}
+{"timestamp":"2026-11-13T06:19:11.855Z","phase":"ORCHESTRATION","status":"FAILED","error":"k6 exited before the migration sequence finished"}
+{"timestamp":"2026-11-13T06:32:20.477Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-13T06:32:21.684Z","phase":"PREFLIGHT","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-13T06:32:21.685Z","phase":"START_K6","status":"STARTED"}
+{"timestamp":"2026-11-13T06:32:24.689Z","phase":"START_K6","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-13T06:32:24.690Z","phase":"EXPAND","status":"STARTED"}
+{"timestamp":"2026-11-13T06:32:24.811Z","phase":"EXPAND","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-13T06:32:28.813Z","phase":"DEPLOY_GREEN_V2","status":"STARTED"}
+{"timestamp":"2026-11-13T06:32:31.398Z","phase":"DEPLOY_GREEN_V2","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-13T06:32:31.399Z","phase":"SWITCH_TO_GREEN_V2","status":"STARTED"}
+{"timestamp":"2026-11-13T06:32:47.906Z","phase":"SWITCH_TO_GREEN_V2","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-13T06:32:47.907Z","phase":"BACKFILL","status":"STARTED"}
+{"timestamp":"2026-11-13T06:32:48.001Z","phase":"BACKFILL","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-13T06:32:48.002Z","phase":"VERIFY_AFTER_BACKFILL","status":"STARTED"}
+{"timestamp":"2026-11-13T06:32:48.081Z","phase":"VERIFY_AFTER_BACKFILL","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-13T06:32:48.081Z","phase":"DEPLOY_BLUE_V3","status":"STARTED"}
+{"timestamp":"2026-11-13T06:32:50.567Z","phase":"DEPLOY_BLUE_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V2"}}
+{"timestamp":"2026-11-13T06:32:50.567Z","phase":"SWITCH_TO_BLUE_V3","status":"STARTED"}
+{"timestamp":"2026-11-13T06:33:07.084Z","phase":"SWITCH_TO_BLUE_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V2"}}
+{"timestamp":"2026-11-13T06:33:07.084Z","phase":"DEPLOY_GREEN_V3","status":"STARTED"}
+{"timestamp":"2026-11-13T06:33:09.683Z","phase":"DEPLOY_GREEN_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-13T06:33:09.683Z","phase":"SWITCH_TO_GREEN_V3","status":"STARTED"}
+{"timestamp":"2026-11-13T06:33:26.274Z","phase":"SWITCH_TO_GREEN_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-13T06:33:26.274Z","phase":"FINAL_VERIFY","status":"STARTED"}
+{"timestamp":"2026-11-13T06:33:26.358Z","phase":"FINAL_VERIFY","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-13T06:33:26.358Z","phase":"CONTRACT_APPROVAL","status":"STARTED"}
+{"timestamp":"2026-11-13T06:34:05.673Z","phase":"CONTRACT_APPROVAL","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-13T06:34:05.674Z","phase":"CONTRACT","status":"STARTED"}
+{"timestamp":"2026-11-13T06:34:05.787Z","phase":"CONTRACT","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-13T06:34:05.787Z","phase":"POST_MIGRATION_OBSERVATION","status":"STARTED"}
+{"timestamp":"2026-11-13T06:34:37.854Z","phase":"POST_MIGRATION_OBSERVATION","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-13T06:34:37.855Z","phase":"ORCHESTRATION","status":"SUCCESS"}
+{"timestamp":"2026-11-13T07:25:01.732Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-13T07:25:01.905Z","phase":"PREFLIGHT","status":"FAILED","error":"Health request failed: 500"}
+{"timestamp":"2026-11-13T07:25:01.906Z","phase":"ORCHESTRATION","status":"FAILED","error":"Health request failed: 500"}
+{"timestamp":"2026-11-13T07:25:13.779Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-13T07:25:13.938Z","phase":"PREFLIGHT","status":"FAILED","error":"Health request failed: 500"}
+{"timestamp":"2026-11-13T07:25:13.939Z","phase":"ORCHESTRATION","status":"FAILED","error":"Health request failed: 500"}
+{"timestamp":"2026-11-13T07:26:15.065Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-13T07:26:16.269Z","phase":"PREFLIGHT","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-13T07:26:16.270Z","phase":"START_K6","status":"STARTED"}
+{"timestamp":"2026-11-13T07:26:19.275Z","phase":"START_K6","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-13T07:26:19.276Z","phase":"EXPAND","status":"STARTED"}
+{"timestamp":"2026-11-13T07:26:19.395Z","phase":"EXPAND","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-13T07:26:23.397Z","phase":"DEPLOY_GREEN_V2","status":"STARTED"}
+{"timestamp":"2026-11-13T07:26:25.991Z","phase":"DEPLOY_GREEN_V2","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-13T07:26:25.991Z","phase":"SWITCH_TO_GREEN_V2","status":"STARTED"}
+{"timestamp":"2026-11-13T07:26:42.533Z","phase":"SWITCH_TO_GREEN_V2","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-13T07:26:42.534Z","phase":"BACKFILL","status":"STARTED"}
+{"timestamp":"2026-11-13T07:26:42.773Z","phase":"BACKFILL","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-13T07:26:42.773Z","phase":"VERIFY_AFTER_BACKFILL","status":"STARTED"}
+{"timestamp":"2026-11-13T07:26:42.869Z","phase":"VERIFY_AFTER_BACKFILL","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-13T07:26:42.869Z","phase":"DEPLOY_BLUE_V3","status":"STARTED"}
+{"timestamp":"2026-11-13T07:26:45.341Z","phase":"DEPLOY_BLUE_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V2"}}
+{"timestamp":"2026-11-13T07:26:45.341Z","phase":"SWITCH_TO_BLUE_V3","status":"STARTED"}
+{"timestamp":"2026-11-13T07:27:01.878Z","phase":"SWITCH_TO_BLUE_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V2"}}
+{"timestamp":"2026-11-13T07:27:01.878Z","phase":"DEPLOY_GREEN_V3","status":"STARTED"}
+{"timestamp":"2026-11-13T07:27:04.521Z","phase":"DEPLOY_GREEN_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-13T07:27:04.522Z","phase":"SWITCH_TO_GREEN_V3","status":"STARTED"}
+{"timestamp":"2026-11-13T07:27:21.006Z","phase":"SWITCH_TO_GREEN_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-13T07:27:21.007Z","phase":"FINAL_VERIFY","status":"STARTED"}
+{"timestamp":"2026-11-13T07:27:21.114Z","phase":"FINAL_VERIFY","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-13T07:27:21.114Z","phase":"CONTRACT_APPROVAL","status":"STARTED"}
+{"timestamp":"2026-11-13T07:27:37.195Z","phase":"CONTRACT_APPROVAL","status":"FAILED","error":"Aborted with Ctrl+C"}
+{"timestamp":"2026-11-13T07:27:37.197Z","phase":"ORCHESTRATION","status":"FAILED","error":"Aborted with Ctrl+C"}
+{"timestamp":"2026-11-13T07:36:08.171Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-13T07:36:08.328Z","phase":"PREFLIGHT","status":"FAILED","error":"Health request failed: 404"}
+{"timestamp":"2026-11-13T07:36:08.329Z","phase":"ORCHESTRATION","status":"FAILED","error":"Health request failed: 404"}
+{"timestamp":"2026-11-13T07:36:18.487Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-13T07:36:18.650Z","phase":"PREFLIGHT","status":"FAILED","error":"Health request failed: 404"}
+{"timestamp":"2026-11-13T07:36:18.651Z","phase":"ORCHESTRATION","status":"FAILED","error":"Health request failed: 404"}
+{"timestamp":"2026-11-13T07:36:39.729Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-13T07:36:39.905Z","phase":"PREFLIGHT","status":"FAILED","error":"Health request failed: 404"}
+{"timestamp":"2026-11-13T07:36:39.906Z","phase":"ORCHESTRATION","status":"FAILED","error":"Health request failed: 404"}
+{"timestamp":"2026-11-13T07:39:52.992Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-13T07:39:53.159Z","phase":"PREFLIGHT","status":"FAILED","error":"Health request failed: 404"}
+{"timestamp":"2026-11-13T07:39:53.160Z","phase":"ORCHESTRATION","status":"FAILED","error":"Health request failed: 404"}
+{"timestamp":"2026-11-13T07:41:33.175Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-13T07:41:33.358Z","phase":"PREFLIGHT","status":"FAILED","error":"Health request failed: 404"}
+{"timestamp":"2026-11-13T07:41:33.359Z","phase":"ORCHESTRATION","status":"FAILED","error":"Health request failed: 404"}
+{"timestamp":"2026-11-13T07:42:15.670Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-13T07:42:15.832Z","phase":"PREFLIGHT","status":"FAILED","error":"Health request failed: 404"}
+{"timestamp":"2026-11-13T07:42:15.832Z","phase":"ORCHESTRATION","status":"FAILED","error":"Health request failed: 404"}
+{"timestamp":"2026-11-13T07:42:38.175Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-13T07:42:38.335Z","phase":"PREFLIGHT","status":"FAILED","error":"Health request failed: 404"}
+{"timestamp":"2026-11-13T07:42:38.335Z","phase":"ORCHESTRATION","status":"FAILED","error":"Health request failed: 404"}
+{"timestamp":"2026-11-13T07:43:09.820Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-13T07:43:09.983Z","phase":"PREFLIGHT","status":"FAILED","error":"Health request failed: 404"}
+{"timestamp":"2026-11-13T07:43:09.984Z","phase":"ORCHESTRATION","status":"FAILED","error":"Health request failed: 404"}
+{"timestamp":"2026-11-13T07:44:36.157Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-13T07:44:36.327Z","phase":"PREFLIGHT","status":"FAILED","error":"X-Served-By header missing"}
+{"timestamp":"2026-11-13T07:44:36.328Z","phase":"ORCHESTRATION","status":"FAILED","error":"X-Served-By header missing"}
+{"timestamp":"2026-11-13T07:44:43.154Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-13T07:44:44.339Z","phase":"PREFLIGHT","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-13T07:44:44.340Z","phase":"START_K6","status":"STARTED"}
+{"timestamp":"2026-11-13T07:44:47.347Z","phase":"START_K6","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-13T07:44:47.348Z","phase":"EXPAND","status":"STARTED"}
+{"timestamp":"2026-11-13T07:44:47.462Z","phase":"EXPAND","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-13T07:44:51.464Z","phase":"DEPLOY_GREEN_V2","status":"STARTED"}
+{"timestamp":"2026-11-13T07:44:54.056Z","phase":"DEPLOY_GREEN_V2","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-13T07:44:54.056Z","phase":"SWITCH_TO_GREEN_V2","status":"STARTED"}
+{"timestamp":"2026-11-13T07:45:10.525Z","phase":"SWITCH_TO_GREEN_V2","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-13T07:45:10.525Z","phase":"BACKFILL","status":"STARTED"}
+{"timestamp":"2026-11-13T07:45:10.732Z","phase":"BACKFILL","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-13T07:45:10.732Z","phase":"VERIFY_AFTER_BACKFILL","status":"STARTED"}
+{"timestamp":"2026-11-13T07:45:10.837Z","phase":"VERIFY_AFTER_BACKFILL","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-13T07:45:10.837Z","phase":"DEPLOY_BLUE_V3","status":"STARTED"}
+{"timestamp":"2026-11-13T07:45:13.353Z","phase":"DEPLOY_BLUE_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V2"}}
+{"timestamp":"2026-11-13T07:45:13.353Z","phase":"SWITCH_TO_BLUE_V3","status":"STARTED"}
+{"timestamp":"2026-11-13T07:45:29.829Z","phase":"SWITCH_TO_BLUE_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V2"}}
+{"timestamp":"2026-11-13T07:45:29.829Z","phase":"DEPLOY_GREEN_V3","status":"STARTED"}
+{"timestamp":"2026-11-13T07:45:32.418Z","phase":"DEPLOY_GREEN_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-13T07:45:32.419Z","phase":"SWITCH_TO_GREEN_V3","status":"STARTED"}
+{"timestamp":"2026-11-13T07:45:48.953Z","phase":"SWITCH_TO_GREEN_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-13T07:45:48.954Z","phase":"FINAL_VERIFY","status":"STARTED"}
+{"timestamp":"2026-11-13T07:45:49.071Z","phase":"FINAL_VERIFY","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-13T07:45:49.071Z","phase":"CONTRACT_APPROVAL","status":"STARTED"}
+{"timestamp":"2026-11-13T07:46:12.888Z","phase":"CONTRACT_APPROVAL","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-13T07:46:12.889Z","phase":"CONTRACT","status":"STARTED"}
+{"timestamp":"2026-11-13T07:46:13.001Z","phase":"CONTRACT","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-13T07:46:13.001Z","phase":"POST_MIGRATION_OBSERVATION","status":"STARTED"}
+{"timestamp":"2026-11-13T07:46:45.029Z","phase":"POST_MIGRATION_OBSERVATION","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-13T07:46:45.029Z","phase":"ORCHESTRATION","status":"SUCCESS"}
+{"timestamp":"2026-11-13T08:35:35.720Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-13T08:35:37.003Z","phase":"PREFLIGHT","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-13T08:35:37.003Z","phase":"START_K6","status":"STARTED"}
+{"timestamp":"2026-11-13T08:35:40.007Z","phase":"START_K6","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-13T08:35:40.008Z","phase":"EXPAND","status":"STARTED"}
+{"timestamp":"2026-11-13T08:35:40.123Z","phase":"EXPAND","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-13T08:35:44.125Z","phase":"DEPLOY_GREEN_V2","status":"STARTED"}
+{"timestamp":"2026-11-13T08:35:46.645Z","phase":"DEPLOY_GREEN_V2","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-13T08:35:46.646Z","phase":"SWITCH_TO_GREEN_V2","status":"STARTED"}
+{"timestamp":"2026-11-13T08:36:03.150Z","phase":"SWITCH_TO_GREEN_V2","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-13T08:36:03.151Z","phase":"BACKFILL","status":"STARTED"}
+{"timestamp":"2026-11-13T08:36:03.405Z","phase":"BACKFILL","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-13T08:36:03.405Z","phase":"VERIFY_AFTER_BACKFILL","status":"STARTED"}
+{"timestamp":"2026-11-13T08:36:03.507Z","phase":"VERIFY_AFTER_BACKFILL","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-13T08:36:03.507Z","phase":"DEPLOY_BLUE_V3","status":"STARTED"}
+{"timestamp":"2026-11-13T08:36:06.020Z","phase":"DEPLOY_BLUE_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V2"}}
+{"timestamp":"2026-11-13T08:36:06.020Z","phase":"SWITCH_TO_BLUE_V3","status":"STARTED"}
+{"timestamp":"2026-11-13T08:36:22.529Z","phase":"SWITCH_TO_BLUE_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V2"}}
+{"timestamp":"2026-11-13T08:36:22.529Z","phase":"DEPLOY_GREEN_V3","status":"STARTED"}
+{"timestamp":"2026-11-13T08:36:25.132Z","phase":"DEPLOY_GREEN_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-13T08:36:25.132Z","phase":"SWITCH_TO_GREEN_V3","status":"STARTED"}
+{"timestamp":"2026-11-13T08:36:41.655Z","phase":"SWITCH_TO_GREEN_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-13T08:36:41.656Z","phase":"FINAL_VERIFY","status":"STARTED"}
+{"timestamp":"2026-11-13T08:36:41.772Z","phase":"FINAL_VERIFY","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-13T08:36:41.772Z","phase":"CONTRACT_APPROVAL","status":"STARTED"}
+{"timestamp":"2026-11-13T08:36:54.676Z","phase":"CONTRACT_APPROVAL","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-13T08:36:54.676Z","phase":"CONTRACT","status":"STARTED"}
+{"timestamp":"2026-11-13T08:36:54.772Z","phase":"CONTRACT","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-13T08:36:54.772Z","phase":"POST_MIGRATION_OBSERVATION","status":"STARTED"}
+{"timestamp":"2026-11-13T08:37:26.805Z","phase":"POST_MIGRATION_OBSERVATION","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-13T08:37:26.806Z","phase":"ORCHESTRATION","status":"SUCCESS"}
+{"timestamp":"2026-11-13T08:46:33.106Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-13T08:46:34.383Z","phase":"PREFLIGHT","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-13T08:46:34.384Z","phase":"START_K6","status":"STARTED"}
+{"timestamp":"2026-11-13T08:46:37.392Z","phase":"START_K6","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-13T08:46:37.393Z","phase":"EXPAND","status":"STARTED"}
+{"timestamp":"2026-11-13T08:46:37.505Z","phase":"EXPAND","status":"FAILED","error":"node failed. Exit code: 1, signal: null"}
+{"timestamp":"2026-11-13T08:46:37.505Z","phase":"ORCHESTRATION","status":"FAILED","error":"node failed. Exit code: 1, signal: null"}
+{"timestamp":"2026-11-13T08:47:44.233Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-13T08:47:45.497Z","phase":"PREFLIGHT","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-13T08:47:45.497Z","phase":"START_K6","status":"STARTED"}
+{"timestamp":"2026-11-13T08:47:48.502Z","phase":"START_K6","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-13T08:47:48.503Z","phase":"EXPAND","status":"STARTED"}
+{"timestamp":"2026-11-13T08:47:48.617Z","phase":"EXPAND","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-13T08:47:52.619Z","phase":"DEPLOY_GREEN_V2","status":"STARTED"}
+{"timestamp":"2026-11-13T08:47:55.219Z","phase":"DEPLOY_GREEN_V2","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-13T08:47:55.220Z","phase":"SWITCH_TO_GREEN_V2","status":"STARTED"}
+{"timestamp":"2026-11-13T08:48:11.727Z","phase":"SWITCH_TO_GREEN_V2","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-13T08:48:11.728Z","phase":"BACKFILL","status":"STARTED"}
+{"timestamp":"2026-11-13T08:48:11.964Z","phase":"BACKFILL","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-13T08:48:11.965Z","phase":"VERIFY_AFTER_BACKFILL","status":"STARTED"}
+{"timestamp":"2026-11-13T08:48:12.066Z","phase":"VERIFY_AFTER_BACKFILL","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-13T08:48:12.066Z","phase":"DEPLOY_BLUE_V3","status":"STARTED"}
+{"timestamp":"2026-11-13T08:48:14.606Z","phase":"DEPLOY_BLUE_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V2"}}
+{"timestamp":"2026-11-13T08:48:14.606Z","phase":"SWITCH_TO_BLUE_V3","status":"STARTED"}
+{"timestamp":"2026-11-13T08:48:31.106Z","phase":"SWITCH_TO_BLUE_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V2"}}
+{"timestamp":"2026-11-13T08:48:31.106Z","phase":"DEPLOY_GREEN_V3","status":"STARTED"}
+{"timestamp":"2026-11-13T08:48:33.607Z","phase":"DEPLOY_GREEN_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-13T08:48:33.607Z","phase":"SWITCH_TO_GREEN_V3","status":"STARTED"}
+{"timestamp":"2026-11-13T08:48:50.092Z","phase":"SWITCH_TO_GREEN_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-13T08:48:50.093Z","phase":"FINAL_VERIFY","status":"STARTED"}
+{"timestamp":"2026-11-13T08:48:50.202Z","phase":"FINAL_VERIFY","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-13T08:48:50.203Z","phase":"CONTRACT_APPROVAL","status":"STARTED"}
+{"timestamp":"2026-11-13T08:50:05.140Z","phase":"CONTRACT_APPROVAL","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-13T08:50:05.141Z","phase":"CONTRACT","status":"STARTED"}
+{"timestamp":"2026-11-13T08:50:05.141Z","phase":"CONTRACT","status":"FAILED","error":"k6 exited before the migration sequence finished"}
+{"timestamp":"2026-11-13T08:50:05.143Z","phase":"ORCHESTRATION","status":"FAILED","error":"k6 exited before the migration sequence finished"}
+{"timestamp":"2026-11-16T04:59:05.980Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-16T04:59:06.171Z","phase":"PREFLIGHT","status":"FAILED","error":"docker failed. Exit code: 1, signal: null"}
+{"timestamp":"2026-11-16T04:59:06.172Z","phase":"ORCHESTRATION","status":"FAILED","error":"docker failed. Exit code: 1, signal: null"}
+{"timestamp":"2026-11-16T05:57:55.091Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-16T05:57:55.259Z","phase":"PREFLIGHT","status":"FAILED","error":"docker failed. Exit code: 1, signal: null"}
+{"timestamp":"2026-11-16T05:57:55.260Z","phase":"ORCHESTRATION","status":"FAILED","error":"docker failed. Exit code: 1, signal: null"}
+{"timestamp":"2026-11-16T05:58:35.174Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-16T05:58:36.439Z","phase":"PREFLIGHT","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-16T05:58:36.440Z","phase":"START_K6","status":"STARTED"}
+{"timestamp":"2026-11-16T05:58:39.447Z","phase":"START_K6","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-16T05:58:39.448Z","phase":"EXPAND","status":"STARTED"}
+{"timestamp":"2026-11-16T05:58:39.566Z","phase":"EXPAND","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-16T05:58:43.568Z","phase":"DEPLOY_GREEN_V2","status":"STARTED"}
+{"timestamp":"2026-11-16T08:57:37.486Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-16T08:57:37.653Z","phase":"PREFLIGHT","status":"FAILED","error":"docker failed. Exit code: 1, signal: null"}
+{"timestamp":"2026-11-16T08:57:37.653Z","phase":"ORCHESTRATION","status":"FAILED","error":"docker failed. Exit code: 1, signal: null"}
+{"timestamp":"2026-11-16T09:00:00.026Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-16T09:00:00.180Z","phase":"PREFLIGHT","status":"FAILED","error":"docker failed. Exit code: 1, signal: null"}
+{"timestamp":"2026-11-16T09:00:00.181Z","phase":"ORCHESTRATION","status":"FAILED","error":"docker failed. Exit code: 1, signal: null"}
+{"timestamp":"2026-11-16T09:07:34.818Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-16T09:07:36.091Z","phase":"PREFLIGHT","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-16T09:07:36.091Z","phase":"START_K6","status":"STARTED"}
+{"timestamp":"2026-11-16T09:07:39.093Z","phase":"START_K6","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-16T09:07:39.094Z","phase":"EXPAND","status":"STARTED"}
+{"timestamp":"2026-11-16T09:07:39.215Z","phase":"EXPAND","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-16T09:07:43.217Z","phase":"DEPLOY_GREEN_V2","status":"STARTED"}
+{"timestamp":"2026-11-16T09:07:45.853Z","phase":"DEPLOY_GREEN_V2","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-16T09:07:45.853Z","phase":"SWITCH_TO_GREEN_V2","status":"STARTED"}
+{"timestamp":"2026-11-16T09:08:02.368Z","phase":"SWITCH_TO_GREEN_V2","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-16T09:08:02.369Z","phase":"BACKFILL","status":"STARTED"}
+{"timestamp":"2026-11-16T09:08:02.656Z","phase":"BACKFILL","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-16T09:08:02.657Z","phase":"VERIFY_AFTER_BACKFILL","status":"STARTED"}
+{"timestamp":"2026-11-16T09:08:02.817Z","phase":"VERIFY_AFTER_BACKFILL","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-16T09:08:02.818Z","phase":"DEPLOY_BLUE_V3","status":"STARTED"}
+{"timestamp":"2026-11-16T09:08:05.385Z","phase":"DEPLOY_BLUE_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V2"}}
+{"timestamp":"2026-11-16T09:08:05.385Z","phase":"SWITCH_TO_BLUE_V3","status":"STARTED"}
+{"timestamp":"2026-11-16T09:08:21.891Z","phase":"SWITCH_TO_BLUE_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V2"}}
+{"timestamp":"2026-11-16T09:08:21.892Z","phase":"DEPLOY_GREEN_V3","status":"STARTED"}
+{"timestamp":"2026-11-16T09:08:24.495Z","phase":"DEPLOY_GREEN_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-16T09:08:24.495Z","phase":"SWITCH_TO_GREEN_V3","status":"STARTED"}
+{"timestamp":"2026-11-16T09:08:40.965Z","phase":"SWITCH_TO_GREEN_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-16T09:08:40.966Z","phase":"FINAL_VERIFY","status":"STARTED"}
+{"timestamp":"2026-11-16T09:08:41.083Z","phase":"FINAL_VERIFY","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-16T09:08:41.083Z","phase":"CONTRACT_APPROVAL","status":"STARTED"}
+{"timestamp":"2026-11-16T09:10:49.398Z","phase":"CONTRACT_APPROVAL","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-16T09:10:49.399Z","phase":"CONTRACT","status":"STARTED"}
+{"timestamp":"2026-11-16T09:10:49.509Z","phase":"CONTRACT","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-16T09:10:49.509Z","phase":"POST_MIGRATION_OBSERVATION","status":"STARTED"}
+{"timestamp":"2026-11-16T09:36:09.418Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-16T09:36:19.836Z","phase":"PREFLIGHT","status":"FAILED","error":"Traffic switch to blue not verified. Last server: green"}
+{"timestamp":"2026-11-16T09:36:19.837Z","phase":"ORCHESTRATION","status":"FAILED","error":"Traffic switch to blue not verified. Last server: green"}
+{"timestamp":"2026-11-16T09:36:32.039Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-16T09:36:33.306Z","phase":"PREFLIGHT","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-16T09:36:33.306Z","phase":"START_K6","status":"STARTED"}
+{"timestamp":"2026-11-16T09:36:36.314Z","phase":"START_K6","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-16T09:36:36.315Z","phase":"EXPAND","status":"STARTED"}
+{"timestamp":"2026-11-16T09:36:36.433Z","phase":"EXPAND","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-16T09:36:40.435Z","phase":"DEPLOY_GREEN_V2","status":"STARTED"}
+{"timestamp":"2026-11-16T09:36:43.008Z","phase":"DEPLOY_GREEN_V2","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-16T09:36:43.008Z","phase":"SWITCH_TO_GREEN_V2","status":"STARTED"}
+{"timestamp":"2026-11-16T09:36:59.485Z","phase":"SWITCH_TO_GREEN_V2","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-16T09:36:59.485Z","phase":"BACKFILL","status":"STARTED"}
+{"timestamp":"2026-11-16T09:36:59.719Z","phase":"BACKFILL","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-16T09:36:59.719Z","phase":"VERIFY_AFTER_BACKFILL","status":"STARTED"}
+{"timestamp":"2026-11-16T09:36:59.813Z","phase":"VERIFY_AFTER_BACKFILL","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-16T09:36:59.814Z","phase":"DEPLOY_BLUE_V3","status":"STARTED"}
+{"timestamp":"2026-11-16T09:37:02.332Z","phase":"DEPLOY_BLUE_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V2"}}
+{"timestamp":"2026-11-16T09:37:02.333Z","phase":"SWITCH_TO_BLUE_V3","status":"STARTED"}
+{"timestamp":"2026-11-16T09:37:18.816Z","phase":"SWITCH_TO_BLUE_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V2"}}
+{"timestamp":"2026-11-16T09:37:18.817Z","phase":"DEPLOY_GREEN_V3","status":"STARTED"}
+{"timestamp":"2026-11-16T09:37:21.417Z","phase":"DEPLOY_GREEN_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-16T09:37:21.417Z","phase":"SWITCH_TO_GREEN_V3","status":"STARTED"}
+{"timestamp":"2026-11-16T09:37:37.886Z","phase":"SWITCH_TO_GREEN_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-16T09:37:37.887Z","phase":"FINAL_VERIFY","status":"STARTED"}
+{"timestamp":"2026-11-16T09:37:37.999Z","phase":"FINAL_VERIFY","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-16T09:37:37.999Z","phase":"CONTRACT_APPROVAL","status":"STARTED"}
+{"timestamp":"2026-11-16T09:37:52.216Z","phase":"CONTRACT_APPROVAL","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-16T09:37:52.217Z","phase":"CONTRACT","status":"STARTED"}
+{"timestamp":"2026-11-16T09:37:52.332Z","phase":"CONTRACT","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-16T09:37:52.332Z","phase":"POST_MIGRATION_OBSERVATION","status":"STARTED"}
+{"timestamp":"2026-11-16T09:47:54.911Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-16T09:47:56.242Z","phase":"PREFLIGHT","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-16T09:47:56.243Z","phase":"START_K6","status":"STARTED"}
+{"timestamp":"2026-11-16T09:47:59.251Z","phase":"START_K6","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-16T09:47:59.252Z","phase":"EXPAND","status":"STARTED"}
+{"timestamp":"2026-11-16T09:47:59.364Z","phase":"EXPAND","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-16T09:48:03.367Z","phase":"DEPLOY_GREEN_V2","status":"STARTED"}
+{"timestamp":"2026-11-16T09:48:05.927Z","phase":"DEPLOY_GREEN_V2","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-16T09:48:05.928Z","phase":"SWITCH_TO_GREEN_V2","status":"STARTED"}
+{"timestamp":"2026-11-16T09:48:22.419Z","phase":"SWITCH_TO_GREEN_V2","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-16T09:48:22.420Z","phase":"BACKFILL","status":"STARTED"}
+{"timestamp":"2026-11-16T09:48:22.657Z","phase":"BACKFILL","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-16T09:48:22.658Z","phase":"VERIFY_AFTER_BACKFILL","status":"STARTED"}
+{"timestamp":"2026-11-16T09:48:22.753Z","phase":"VERIFY_AFTER_BACKFILL","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-16T09:48:22.753Z","phase":"DEPLOY_BLUE_V3","status":"STARTED"}
+{"timestamp":"2026-11-16T09:48:25.271Z","phase":"DEPLOY_BLUE_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V2"}}
+{"timestamp":"2026-11-16T09:48:25.271Z","phase":"SWITCH_TO_BLUE_V3","status":"STARTED"}
+{"timestamp":"2026-11-16T09:48:41.752Z","phase":"SWITCH_TO_BLUE_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V2"}}
+{"timestamp":"2026-11-16T09:48:41.752Z","phase":"DEPLOY_GREEN_V3","status":"STARTED"}
+{"timestamp":"2026-11-16T09:48:44.314Z","phase":"DEPLOY_GREEN_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-16T09:48:44.314Z","phase":"SWITCH_TO_GREEN_V3","status":"STARTED"}
+{"timestamp":"2026-11-16T09:49:00.783Z","phase":"SWITCH_TO_GREEN_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-16T09:49:00.784Z","phase":"FINAL_VERIFY","status":"STARTED"}
+{"timestamp":"2026-11-16T09:49:00.885Z","phase":"FINAL_VERIFY","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-16T09:49:00.885Z","phase":"CONTRACT_APPROVAL","status":"STARTED"}
+{"timestamp":"2026-11-16T09:49:13.089Z","phase":"CONTRACT_APPROVAL","status":"FAILED","error":"Aborted with Ctrl+C"}
+{"timestamp":"2026-11-16T09:49:13.092Z","phase":"ORCHESTRATION","status":"FAILED","error":"Aborted with Ctrl+C"}
+{"timestamp":"2026-11-16T09:56:37.009Z","phase":"PREFLIGHT","status":"STARTED"}
+{"timestamp":"2026-11-16T09:56:38.281Z","phase":"PREFLIGHT","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-16T09:56:38.282Z","phase":"START_K6","status":"STARTED"}
+{"timestamp":"2026-11-16T09:56:41.289Z","phase":"START_K6","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-16T09:56:41.290Z","phase":"EXPAND","status":"STARTED"}
+{"timestamp":"2026-11-16T09:56:41.403Z","phase":"EXPAND","status":"SUCCESS","versions":{"blue":"V1","green":"V1"}}
+{"timestamp":"2026-11-16T09:56:45.404Z","phase":"DEPLOY_GREEN_V2","status":"STARTED"}
+{"timestamp":"2026-11-16T09:56:47.932Z","phase":"DEPLOY_GREEN_V2","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-16T09:56:47.932Z","phase":"SWITCH_TO_GREEN_V2","status":"STARTED"}
+{"timestamp":"2026-11-16T09:57:04.504Z","phase":"SWITCH_TO_GREEN_V2","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-16T09:57:04.505Z","phase":"BACKFILL","status":"STARTED"}
+{"timestamp":"2026-11-16T09:57:04.743Z","phase":"BACKFILL","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-16T09:57:04.743Z","phase":"VERIFY_AFTER_BACKFILL","status":"STARTED"}
+{"timestamp":"2026-11-16T09:57:04.841Z","phase":"VERIFY_AFTER_BACKFILL","status":"SUCCESS","versions":{"blue":"V1","green":"V2"}}
+{"timestamp":"2026-11-16T09:57:04.841Z","phase":"DEPLOY_BLUE_V3","status":"STARTED"}
+{"timestamp":"2026-11-16T09:57:07.339Z","phase":"DEPLOY_BLUE_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V2"}}
+{"timestamp":"2026-11-16T09:57:07.340Z","phase":"SWITCH_TO_BLUE_V3","status":"STARTED"}
+{"timestamp":"2026-11-16T09:57:23.870Z","phase":"SWITCH_TO_BLUE_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V2"}}
+{"timestamp":"2026-11-16T09:57:23.871Z","phase":"DEPLOY_GREEN_V3","status":"STARTED"}
+{"timestamp":"2026-11-16T09:57:26.411Z","phase":"DEPLOY_GREEN_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-16T09:57:26.412Z","phase":"SWITCH_TO_GREEN_V3","status":"STARTED"}
+{"timestamp":"2026-11-16T09:57:42.903Z","phase":"SWITCH_TO_GREEN_V3","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-16T09:57:42.904Z","phase":"FINAL_VERIFY","status":"STARTED"}
+{"timestamp":"2026-11-16T09:57:43.013Z","phase":"FINAL_VERIFY","status":"SUCCESS","versions":{"blue":"V3","green":"V3"}}
+{"timestamp":"2026-11-16T09:57:43.013Z","phase":"CONTRACT_APPROVAL","status":"STARTED"}
+{"timestamp":"2026-11-16T09:57:53.221Z","phase":"CONTRACT_APPROVAL","status":"FAILED","error":"Aborted with Ctrl+C"}
+{"timestamp":"2026-11-16T09:57:53.224Z","phase":"ORCHESTRATION","status":"FAILED","error":"Aborted with Ctrl+C"}
