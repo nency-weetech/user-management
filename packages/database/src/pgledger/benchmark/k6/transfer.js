@@ -11,7 +11,7 @@ import { check } from 'k6';
 export const options = {
   vus: 50,
   duration: '10s',
-};
+}; 
 
 const baseUrl = 'http://localhost:3100';
 

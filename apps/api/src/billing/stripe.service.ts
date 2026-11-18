@@ -174,6 +174,7 @@ export class StripeService {
 
     const invoice = await this.stripe.invoices.create({
       customer: customerId,
+      currency,
       collection_method: 'charge_automatically',
       auto_advance: false,
       pending_invoice_items_behavior: 'exclude',
